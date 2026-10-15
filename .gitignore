@@ -1,0 +1,33 @@
+# OS metadata
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node / JS
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+# Environment and secrets (CRITICAL: NEVER COMMIT SECRETS)
+.env
+.env.local
+.env.*.local
+*.p8
+*.p12
+*.mobileprovision
+*.cer
+
+# Build artifacts
+dist/
+build/
+.expo/
+.turbo/
