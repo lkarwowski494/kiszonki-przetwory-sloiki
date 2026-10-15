@@ -1,3 +1,20 @@
+# **Rozdziały 1–3: Tożsamość, Persony, Architektura i Założenia Produktowe**
+
+## **1. Tożsamość produktu i misja Apps4Brew**
+
+> **„Od chrupiących ogórków babci po autentyczne kimchi i pikle z całego świata — rób idealne, pyszne przetwory bez zgadywania.”**
+
+### **1.1. Misja: Radość z przetwórstwa z gwarancją sukcesu**
+Aplikacja **Słoik (Jarwise)** powstała, aby przywrócić ludziom radość i dumę z robienia własnych zapasów na zimę i eksperymentowania ze smakami świata. Nie jest podręcznikiem akademickim z chemii ani encyklopedią mikrobiologii — jest **ciepłym, inteligentnym i niezawodnym pomocnikiem kuchennym**, który zdejmuje z barków użytkownika całą niepewność i stres:
+* Koniec z pytaniem: *„Czy ta solanka nie będzie za słona, albo czy ogórki nie zgniją?”* -> Aplikacja podaje idealne proporcje co do grama.
+* Koniec z paniką: *„Na słoiku pojawił się biały nalot, czy to pleśń i muszę wszystko wyrzucić?”* -> Słoikowy Ratownik w 10 sekund wyjaśnia co to jest i co zrobić.
+* Koniec z pękającymi słoikami i niedogotowanymi dżemami -> Stoper pasteryzacji z sygnałem zassania wieczka dba o trwałość przetworów.
+* Koniec ze zgubionymi słoikami w piwnicy -> Piękne, drukowane etykiety z kodem QR pozwalają jednym spojrzeniem sprawdzić, co kryje słoik.
+
+Pod tą przyjazną, minimalistyczną powłoką zgodną z Apple Human Interface Guidelines kryje się bezkompromisowy, deterministyczny silnik inżynieryjny: laboratoryjne reguły USDA, kinetyka fermentacji mlekowej i modele penetracji ciepła. Jednak użytkownik nie musi ich studiować — one po prostu **działają w tle**, dbając o to, by każdy słoik był bezpieczny i pyszny.
+
+
+
 # **Kiszonki, przetwory, słoiki BRD 0.1 — Część A1: Wizja, persony, zasady produktu i sytuacje (Rozdz. 1–3)**
 
 ## **Rozdział 1: Tożsamość i obietnica produktu**
@@ -92,4 +109,3 @@ Aplikacja jest naturalnym dopełnieniem rzemieślniczej linii produktów Apps4Br
 * **SYT-13 (Czosnek w oliwie z zakwaszeniem cytrynowym):** Przygotowanie czosnku w oliwie: aplikacja nakazuje 24-godzinną kąpiel ząbków w 3% roztworze kwasu cytrynowego, by obniżyć pH poniżej 4.2 przed zalaniem oliwą.
 * **SYT-14 (Szybkie wydanie słoika ze spiżarni):** Goście przychodzą na obiad. Gospodarz stuka „-1 słoik Ogórków kiszonych” na liście Spiżarni. Stan magazynowy aktualizuje się automatycznie.
 * **SYT-15 (Pełny eksport bazy przepisów i partii do JSON):** Użytkownik zmienia telefon. Jednym kliknięciem generuje bezpłatną kopię zapasową `sloik-backup.json` i zapisuje w iCloud Drive.
-

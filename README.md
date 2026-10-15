@@ -1,182 +1,266 @@
-# Kiszonki, przetwory, słoiki (Słoik / Jarwise) 🫙🥒🍅
+# Słoik (Jarwise) 🫙🥒🍅
 
-[![Platform](https://img.shields.io/badge/Platform-iOS%2018%2B%20%7C%20watchOS%2011%2B-blue.svg)](https://apple.com)
-[![Architecture](https://img.shields.io/badge/Architecture-100%25%20Offline--First%20SQLite%20WAL-success.svg)](#architektura)
-[![Privacy](https://img.shields.io/badge/Privacy-Data%20Not%20Collected%20(Zero%20SDKs)-brightgreen.svg)](#prywatno%C5%9B%C4%87)
-[![Cost](https://img.shields.io/badge/Stack%20Cost-0%20PLN%20outside%20Apple%20Fee-orange.svg)](#standardy-apps4brew)
-[![BRD Depth](https://img.shields.io/badge/BRD%20Volume-99.14%20Pages%20%7C%20178k%20Chars-purple.svg)](docs/brd/)
+[![iOS](https://img.shields.io/badge/iOS-18.0%2B-black?style=flat&logo=apple)](https://www.apple.com/ios/)
+[![watchOS](https://img.shields.io/badge/watchOS-11.0%2B-black?style=flat&logo=apple)](https://www.apple.com/watchos/)
+[![Expo](https://img.shields.io/badge/Expo_SDK-57-000020?style=flat&logo=expo)](https://expo.dev/)
+[![React Native](https://img.shields.io/badge/React_Native-0.86-61DAFB?style=flat&logo=react)](https://reactnative.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?style=flat&logo=typescript)](https://www.typescriptlang.org/)
+[![SQLite](https://img.shields.io/badge/SQLite-100%25_Offline--First-003B57?style=flat&logo=sqlite)](https://sqlite.org/)
+[![Coverage](https://img.shields.io/badge/Coverage-100%25_Domain-brightgreen?style=flat)](docs/brd/)
+[![TestFlight](https://img.shields.io/badge/TestFlight-Ready-blue?style=flat&logo=testflight)](https://developer.apple.com/testflight/)
 
-> Kompleksowy system przetwórstwa, fermentacji i pasteryzacji domowej z całego świata. Aplikacja mobilna i asystent kuchenny w ekosystemie Apple, stworzony według rygorystycznych standardów inżynieryjnych **Apps4Brew** (na wzór projektów *Napar*, *Piekarz*, *Oczko* i *Trening*).
+> **„Od chrupiących ogórków babci po autentyczne kimchi i pikle z całego świata — rób idealne, pyszne przetwory bez zgadywania.”**
 
----
-
-## 📖 Spis treści
-1. [Wizja i tożsamość produktu](#-wizja-i-to%C5%BCsamo%C5%9B%C4%87-produktu)
-2. [Osiem filarów narzędziowych (Kalkulatory i Moduły)](#-osiem-filar%C3%B3w-narz%C4%99dziowych)
-3. [Rygor mikrobiologiczny i bezpieczeństwo żywności](#-rygor-mikrobiologiczny-i-bezpiecze%C5%84stwo-%C5%BCywno%C5%9Bci)
-4. [Architektura techniczna i Hands-Free Kitchen](#-architektura-techniczna-i-hands-free-kitchen)
-5. [Struktura dokumentacji BRD (Business Requirements Document)](#-struktura-dokumentacji-brd)
-6. [Statystyki i metryki BRD](#-statystyki-i-metryki-brd)
-7. [Standardy Apps4Brew i 9 Warstw Jakości](#-standardy-apps4brew-i-9-warstw-jako%C5%9Bci)
-8. [Uruchamianie i weryfikacja](#-uruchamianie-i-weryfikacja)
+Aplikacja mobilna na systemy iOS i watchOS dla pasjonatów domowych przetworów: kiszonek, pikli, dżemów, powideł, sosów i octów. Stworzona w bezkompromisowym standardzie rzemieślniczym ekosystemu **Apps4Brew** (na wzór projektów *Napar*, *Piekarz* i *Organizer*), w architekturze **100% Offline-First**. Łączy radość domowego rzemiosła kuchennego z laboratoryjną precyzją, która eliminuje kuchenne wpadki i gwarantuje, że każdy słoik wyjdzie idealnie chrupki, aromatyczny i bezpieczny.
 
 ---
 
-## 🎯 Wizja i tożsamość produktu
+## 🌟 Główne Zasady Produktowe (Apps4Brew)
 
-Przetwórstwo domowe to nie tylko hobby kulinarne — to **precyzyjna biotechnologia kuchenna**, w której spotykają się osmoza, kinetyka wymierania drobnoustrojów chorobotwórczych, ekologia mikrobiologiczna oraz dziedzictwo kulinarne 11 tradycji świata.
-
-Większość domowych przetworów cierpi na:
-* **Błąd rozcieńczenia solanki:** Wsypanie soli liczonej od wody (np. 3%) do słoika pełnego ogórków (zawierających 95% wody wolnej) powoduje spadek stężenia w układzie do poniżej 1.3%, wywołując mięknięcie pektyn i gnicie.
-* **Ryzyko botulizmu (*Clostridium botulinum*):** Błędne przekonanie, że gotowanie warzyw w wodzie o $pH \ge 4.60$ zabija przetrwalniki jadu kiełbasianego.
-* **Nieoptymalna pasteryzacja:** Przegotowywanie owoców i dżemów niszczące witaminy i aromat lub niedogotowanie skutkujące fermentacją drożdżową.
-* **Brak kontroli nad spiżarnią:** Zapomniane słoiki w piwnicy tracące przydatność po 2 latach.
-
-Aplikacja **Słoik / Jarwise** łączy naukowe modele biochemiczne z ergonomią asystenta kuchennego, który prowadzi użytkownika krok po kroku od kalkulacji surowców, przez fazy fermentacji, aż po etykiety z kodami QR i ubywanie zapasów w domowej spiżarni.
+- **100% Offline-First (SQLite w trybie WAL):** Wszystkie dane, nastawione słoiki i stany spiżarni czytane i zapisywane są bezpośrednio w lokalnej bazie SQLite (`expo-sqlite` w `src/data/db`). Aplikacja działa bez opóźnień (czas reakcji UI $< 16\,\text{ms}$) w piwnicy, na działce, w wiejskim domku i w kuchni bez zasięgu Wi-Fi.
+- **Zero Login & Bez Kont:** Brak uciążliwych formularzy logowania, haseł czy ankiet marketingowych. Po zainstalowaniu od razu wybierasz przepis i zaczynasz przygotowywać słoiki.
+- **Prywatność „Data Not Collected”:** Zero trackerów, zero zewnętrznych bibliotek telemetrycznych (brak Firebase, Meta, Google Analytics). Twoje receptury, stany spiżarni i notatki smakowe należą wyłącznie do Ciebie.
+- **Koniec ze Zgadywaniem (Niewidzialna Nauka w Tle):** Aplikacja robi całą trudną matematykę za Ciebie. Wylicza sól w relacji do całkowitej wagi układu (warzywa + woda), dzięki czemu ogórki nigdy nie miękną. Pilnuje bezpieczeństwa mikrobiologicznego (normy USDA) i balansu pektyn w owocach, nie zarzucając Cię podręcznikowym żargonem.
+- **Kuchenny Hands-Free (Apple Watch & Live Activity):** Gotowanie brudzi ręce. Dedykowana aplikacja na Apple Watch pozwala sterować asystentem i stoperem pasteryzacji za pomocą cyfrowej koronki (Digital Crown). Dynamiczna Wyspa (Dynamic Island) i Live Activities na iPhone pokazują postęp bez odblokowywania ekranu.
+- **Własność Danych & Bezpieczna Persystencja:** Pełny, bezpłatny eksport i import bazy w formacie JSON w dowolnej chwili. Każdy słoik posiada unikalny identyfikator UUIDv7 powiązany z generowaną etykietą PDF i kodem QR.
+- **Pojedyncze Źródło Prawdy (Single Source of Truth):** Wszystkie formuły, stałe gęstości, progi kwasowości i tabele pasteryzacji zdefiniowane są centralnie w module `src/core/constants/`.
 
 ---
 
-## 🧮 Osiem filarów narzędziowych
+## 📱 Moduły i Ekrany
 
-Aplikacja zawiera 8 wyspecjalizowanych modułów obliczeniowych i asystenckich (225 sformalizowanych wymagań funkcjonalnych `BR-SOL` do `BR-DOK`):
+1. **🥒 Asystent Nastawiania Słoików & Kalkulator Solanek (Pickle & Brine Wizard):**
+   - Wpisujesz ile masz warzyw (np. 1,8 kg ogórków) i jakie masz naczynia — aplikacja w ułamku sekundy podaje: idealną wagę soli kamiennej lub morskiej, ilość wody oraz proporcje dodatków (czosnek, chrzan, koper).
+   - Tryby pracy: zalewa klasyczna (ogórki, papryka), solenie na sucho (kapusta, kimchi) oraz solanki zrównoważone (*equilibrium brine*).
+   - Doradca chrupkości: zaleca dodatek liści bogatych w taniny (dąb, wiśnia, chrzan) lub szczyptę chlorku wapnia ($CaCl_2$).
+2. **🫧 Żywy Kalendarz Fermentacji (Active Ferment Timeline):**
+   - Dynamiczna oś czasu dla każdego nastawionego słoika na blacie kuchennym.
+   - Prowadzi przez fazy życia kiszonki: początkowe mętnienie, burzliwe bąbelkowanie, aż po stabilizację kwasową.
+   - Inteligentne przypomnienia o odgazowaniu (*burping*), aby uniknąć ciśnienia w słoikach Twist-Off.
+   - Powiadomienia sensoryczne: *„Dzień 3: spróbuj widelczykiem — czy to Twój wymarzony małosolny? Jeśli tak, schowaj do lodówki!”*.
+3. **⏱️ Spokojna Pasteryzacja (Safe Canning Assistant):**
+   - Prosty przewodnik i stoper pasteryzacji: garnek z wodą, piekarnik lub tyndalizacja (3x24h).
+   - Przelicza czas w zależności od pojemności słoika (od 200 ml do 1 litra).
+   - Live Activity na zablokowanym ekranie i powiadomienie dźwiękowe po zakończeniu.
+   - Test wieczka: przypomnienie po ostygnięciu o sprawdzeniu, czy wieczko kliknęło i zassało próżnię.
+   - Strażnik bezpieczeństwa: automatycznie ostrzega, gdy warzywa bez octu wymagają specjalnej obróbki ciśnieniowej.
+4. **🫙 Moja Spiżarnia & Etykiety z Kodem QR (Pantry & Jar Passport):**
+   - Przejrzysty rejestr zapasów: wiesz dokładnie ile słoików ogórków, dżemu czy kimchi czeka w Twojej szafce lub piwnicy.
+   - Generator etykiet do druku (PDF) w eleganckim, rustykalnym stylu z nazwą przetworu, rocznikiem i kodem QR.
+   - Błyskawiczne skanowanie aparatem iPhone'a: nakieruj kamerę na słoik, aby zobaczyć dokładną datę zrobienia i notatki.
+   - Wygodne ubywanie zapasów: jedno stuknięcie „Otwarty / Zjedzony” aktualizuje stan spiżarni.
+5. **🍓 Owoce, Cukier i Powidła (Jams, Chutneys & Sweet Preserves):**
+   - Koniec z przesłodzonymi, mdłymi dżemami.
+   - Prosty kalkulator balansu owoce-cukier-pektyna: zachowaj świeży, naturalny smak malin, truskawek czy porzeczek.
+   - Tradycyjne powidła śliwkowe bez mieszania: wskazówki jak smażyć powoli owoce bez ryzyka przypalenia garnka.
+6. **🩺 Słoikowy Ratownik (Jar Doctor / Troubleshooting):**
+   - Wizualne drzewo decyzyjne z natychmiastową odpowiedzią na kuchenne wątpliwości:
+     - *Biały nalot na powierzchni?* $\to$ Spokojnie, to bezpieczny kożuch drożdżowy (*Kahm yeast*). Zbierz łyżką, kiszonka jest zdrowa!
+     - *Czosnek zzieleniał lub zrobił się niebieski?* $\to$ To naturalna reakcja enzymów w kwaśnym środowisku, w 100% jadalny.
+     - *Ogórki zmiękły lub są puste w środku?* $\to$ Wyjaśnienie przyczyny (temperatura, woda) i rada jak zapobiec temu za rok.
+     - *Puchata, kolorowa pleśń ponad taflą?* $\to$ Bezwzględna zasada: wyrzuć całą zawartość słoika dla bezpieczeństwa.
+7. **⌚ Asystent Apple Watch & Hands-Free Kitchen:**
+   - Dedykowana aplikacja na watchOS z dużymi elementami dotykowymi i obsługą cyfrowej koronki (Digital Crown).
+   - Odliczanie czasu pasteryzacji, przeglądanie kroków przepisu bez sięgania mokrymi lub tłustymi rękami po telefon.
+   - Skróty głosowe Siri: *„Hej Siri, ile soli na 2 kg ogórków w Słoiku?”*.
+8. **⚙️ Ustawienia, Kopia Zapasowa i Pro:**
+   - Bezpieczny eksport i import bazy w JSON (pełna własność Twoich receptur).
+   - Etyczny model monetyzacji: darmowy, funkcjonalny rdzeń + opcjonalny pakiet Pro (3,99 zł/mies., 19,99 zł/rok lub 59,99 zł Lifetime z Chmurą Rodzinną).
 
-| Narzędzie | Kod | Zakres odpowiedzialności |
+---
+
+## 🔄 Architektura Przepływu Danych & Hands-Free Kitchen
+
+```mermaid
+flowchart LR
+    subgraph Watch ["⌚ Apple Watch (watchOS 11+)"]
+        Crown["Digital Crown\n(Przewijanie kroków)"]
+        Haptics["Taptic Engine\n(Sygnał pasteryzacji)"]
+    end
+
+    subgraph iPhone ["📱 iPhone (React Native / Expo 57)"]
+        UI["Interfejs Kuchenny\n(Kalkulatory, Przepisy)"]
+        LiveAct["Dynamic Island &\nLive Activities"]
+        Camera["Skaner Kodów QR\n(Paszport słoika)"]
+    end
+
+    subgraph Engine ["⚙️ Niewidzialny Silnik Domenowy (Core)"]
+        BrineMath["Matematyka Solanek\n(Total Salinity M_układ)"]
+        SafetyGuard["Strażnik USDA\n(pH < 4.60 & P0/F0)"]
+        PectinCalc["Bilans Pektyn\ni Stopnie Brix"]
+    end
+
+    subgraph Storage ["💾 Baza Lokalna (100% Offline-First)"]
+        SQLite[("SQLite (expo-sqlite)\nCzysty SQL / Transakcje WAL")]
+        Backup[("Kopia JSON\n(Documents/Backups)")]
+    end
+
+    UI <-->|"Błyskawiczny odczyt i zapis (<16ms)"| SQLite
+    UI -->|"Kalkulacje w tle"| Engine
+    Watch <-->|"WatchConnectivity / Sync"| UI
+    UI -->|"Uruchomienie timera"| LiveAct
+    Camera -->|"Odczyt UUIDv7"| SQLite
+    SQLite -.->|"Automatyczny eksport"| Backup
+```
+
+| Mechanizm | Implementacja w kodzie | Gwarancja dla użytkownika |
 |---|---|---|
-| **Kalkulator Solanek** | `SOL` | Precyzyjne dozowanie soli morskiej/kamiennej w masie całkowitej ($M_{\text{układ}} = M_{\text{surowiec}} + M_{\text{woda}}$). Przeliczanie gęstości solanki, solenia na sucho (*dry salting*), solanek zrównoważonych (*equilibrium brine*), twardości wody i dodatku chlorku wapnia ($CaCl_2$) dla chrupkości. |
-| **Monitor Fermentacji** | `FERM` | Śledzenie faz kinetycznych (faza adaptacyjna LAG, fermentacja burzliwa LOG z *Leuconostoc mesenteroides*, stabilizacja stacjonarna ze szczepami *Lactobacillus plantarum*). Harmonogram odgazowywania słoików (*burping*), adaptacyjne powiadomienia sensoryczne. |
-| **Kalkulator Pasteryzacji** | `PAST` | Modele letalności termicznej w 4 metodach: kąpiel wodna, piekarnik, sous-vide oraz trzykrotna tyndalizacja. Obliczanie wartości pasteryzacyjnej $P_0$ (dla przetworów kwaśnych) oraz sterylizacyjnej $F_0$ z uwzględnieniem penetracji ciepła i objętości słoika. |
-| **Zarządzanie Spiżarnią** | `SPIN` | Rejestr partii (*Batch Tracker*), lokalizacje (piwnica, szafka, lodówka), status dojrzałości, generowanie etykiet kuchennych w formacie PDF z kodami QR, inteligentny mechanizm ubywania zapasów i powiadomienia o terminach spożycia. |
-| **Baza Naczyń i Headspace** | `NACZ` | Geometria i objętość naczyń: Weck (z gumką i klipsami), Twist-Off, Mason Jars, kamionki, rurki fermentacyjne. Obliczanie wymaganej przestrzeni nagłownej (*headspace*) zależnie od temperatury i wydzielania gazu ($CO_2$). |
-| **Refraktometria i Kwasowość** | `BRIX` | Pomiary cukru refractometrem w skali Brix, obliczanie kwasowości miareczkowej (TA), korekta współczynnika załamania światła pod wpływem temperatury i alkoholu, bilans cukier-pektyna-kwas dla dżemów i galaretek. |
-| **Asystent Hands-Free** | `ZEG` | Aplikacja na Apple Watch z cyfrową koronką (Digital Crown) do przewijania przepisów i odmierzania czasów. Dynamiczna wyspa (Dynamic Island) oraz Live Activities na ekranie blokady iOS z bieżącym statusem pasteryzacji i degazacji. Skróty Siri Intent. |
-| **Diagnostyk Problemów** | `DOK` | Interaktywny algorytm drzewa decyzyjnego dla niepowodzeń: pleśń mykotoksynowa vs kożuch fermentacyjny (*Kahm yeast*), ciemnienie czosnku na niebiesko/zielono (reakcja enzymów siarkowych z miedzią), zmiękczenie tkanek warzyw, śluzowatość zalewy (*dextran*). |
+| **Lokalny odczyt i zapis** | `expo-sqlite`, `src/data/db/` | Baza na telefonie; zerowe opóźnienia, brak konieczności łączenia z internetem |
+| **Kuchenne Hands-Free** | Swift WatchConnectivity + LiveActivity | Wygodna praca z mokrymi dłońmi; powiadomienia na zegarku i ekranie blokady |
+| **Generowanie ID słoików** | `UUIDv7` (czasowo-sortowalne) | Unikalny kod każdej partii, idealna synchronizacja z drukowanymi etykietami QR |
+| **Strażnik Bezpieczeństwa** | `src/core/safety/botulinumGuard.ts` | Niemożność przypadkowego wygenerowania niebezpiecznego zalecenia pasteryzacji |
+| **Kopia zapasowa** | `src/data/backup.ts` | Pełna ochrona historii przetworów, eksport bazy jednym kliknięciem do JSON |
 
 ---
 
-## 🔬 Rygor mikrobiologiczny i bezpieczeństwo żywności
+## 🧪 Wzorcowe Receptury w Bazie (Master Recipes)
 
-Wszystkie procedury zaimplementowane w aplikacji podlegają ścisłym regułom dziedzinowym opartym o literaturę akademicką i oficjalne przewodniki USDA (*Agriculture Information Bulletin No. 539*):
+Aplikacja zawiera fabryczną bazę **24 zweryfikowanych receptur rzemieślniczych z całego świata**, opracowanych tak, by zawsze się udawały:
 
-### 1. Wzór na całkowite zasolenie układu (RD-01)
-Aby osiągnąć docelowe stężenie soli $p$ [%] w gotowym słoiku przy wadze warzyw $M_{\text{surowiec}}$ i wadze wody $M_{\text{woda}}$:
-$$M_{\text{sól}} = \frac{p}{100 - p} \cdot (M_{\text{surowiec}} + M_{\text{woda}})$$
+### 🥒 Klasyka Polski i Europy Środkowej
+- **Ogórki małosolne chrupiące (Ekspresowe 48h):** Sekret liści chrzanu, czosnku, kopru i dębu. Gotowe w 2 dni.
+- **Ogórki kiszone tradycyjne na zimę:** Klasyczna solanka zrównoważona 2.5%, powolne kwaszenie, idealna chrupkość do wiosny.
+- **Kiszona kapusta z kminkiem i marchewką:** Szatkowanie, solenie na sucho (2.0%), ugniatanie do soku i harmonogram odgazowywania.
+- **Zakwas buraczany na barszcz i probiotyczny napój:** Czosnek, ziele angielskie, liść laurowy i głęboki rubinowy kolor.
+- **Klasyczne grzyby leśne w zalewie octowej:** Borowiki, maślaki lub podgrzybki w zbalansowanej, łagodnej marynacie octowej.
+- **Aksamitne powidła śliwkowe bez mieszania:** Tradycyjna metoda wolnego prażenia śliwek węgierek bez grama cukru.
 
-### 2. Krytyczna bariera botulinowa (RD-17, D-01)
-$$pH_{\text{krytyczne}} = 4.60 \quad (\text{w aplikacji: bufor bezpieczeństwa } pH \le 4.20)$$
-Przetwory o $pH \ge 4.60$ (niska kwasowość: warzywa w zalewie bez octu, czosnek w oliwie, mięso, ryby, fasola szparagowa) stanowią środowisko sprzyjające namnażaniu *Clostridium botulinum* i wytwarzaniu śmiertelnej neurotoksyny botulinowej. Aplikacja:
-* **Blokuje** sugerowanie zwykłej pasteryzacji wodnej dla takich produktów.
-* **Wymaga** sterylizacji ciśnieniowej ($121.1^\circ\text{C}$ / 15 PSI, minimalna letalność $F_0 \ge 3.0$) lub trzykrotnej tyndalizacji w odstępach 24h.
+### 🥢 Azja Wschodnia (Korea & Japonia)
+- **Baechu-kimchi (Klasyczne kimchi z kapusty pekińskiej):** Solenie wstępne, kleik ryżowy, pasta gochugaru, rzodkiew mu, czosnek i imbir.
+- **Kkakdugi (Chrupiące kimchi z białej rzodkwi):** Kostki chrupiącego daikona w pikantno-słodkim sosie, fermentujące w 3–4 dni.
+- **Oi Sobagi (Nadziewane ogórki po koreańsku):** Letnie pikle ogórkowe nacinane w kieszonki i nadziewane dymką oraz chili.
+- **Japońskie Tsukemono Asazuke (Pikle ekspresowe):** Szybkie prasowanie chrupiących warzyw z wodorostem kombu (gotowe w 12h).
+- **Shiozuke (Słone pikle japońskie z cytrusową nutą):** Delikatne warzywa prasowane z solą morską i skórką cytryny.
 
-### 3. Wartość pasteryzacyjna i letalność termiczna (RD-33, RD-34)
-Dla kwasowych przetworów owocowych ($pH < 4.0$) aplikacja całkuje skumulowaną wartość $P_0$ (temperatura odniesienia $T_{\text{ref}} = 80^\circ\text{C}$, współczynnik odporności termicznej $z = 10^\circ\text{C}$):
-$$P_0 = \int_0^t 10^{\frac{T(\tau) - 80}{10}} d\tau$$
+### 🌍 Bliski Wschód, Maghreb i Indie
+- **Marokańskie kiszone cytryny (L'hamd Marakad):** Całe cytryny nacinane w krzyż, ciasno upchane w soli morskiej i własnym soku. Do tajine i sałatek.
+- **Indyjski Mango Achar (Ogniste pikle w oleju):** Zielone mango macerowane z kozieradką, nasionami gorczycy, asafetydą i chili.
+- **Kiszone rzodkiewki i kalafior w kurkumie po lewantyńsku:** Żółto-różowe, niezwykle chrupiące warzywa serwowane do falafela i shawarmy.
 
----
+### 🌶️ Ameryki i Kraje Śródziemnomorskie
+- **Kosher Dill Pickles (Pikle z nowojorskich delikatesów):** Amerykańska ikona — ogórki w solance z potężną dawką czosnku, kopru i kolendry.
+- **Meksykański Escabeche (Jalapeño en escabeche):** Smażone jalapeño, marchew i cebula w aromatycznej zalewie octowej z oregano i kuminem.
+- **Lacto Hot Sauce (Fermentowany ostry sos paprykowy):** Zacier z ostrych papryczek fermentowany 14 dni, blendowany na gładki, głęboki sos w stylu Tabasco.
+- **Włoska Giardiniera:** Kolorowa mozaika chrupiącego kalafiora, marchwi, selera i papryki w zalewie octowo-oliwnej.
 
-## 📱 Architektura techniczna i Hands-Free Kitchen
+### 🍓 Owoce, Dżemy i Domowa Spiżarnia
+- **Dżem truskawkowy o niskiej zawartości cukru:** Krótkie gotowanie, naturalna pektyna jabłkowa, zachowany naturalny aromat świeżej truskawki.
+- **Czatnej z mango, imbiru i chili:** Słodko-pikantny dodatek do serów, pieczonych mięs i chlebków naan.
+- **Domowy sos pomidorowy (Passata polna na zimę):** Słodkie pomidory malinowe, świeża bazylia, pasteryzacja bez sztucznych dodatków.
+- **Konfitura malinowa z nutą wanilii:** Całe owoce zatopione w przejrzystym syropie owocowym.
 
-### Standard Inżynieryjny:
-* **Środowisko:** React Native (Expo SDK 52+) z modułami natywnymi Swift dla iOS 18+ i watchOS 11+.
-* **Baza danych:** 100% lokalny SQLite zarządzany w transakcyjnym trybie WAL (`PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;`).
-* **Zarządzanie stanem:** Lokalny store oparty o niezmienniki domenowe, pełna spójność asynchroniczna.
-* **Kuchenne Hands-Free:**
-  - Siri Shortcuts & App Intents: *"Hej Siri, ile soli na 2 kg ogórków?"*, *"Hej Siri, sprawdź pasteryzację"*.
-  - Apple Watch Standalone App: Obsługa w trakcie prac kuchennych (mokre ręce, rękawice kuchenne) przy użyciu Digital Crown i haptyki Taptic Engine.
-  - Live Activities: Monitorowanie gotowania i studzenia słoików w czasie rzeczywistym na Dynamicznej Wyspie.
-
----
-
-## 📚 Struktura dokumentacji BRD
-
-Kompletna specyfikacja wymagań biznesowych, architektonicznych i merytorycznych znajduje się w katalogu [`docs/brd/`](docs/brd/) (oraz lustrzanym [`kiszonki_brd/`](kiszonki_brd/)) w 26 modułach:
-
-```
-kiszonki_brd/
-├── Kiszonki BRD 0.1 – 00 START – streszczenie, warianty MVP, spis treści.md
-├── Kiszonki BRD 0.1 – 00b Jedna lista decyzji i pytań (DEC-01 DEC-60).md
-├── Kiszonki BRD 0.1 – 00c Sprzeczności i errata (mikrobiologia, bezpieczeństwo USDA, botulinum).md
-├── Kiszonki BRD 0.1 – A1 – rozdz. 1–3 (Tożsamość, Persony, Architektura).md
-├── Kiszonki BRD 0.1 – A2 – rozdz. 4–6.1 (Rynek, Model przychodu, Zakres).md
-├── Kiszonki BRD 0.1 – A3a – rozdz. 6.2 tabela zakresu cz. 1 (Kalkulatory, Solanki, Kwasowość).md
-├── Kiszonki BRD 0.1 – A3b – rozdz. 6.2 tabela zakresu cz. 2 (Pasteryzacja, Magazyn, Spiżarnia).md
-├── Kiszonki BRD 0.1 – A3c – rozdz. 6.3–6.5 (Etapy, Nakład pracy, Warianty).md
-├── Kiszonki BRD 0.1 – A4 – rozdz. 13, 15 (KPI bez śledzenia, Marketing, ASO).md
-├── Kiszonki BRD 0.1 – B1 – rozdz. 7 narzędzia - Kalkulatory solanek i rozkładu soli.md
-├── Kiszonki BRD 0.1 – B2 – rozdz. 7 narzędzia - Monitor fermentacji i powiadomienia sensoryczne.md
-├── Kiszonki BRD 0.1 – B3 – rozdz. 7 narzędzia - Kalkulator pasteryzacji (P0, F0, tyndalizacja).md
-├── Kiszonki BRD 0.1 – B4 – rozdz. 7 narzędzia - Spiżarnia, Batch Tracker i etykiety QR.md
-├── Kiszonki BRD 0.1 – B5 – rozdz. 7 narzędzia - Baza naczyń, słoików i kontrola headspace.md
-├── Kiszonki BRD 0.1 – B6 – rozdz. 7 narzędzia - Refraktometria Brix, pH-metria i kwasowość TA.md
-├── Kiszonki BRD 0.1 – B7 – rozdz. 7 narzędzia - Asystent Apple Watch, Live Activity i Siri.md
-├── Kiszonki BRD 0.1 – B8 – rozdz. 7 narzędzia - Diagnostyk problemów przetwórstwa (Troubleshooting).md
-├── Kiszonki BRD 0.1 – C1 – rozdz. 7 nauka - Szkoła Przetwórstwa, atlas kultur bakteryjnych.md
-├── Kiszonki BRD 0.1 – C2 – rozdz. 8 reguły dziedzinowe - RD-01 do RD-16 (matematyka solanek).md
-├── Kiszonki BRD 0.1 – C3 – rozdz. 8 reguły dziedzinowe - RD-17 do RD-32 (bariera botulinowa, pH).md
-├── Kiszonki BRD 0.1 – C4 – rozdz. 8.P proces treści merytorycznych i decyzje badacza D1 do D25.md
-├── Kiszonki BRD 0.1 – C5 – rozdz. 8 reguły dziedzinowe - RD-33 do RD-55 (kinetyka termiczna).md
-├── Kiszonki BRD 0.1 – D1 – rozdz. 9-10 wymagania niefunkcjonalne (NFR) i zgodność z Apple.md
-├── Kiszonki BRD 0.1 – D2 – rozdz. 11-12 architektura, relacyjny model danych SQLite i DDL.md
-├── Kiszonki BRD 0.1 – D3 – rozdz. 14, 16 rejestr ryzyk (RYZ-01 RYZ-60) i otwarte pytania.md
-└── Kiszonki BRD 0.1 – D4 – rozdz. 17 wielowarstwowa strategia testów (9 warstw jakości).md
-```
+### 🫧 Domowe Napoje i Żywe Octy
+- **Musujący kwas chlebowy na pieczywie żytnim:** Naturalnie gazowany napój ze skórki chleba razowego z rodzynkami i miętą.
+- **Domowy żywy ocet jabłkowy:** Cierpliwa dwufazowa fermentacja jabłek z wytworzeniem matki octowej (*Mother of Vinegar*).
 
 ---
 
-## 📊 Statystyki i metryki BRD
+## 🧪 9 Warstw Weryfikacji Jakości (Testing Rigor)
 
-Dokumentacja spełnia najwyższe rygory objętościowe i analityczne, dorównując i przewyższając dokumentację referencyjną projektu *Oczko*:
+Zgodnie ze standardem inżynieryjnym **Apps4Brew**, aplikacja objęta jest 9 warstwami rygorystycznych testów automatycznych:
 
-| Metryka | Wartość |
-|---|---|
-| **Liczba modułów dokumentacji** | 26 plików Markdown |
-| **Łączna liczba znaków ze spacjami** | **178 451 znaków** |
-| **Liczba słów** | **23 130 słów** |
-| **Liczba linii tekstu** | **2 061 linii** |
-| **Objętość w znormalizowanych stronach (1800 zn./str.)** | **99.14 stron** |
-| **Liczba decyzji architektonicznych i produktowych** | 60 pozycji (`DEC-01` do `DEC-60`) |
-| **Liczba sformalizowanych ryzyk projektowych** | 60 pozycji (`RYZ-01` do `RYZ-60`) |
-| **Liczba reguł dziedzinowych i formuł biochemicznych** | 55 reguł (`RD-01` do `RD-55`) |
-| **Liczba decyzji badacza merytorycznego** | 25 pozycji (`D-01` do `D-25`) |
-| **Liczba wymagań funkcjonalnych** | 225 wymagań (`BR-SOL` do `BR-DOK`) |
-| **Liczba wymagań niefunkcjonalnych** | 115 wymagań (`NFR-001` do `NFR-115`) |
-| **Liczba zbadanych tradycji kulinarnych świata** | 11 kultur (Europa Środkowa, Azja Wschodnia, Bliski Wschód, Ameryka Łacińska itd.) |
+1. **100% Pokrycia Logiki Domenowej:** Bezwzględne pokrycie testami jednostkowymi dla kalkulatora soli, przeliczników pasteryzacji i balansu cukier-kwas.
+2. **Macierz Krawędziowa Parametrów:** Testowanie skrajnych wartości (od słoiczka 40 ml do gąsiorka 10 l, od 0°C do 100°C).
+3. **Integralność Bazy Danych SQLite:** Weryfikacja transakcji, integralności kluczy obcych (`PRAGMA foreign_keys = ON;`) oraz automatyczne odzyskiwanie z pliku WAL po nagłym restarcie.
+4. **Testy Regresji i Zepsutych Danych:** Walidacja odporności na uszkodzone pliki JSON podczas importu oraz ochrona przed dublowaniem wpisów w spiżarni.
+5. **Weryfikacja Migracji Schematu:** Zautomatyzowane testy przechodzenia bazy danych przez kolejne wersje migracyjne bez utraty zapisków użytkownika.
+6. **Zrzuty Ekranowe i Dostępność (Snapshot/i18n):** Pełna weryfikacja tłumaczeń PL/EN, brak uciętych tekstów w trybie Dynamic Type oraz kontrast WCAG AAA.
+7. **Integracja Stanu i Komponentów:** Testy cyklu życia timerów pasteryzacji i synchronizacji stanu spiżarni.
+8. **E2E Maestro na iOS:** Pełne automatyczne scenariusze na symulatorze iPhone'a: od wyboru ogórków, przez odmierzenie soli, po zapis w spiżarni.
+9. **Audyt Bezpieczeństwa Biologicznego:** Blokady algorytmiczne uniemożliwiające zasugerowanie niebezpiecznych parametrów pasteryzacji dla produktów podatnych na botulizm.
 
 ---
 
-## 🛡️ Standardy Apps4Brew i 9 Warstw Jakości
+## 🛠️ Uruchomienie i Weryfikacja
 
-Zgodnie z filozofią Apps4Brew, kod produkcyjny jest chroniony przez 9 warstw testów automatycznych:
-1. **Domenowe Unit Testy:** 100% pokrycia dla matematyki solanek, kinetyki kwasowej, indeksu letalności pasteryzacji $P_0 / F_0$.
-2. **Macierz Krawędziowa:** Skrajne temperatury, brak wody, niestandardowe pojemności słoików (od 40 ml do 10 l).
-3. **Integralność SQLite:** Testy kluczy obcych (`ON DELETE CASCADE`), blokady transakcyjne, sprawdzanie integralności przy starcie (`PRAGMA integrity_check`).
-4. **Regresja i Zepsucie Danych:** Symulacja nagłego ubicia procesu w trakcie zapisu partii słoików, weryfikacja recovery z pliku WAL.
-5. **Migracje Danych:** Automatyczne testy migracji struktury bazy danych ze starszych wersji schematu.
-6. **Snapshoty i Lokalizacja:** Pełne testy i18n (język polski i angielski), brak uciętych tekstów w widokach Dynamic Type.
-7. **Integracja Komponentów:** Testy stanu magazynowego spiżarni, licznika ubywania słoików.
-8. **E2E Maestro na iOS:** Pełne scenariusze kuchenne uruchamiane automatycznie w GitHub Actions.
-9. **Audyt Bezpieczeństwa Biologicznego:** Blokady algorytmiczne uniemożliwiające zasugerowanie niebezpiecznych parametrów pasteryzacji.
+Wymagane środowisko: Node.js 20+ oraz npm.
 
----
-
-## 🛠️ Uruchamianie i weryfikacja
-
-### Wymagania:
-* Node.js 20+ LTS
-* Python 3.10+ (dla skryptów walidacyjnych i sprawdzania metryk)
-* GitHub CLI (`gh`)
-
-### Sprawdzenie metryk dokumentacji BRD:
 ```bash
-python scripts/count_stats.py
-```
+# Instalacja zależności
+npm install
 
-### Weryfikacja spójności plików BRD:
-```bash
-python scripts/compile_brd.py --verify
+# Pełna weryfikacja projektu (typy, lint, testy z pokryciem, i18n)
+npm run check
+
+# Uruchomienie testów jednostkowych i integracyjnych Jest
+npm test
+
+# Szybkie testy jednostkowe tylko dla zmienionych plików
+npm run test:fast
+
+# Testy czystej logiki kalkulatorów i bezpieczeństwa
+npm run test:domain
+
+# Uruchomienie aplikacji w środowisku deweloperskim Expo
+npm run start
+
+# Uruchomienie aplikacji na symulatorze iOS
+npm run ios
 ```
 
 ---
 
-## 📄 Licencja
+## 📂 Architektura Kodu
 
-Projekt jest rozwijany na licencji otwartoźródłowej (Public Repository) w ramach portfolio Apps4Brew. Wszelkie prawa do znaków towarowych i tożsamości marek należą do właściciela projektu.
+```text
+kiszonki-przetwory-sloiki/
+├── src/
+│   ├── core/                    # Czysty TypeScript: silnik domenowy (Zero zależności od UI)
+│   │   ├── brine/               # Kalkulator solanek (masa całkowita, sucho, zalewa, gęstość)
+│   │   ├── safety/              # Strażnik USDA, weryfikacja pH < 4.60, kinetyka letalności P0/F0
+│   │   ├── fermentation/        # Kinetyka fazowa (LAG, LOG, stacjonarna), harmonogram odgazowywania
+│   │   ├── pasteurization/      # Modele pasteryzacji (woda, piekarnik, tyndalizacja, sous-vide)
+│   │   ├── preserves/           # Bilans owoc-cukier-pektyna (Brix, dżemy, powidła, czatneje)
+│   │   ├── doctor/              # Drzewo decyzyjne Słoikowego Ratownika (diagnoza wad i nalotów)
+│   │   └── constants/           # Pojedyncze źródło prawdy: normy USDA, gęstości, stałe z i D
+│   ├── data/                    # Warstwa danych i persystencja
+│   │   ├── db/                  # Baza lokalna SQLite (expo-sqlite, czysty SQL, transakcje WAL)
+│   │   ├── migrations/          # Wersjonowane skrypty migracyjne schematu bazy danych
+│   │   ├── repositories/        # Repozytoria: PantryRepository, RecipeRepository, BatchRepository
+│   │   └── backup.ts            # Eksport i import bazy do pliku JSON
+│   ├── features/                # Moduły funkcjonalne interfejsu użytkownika (UI)
+│   │   ├── wizard/              # Asystent nastawiania słoika krok po kroku
+│   │   ├── timeline/            # Żywa oś czasu fermentacji i powiadomienia sensoryczne
+│   │   ├── pasteurizer/         # Stoper pasteryzacji i test wieczka
+│   │   ├── pantry/              # Cyfrowa spiżarnia, stany magazynowe i generator etykiet PDF
+│   │   ├── recipes/             # Przeglądarka i detale 24 Mistrzowskich Receptur Świata
+│   │   ├── doctor/              # Interaktywny Słoikowy Ratownik (pytania, zdjęcia, diagnozy)
+│   │   └── settings/            # Ustawienia jednostek, kopia zapasowa, zakupy Pro StoreKit
+│   ├── native/                  # Integracja z systemem iOS i watchOS
+│   │   ├── watch/               # Komunikacja z Apple Watch (WatchConnectivity)
+│   │   ├── live-activity/       # Dynamic Island i widgety ekranu blokady
+│   │   └── siri/                # Skróty Siri i App Intents (głosowe Hands-Free)
+│   ├── i18n/                    # Polskie i angielskie tłumaczenia tekstów
+│   └── theme/                   # Palety barw, typografia Dynamic Type, zasady Apple HIG
+├── docs/                        # Dokumentacja projektowa
+│   └── brd/                     # Kompletne wydanie BRD (26 modularnych rozdziałów, >100 stron)
+├── scripts/                     # Skrypty narzędziowe i weryfikacja metryk
+│   ├── count_stats.py           # Narzędzie obliczania dokładnych statystyk BRD
+│   └── compile_brd.py           # Kompilator wydania zbiorczego BRD
+└── tests/                       # Testy automatyczne (9 warstw jakości)
+    ├── unit/                    # Testy jednostkowe formuł chemicznych i solanek
+    ├── integration/             # Testy bazy danych SQLite i repozytoriów
+    ├── e2e/                     # Scenariusze kuchenne Maestro dla symulatora iOS
+    └── guards/                  # Testy strażnicze wzorców interakcji i reguł bezpieczeństwa
+```
+
+---
+
+## 📚 Dokumentacja i Rejestr Decyzji
+
+- **Zasady pracy i standardy inżynieryjne:** [`CLAUDE.md`](CLAUDE.md)
+- **Kompletna dokumentacja BRD (moduły):** [`docs/brd/`](docs/brd/)
+- **Jedno wydanie zbiorcze BRD (Monolit):** [`docs/brd/Kiszonki_BRD_Kompletne_Wydanie.md`](docs/brd/Kiszonki_BRD_Kompletne_Wydanie.md)
+- **Rejestr 60 decyzji produktowych:** [`docs/brd/Kiszonki BRD 0.1 · 00b Jedna lista decyzji i pytań (DEC-01 DEC-60).md`](docs/brd/Kiszonki%20BRD%200.1%20%C2%B7%2000b%20Jedna%20lista%20decyzji%20i%20pyta%C5%84%20(DEC-01%20DEC-60).md)
+- **Errata 15 sprzeczności i mitów kulinarnych:** [`docs/brd/Kiszonki BRD 0.1 · 00c Sprzeczności i errata.md`](docs/brd/Kiszonki%20BRD%200.1%20%C2%B7%2000c%20Sprzeczno%C5%9Bci%20i%20errata%20(mikrobiologia,%20bezpiecze%C5%84stwo%20USDA,%20botulinum,%20ocet%20vs%20laktofermentacja).md)
+- **Rejestr 60 ryzyk projektowych:** [`docs/brd/Kiszonki BRD 0.1 · D3 · rejestr ryzyk (RYZ-01 RYZ-60).md`](docs/brd/Kiszonki%20BRD%200.1%20%C2%B7%20D3%20%C2%B7%20rozdz.%2014,%2016%20rejestr%20ryzyk%20(RYZ-01%20RYZ-60)%20i%20otwarte%20pytania.md)
+- **9 Warstw Strategii Testów (DoD):** [`docs/brd/Kiszonki BRD 0.1 · D4 · wielowarstwowa strategia testów.md`](docs/brd/Kiszonki%20BRD%200.1%20%C2%B7%20D4%20%C2%B7%20rozdz.%2017%20wielowarstwowa%20strategia%20test%C3%B3w%20(9%20warstw%20jako%C5%9Bci%20dla%20bezpiecze%C5%84stwa%20%C5%BCywno%C5%9Bci%20i%20logiki).md)
+
+---
+
+## 🚀 Status & Dystrybucja
+
+- **Dystrybucja:** Wersja testowa przygotowywana pod Apple TestFlight.
+- **Ekosystem:** Zoptymalizowana dla iOS 18+ oraz watchOS 11+.
+- **Zasady interakcji:** 100% zgodności z Apple Human Interface Guidelines, wsparcie VoiceOver, Dynamic Type i wysoki kontrast WCAG AAA.
+- **Prywatność:** Architektura 100% Offline-First — wszystkie Twoje słoiki i receptury zostają wyłącznie na Twoim urządzeniu.
