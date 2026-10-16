@@ -16,6 +16,7 @@ import {
   PantryItemRecord,
   PantryIngredientRecord,
 } from '../../src/data/db/database';
+import { useRouter } from 'expo-router';
 import { generateJarLabel, PrintableLabel } from '../../src/core/pantry/label-generator';
 import { exportLabelSheetAsPdf } from '../../src/core/pantry/pdf-sheet-generator';
 import {
@@ -34,6 +35,7 @@ import { useAppAccess } from '../../src/core/access/app-access';
 import { PaywallModal } from '../../src/ui/components/PaywallModal';
 
 export default function PantryScreen() {
+  const router = useRouter();
   const { canCreate } = useAppAccess();
   const [isPaywallOpen, setIsPaywallOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'jars' | 'warehouse'>('jars');
@@ -101,18 +103,26 @@ export default function PantryScreen() {
     setActiveLabel(label);
   };
 
-  const handleScanBatch = (batchId: string) => {
+  const handleScanBatch = (scannedPayload: string) => {
     setIsScannerOpen(false);
-    const found = items.find((i) => i.batchId === batchId || i.id === batchId);
-    if (found) {
-      Alert.alert(
-        'Rozpoznano słoik! 🫙',
-        `Przetwór: ${found.label}\nPartia: ${found.batchId}\nLokalizacja: ${found.location}\nIlość: ${found.quantity} szt.`,
-        [{ text: 'Pokaż etykietę', onPress: () => handleShowLabel(found) }, { text: 'OK' }]
-      );
-    } else {
-      Alert.alert('Zeskanowano kod QR', `Paszport słoika: ${batchId}`);
+    let targetId = scannedPayload.trim();
+    if (targetId.startsWith('sloik://batch/')) {
+      targetId = targetId.replace('sloik://batch/', '');
     }
+
+    const foundBatch = dbStore.getBatchById(targetId) || dbStore.getAllBatches().find((b) => b.id === targetId);
+    if (foundBatch) {
+      router.push({ pathname: '/batch/[id]', params: { id: foundBatch.id } });
+      return;
+    }
+
+    const foundItem = items.find((i) => i.batchId === targetId || i.id === targetId);
+    if (foundItem) {
+      router.push({ pathname: '/batch/[id]', params: { id: foundItem.batchId } });
+      return;
+    }
+
+    Alert.alert('Zeskanowano kod QR', `Paszport słoika: ${targetId}`);
   };
 
   const handleExportPdf = async () => {
@@ -285,15 +295,20 @@ export default function PantryScreen() {
             ) : (
               items.map((item) => (
                 <KitchenCard key={item.id} variant="elevated" style={styles.itemCard}>
-                  <View style={styles.cardHeader}>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.itemTitle}>{item.label}</Text>
-                      <Text style={styles.itemSub}>
-                        Pojemność: {item.jarVolumeMl} ml · Ważne do: {new Date(item.bestBefore).toLocaleDateString()}
-                      </Text>
+                  <TouchableOpacity
+                    onPress={() => router.push({ pathname: '/batch/[id]', params: { id: item.batchId } })}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.cardHeader}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.itemTitle}>{item.label}</Text>
+                        <Text style={styles.itemSub}>
+                          Pojemność: {item.jarVolumeMl} ml · Ważne do: {new Date(item.bestBefore).toLocaleDateString()} • Paszport ➔
+                        </Text>
+                      </View>
+                      <Badge label={`ILOŚĆ: ${item.quantity}`} variant={item.quantity > 1 ? 'green' : 'amber'} />
                     </View>
-                    <Badge label={`ILOŚĆ: ${item.quantity}`} variant={item.quantity > 1 ? 'green' : 'amber'} />
-                  </View>
+                  </TouchableOpacity>
 
                   <View style={styles.actionsRow}>
                     <KitchenButton

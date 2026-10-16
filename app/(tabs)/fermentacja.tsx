@@ -183,15 +183,20 @@ export default function FermentTimelineScreen() {
 
             return (
               <KitchenCard key={batch.id} variant="elevated" style={styles.batchCard}>
-                <View style={styles.cardHeader}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.batchTitle}>{batch.recipeTitle}</Text>
-                    <Text style={styles.batchSub}>
-                      Nastawiono: {new Date(batch.startedAt).toLocaleDateString()}
-                    </Text>
+                <TouchableOpacity
+                  onPress={() => router.push({ pathname: '/batch/[id]', params: { id: batch.id } })}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.cardHeader}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.batchTitle}>{batch.recipeTitle}</Text>
+                      <Text style={styles.batchSub}>
+                        Nastawiono: {new Date(batch.startedAt).toLocaleDateString()} • Paszport ➔
+                      </Text>
+                    </View>
+                    <Badge label="BĄBELKUJE" variant="amber" />
                   </View>
-                  <Badge label="BĄBELKUJE" variant="amber" />
-                </View>
+                </TouchableOpacity>
 
                 {/* Statusy sensoryczne */}
                 <View style={styles.milestoneBox}>

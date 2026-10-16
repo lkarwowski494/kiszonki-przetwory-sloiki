@@ -62,14 +62,15 @@ for (const f of appFiles) {
       (route === '/ratownik' && m.content.includes('Ratownik')) ||
       (route === '/pasteurizer' && m.content.includes('Pasteryzacj')) ||
       (route === '/settings' && (m.content.includes('Ustawienia') || m.content.includes('01'))) ||
-      (route === '/experiments' && (m.content.includes('Eksperyment') || m.content.includes('07')))
+      (route === '/experiments' && (m.content.includes('Eksperyment') || m.content.includes('07'))) ||
+      (route === '/batch/[id]' && (m.content.includes('Paszport') || m.content.includes('batch')))
     ) {
       testHits.push(m.file);
     }
   }
 
   for (const t of testCode) {
-    if (t.content.includes(r) || t.content.includes(route)) {
+    if (t.content.includes(r) || t.content.includes(route) || (route === '/batch/[id]' && t.content.includes('/batch/[id]'))) {
       testHits.push(t.file);
     }
   }

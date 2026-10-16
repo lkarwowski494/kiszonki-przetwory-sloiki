@@ -10,4 +10,5 @@ executionOrder:
     - 05-ratownik-doktor.yaml
     - 06-pasteryzator-timer.yaml
     - 07-laboratorium-eksperymentow.yaml
+    - 08-paszport-sloika.yaml
 

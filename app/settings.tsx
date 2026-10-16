@@ -232,45 +232,45 @@ export default function SettingsScreen() {
           )}
         </KitchenCard>
 
-        {/* WERSJA PRO APPS4BREW */}
-        <KitchenCard variant="elevated" style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>⭐ Słoik Pro (Apps4Brew)</Text>
+        {/* DOKUMENTY PRAWNE I PRYWATNOŚĆ (APPLE APP STORE REQUIREMENT) */}
+        <KitchenCard variant="default" style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>⚖️ Prywatność i Regulamin</Text>
           <Text style={styles.sectionDesc}>
-            Aplikacja Słoik jest wolna od reklam, trackerów i zewnętrznych chmur. Podstawowe narzędzia są i zawsze będą w 100% darmowe.
+            Aplikacja Słoik jest w 100% Offline-First. Twoje receptury, historia i zdjęcia pozostają wyłącznie na Twoim urządzeniu.
           </Text>
 
-          <View style={styles.proBox}>
-            <Text style={styles.proHeader}>Pakiet Słoik Pro zawiera:</Text>
-            <Text style={styles.proItem}>• Nielimitowane generowanie etykiet PDF w wysokiej rozdzielczości</Text>
-            <Text style={styles.proItem}>• Dostęp do aplikacji Apple Watch i Live Activities na Dynamic Island</Text>
-            <Text style={styles.proItem}>• Pełny atlas 24 tradycji świata i zaawansowane filtry kwasowości</Text>
-            <Text style={styles.proItem}>• Wsparcie dla Chmury Rodzinnej Apple (do 5 osób)</Text>
+          <TouchableOpacity
+            style={styles.legalRow}
+            onPress={() =>
+              Alert.alert(
+                'Polityka Prywatności 🛡️',
+                'Zasada 100% Offline-First:\n• Zero trackerów, zero analityki (Data Not Collected)\n• Wszystkie słoiki i receptury są zapisywane wyłącznie w lokalnej bazie SQLite\n• Zero logowania i brak zewnętrznych serwerów bazy danych.\n\nSzczegóły: docs/PRIVACY_POLICY.md'
+              )
+            }
+          >
+            <Text style={styles.legalLink}>🛡️ Polityka Prywatności (Data Not Collected)</Text>
+            <Text style={styles.legalArrow}>➔</Text>
+          </TouchableOpacity>
 
-            <View style={styles.priceRow}>
-              <TouchableOpacity
-                style={styles.priceChip}
-                onPress={() => Alert.alert('StoreKit', 'Wybrano subskrypcję roczną 19,99 zł z 14-dniowym okresem próbnym.')}
-              >
-                <Text style={styles.priceDuration}>ROK (14 DNI GRATIS)</Text>
-                <Text style={styles.priceAmount}>19,99 zł / rok</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.priceChip, styles.priceChipActive]}
-                onPress={() => Alert.alert('StoreKit', 'Wybrano licencję wieczystą Lifetime 59,99 zł.')}
-              >
-                <Text style={[styles.priceDuration, { color: '#FFF' }]}>NA ZAWSZE (LIFETIME)</Text>
-                <Text style={[styles.priceAmount, { color: '#FFF' }]}>59,99 zł</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+          <TouchableOpacity
+            style={styles.legalRow}
+            onPress={() =>
+              Alert.alert(
+                'Regulamin i Warunki Subskrypcji 📜',
+                'Model „Taniej niż espresso”:\n• 100% funkcji odblokowanych w okresie próbnym\n• Po zakończeniu trialu Twoja historia jest ZAWSZE w 100% dostępna w trybie Read-Only\n• Subskrypcje: $0.99/msc (~4,49 zł), $4.99/rok (~22,99 zł z 7-dniowym trialem), $14.99 Lifetime (~69,99 zł na zawsze).\n\nSzczegóły: docs/TERMS_OF_SERVICE.md'
+              )
+            }
+          >
+            <Text style={styles.legalLink}>📜 Warunki Korzystania i Subskrypcji (EULA)</Text>
+            <Text style={styles.legalArrow}>➔</Text>
+          </TouchableOpacity>
         </KitchenCard>
 
         {/* O APLIKACJI I STANDARDY APPS4BREW */}
         <KitchenCard variant="default" style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>ℹ️ O Aplikacji</Text>
           <Text style={styles.aboutText}>
-            <Text style={{ fontWeight: '700' }}>Słoik (Jarwise)</Text> — Wersja 0.1.0 (Build 2026.10)
+            <Text style={{ fontWeight: '700' }}>Słoik (Jarwise)</Text> — Wersja 1.0.0 (Wydanie produkcyjne)
           </Text>
           <Text style={styles.aboutText}>
             Ekosystem: <Text style={{ fontWeight: '700' }}>Apps4Brew Studio</Text> (Napar, Piekarz, Organizer, Słoik)
@@ -432,5 +432,24 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
     lineHeight: 18,
     marginVertical: 2,
+  },
+  legalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
+    marginTop: 6,
+  },
+  legalLink: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: theme.colors.pickleGreen,
+  },
+  legalArrow: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: theme.colors.textMuted,
   },
 });

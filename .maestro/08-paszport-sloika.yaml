@@ -1,0 +1,13 @@
+appId: com.apps4brew.sloik
+name: 08 Paszport Słoika, historia partii i radar sensoryczny
+---
+- launchApp
+- tapOn: "Fermentacja"
+- assertVisible: "Aktywne Kiszonki 🫧"
+- tapOn: "Paszport ➔"
+- assertVisible: "Paszport Słoika"
+- assertVisible: "Bezpieczeństwo Biologiczne USDA"
+- assertVisible: "Profil Sensoryczny Kiszonki (SVG)"
+- assertVisible: "Drukuj Arkusz Etykiet QR (PDF) 🏷️"
+- tapOn: "Zamknij"
+- takeScreenshot: 08-paszport-sloika

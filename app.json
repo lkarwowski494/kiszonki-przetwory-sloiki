@@ -2,11 +2,13 @@
   "expo": {
     "name": "Słoik",
     "slug": "sloik",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "scheme": "sloik",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "description": "Słoik (Jarwise) — asystent domowego przetwórstwa, fermentacji, pasteryzacji, spiżarnia i 24 receptury świata. 100% Offline-First.",
+    "primaryColor": "#2E5A27",
     "icon": "./assets/icon.svg",
     "splash": {
       "image": "./assets/splash.svg",
@@ -16,13 +18,33 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.apps4brew.sloik",
+      "buildNumber": "1",
       "infoPlist": {
         "UIBackgroundModes": ["audio"],
-        "NSCameraUsageDescription": "Aparat jest używany do szybkiego skanowania kodów QR na etykietach słoików w Twojej spiżarni."
+        "NSCameraUsageDescription": "Aparat jest używany do szybkiego skanowania kodów QR na etykietach słoików w Twojej spiżarni.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.apps4brew.sloik",
+      "versionCode": 1,
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO"
+      ],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.svg",
+        "backgroundColor": "#F7F5F0"
       }
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Aparat jest używany do szybkiego skanowania kodów QR na etykietach słoików w Twojej spiżarni."
+        }
+      ],
       [
         "expo-sqlite",
         {
