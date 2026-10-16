@@ -25,10 +25,12 @@ import {
 } from '../../src/core/sensory-radar';
 import { useAppAccess } from '../../src/core/access/app-access';
 import { PaywallModal } from '../../src/ui/components/PaywallModal';
+import { t, useLang } from '../../src/lib/i18n';
 
 export default function FermentTimelineScreen() {
   const router = useRouter();
   const { canCreate } = useAppAccess();
+  useLang();
   const [isPaywallOpen, setIsPaywallOpen] = useState(false);
   const [activeBatches, setActiveBatches] = useState<BatchRecord[]>([]);
   const [activeBatchForLog, setActiveBatchForLog] = useState<BatchRecord | null>(null);
@@ -63,7 +65,7 @@ export default function FermentTimelineScreen() {
       burped: true,
       tasted: false,
     });
-    Alert.alert('Słoik odgazowany! 🫧', 'Ciśnienie gazu CO₂ zostało bezpiecznie uwolnione.');
+    Alert.alert(t('Słoik odgazowany! 🫧'), t('Ciśnienie gazu CO₂ zostało bezpiecznie uwolnione.'));
     reloadData();
   };
 
@@ -89,7 +91,7 @@ export default function FermentTimelineScreen() {
         aroma: profileAroma,
       },
     });
-    Alert.alert('Zapisano wpis sensoryczny! 📝', 'Notatka i profil radarowy zostały zarchiwizowane w paszporcie partii.');
+    Alert.alert(t('Zapisano wpis sensoryczny! 📝'), t('Notatka i profil radarowy zostały zarchiwizowane w paszporcie partii.'));
     setActiveBatchForLog(null);
     setLogNote('');
     reloadData();
@@ -102,12 +104,12 @@ export default function FermentTimelineScreen() {
       return;
     }
     Alert.alert(
-      'Koniec fermentacji! 🫙',
-      'Czy smak jest idealny i chcesz przenieść ten słoik do spiżarni lub lodówki?',
+      t('Koniec fermentacji! 🫙'),
+      t('Czy smak jest idealny i chcesz przenieść ten słoik do spiżarni lub lodówki?'),
       [
-        { text: 'Jeszcze nie', style: 'cancel' },
+        { text: t('Jeszcze nie'), style: 'cancel' },
         {
-          text: 'Tak, przenieś do spiżarki',
+          text: t('Tak, przenieś do spiżarki'),
           onPress: () => {
             dbStore.updateBatchStatus(batchId, 'pantry', 5);
             dbStore.addPantryItem({
@@ -130,9 +132,9 @@ export default function FermentTimelineScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.header}>
-          <Text style={theme.typography.heroTitle}>Fermentacja 🫧</Text>
+          <Text style={theme.typography.heroTitle}>{t('Fermentacja 🫧')}</Text>
           <Text style={styles.tagline}>
-            Żywy kalendarz słoików stojących na Twoim blacie kuchennym.
+            {t('Żywy kalendarz słoików stojących na Twoim blacie kuchennym.')}
           </Text>
         </View>
 
@@ -141,17 +143,17 @@ export default function FermentTimelineScreen() {
           onPress={() => router.push('/experiments')}
           activeOpacity={0.8}
           accessibilityRole="button"
-          accessibilityLabel="Otwórz Laboratorium Eksperymentów i Konkurs Słoików"
+          accessibilityLabel={t('Otwórz Laboratorium Eksperymentów i Konkurs Słoików')}
         >
           <KitchenCard style={styles.experimentBanner}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <Text style={{ fontSize: 30 }}>🔬</Text>
               <View style={{ flex: 1 }}>
                 <Text style={styles.experimentBannerTitle}>
-                  Laboratorium Eksperymentów & Konkurs
+                  {t('Laboratorium Eksperymentów & Konkurs')}
                 </Text>
                 <Text style={styles.experimentBannerSubtitle}>
-                  Porównaj 2–8 słoików split-batch, ślepa próba i wybór mistrza!
+                  {t('Porównaj 2–8 słoików split-batch, ślepa próba i wybór mistrza!')}
                 </Text>
               </View>
               <Text style={{ fontSize: 18, color: theme.colors.pickleGreen, fontWeight: '700' }}>
@@ -165,9 +167,9 @@ export default function FermentTimelineScreen() {
         {activeBatches.length === 0 ? (
           <KitchenCard style={styles.emptyCard}>
             <Text style={{ fontSize: 40, textAlign: 'center', marginBottom: 8 }}>🥒</Text>
-            <Text style={styles.emptyTitle}>Brak aktywnych kiszonek na blacie</Text>
+            <Text style={styles.emptyTitle}>{t('Brak aktywnych kiszonek na blacie')}</Text>
             <Text style={styles.emptySubtitle}>
-              Przejdź do zakładki Receptury lub Kreatora, aby nastawić swój pierwszy pyszny słoik!
+              {t('Przejdź do zakładki Receptury lub Kreatora, aby nastawić swój pierwszy pyszny słoik!')}
             </Text>
           </KitchenCard>
         ) : (
@@ -207,19 +209,19 @@ export default function FermentTimelineScreen() {
                     <View style={{ flex: 1 }}>
                       <Text style={styles.batchTitle}>{batch.recipeTitle}</Text>
                       <Text style={styles.batchSub}>
-                        Nastawiono: {new Date(batch.startedAt).toLocaleDateString()} • Paszport ➔
+                        {t('Nastawiono: {date} • Paszport ➔', { date: new Date(batch.startedAt).toLocaleDateString() })}
                       </Text>
                     </View>
-                    <Badge label="BĄBELKUJE" variant="amber" />
+                    <Badge label={t('BĄBELKUJE')} variant="amber" />
                   </View>
                 </TouchableOpacity>
 
                 {/* Statusy sensoryczne */}
                 <View style={styles.milestoneBox}>
-                  <Text style={styles.milestoneHeader}>📅 Etapy sensoryczne:</Text>
+                  <Text style={styles.milestoneHeader}>{t('📅 Etapy sensoryczne:')}</Text>
                   {timeline.milestones.map((m, idx) => (
                     <View key={idx} style={styles.milestoneRow}>
-                      <Text style={styles.milestoneDay}>Dzień {m.day}:</Text>
+                      <Text style={styles.milestoneDay}>{t('Dzień {day}:', { day: m.day })}</Text>
                       <View style={{ flex: 1 }}>
                         <Text style={styles.milestoneTitle}>
                           {m.title} {m.isTastingCheckpoint && '🍴'}
@@ -236,7 +238,7 @@ export default function FermentTimelineScreen() {
                   if (logs.length === 0) return null;
                   return (
                     <View style={styles.logsBox}>
-                      <Text style={styles.logsHeader}>📝 Ostatnie wpisy z dziennika:</Text>
+                      <Text style={styles.logsHeader}>{t('📝 Ostatnie wpisy z dziennika:')}</Text>
                       {logs.slice(-2).map((l, idx) => (
                         <Text key={idx} style={styles.logText}>
                           • Dzień {l.dayNumber}: {l.sensoryNote} {l.phReading ? `(pH: ${l.phReading})` : ''}
@@ -257,7 +259,7 @@ export default function FermentTimelineScreen() {
                   activeOpacity={0.7}
                 >
                   <Text style={styles.radarToggleText}>
-                    🕸️ Wykres Radarowy Sensoryki (5 osi){' '}
+                    {t('🕸️ Wykres Radarowy Sensoryki (5 osi)')}{' '}
                     {expandedRadarBatchId === batch.id ? '▲' : '▼'}
                   </Text>
                 </TouchableOpacity>
@@ -277,19 +279,19 @@ export default function FermentTimelineScreen() {
                 {/* Przyciski Akcji Kuchennych */}
                 <View style={styles.actionsRow}>
                   <KitchenButton
-                    title="Odgazuj 💨"
+                    title={t('Odgazuj 💨')}
                     variant="secondary"
                     onPress={() => handleBurp(batch.id)}
                     style={{ flex: 1, marginRight: 4 }}
                   />
                   <KitchenButton
-                    title="Dziennik 📝"
+                    title={t('Dziennik 📝')}
                     variant="ghost"
                     onPress={() => setActiveBatchForLog(batch)}
                     style={{ flex: 1, marginHorizontal: 4 }}
                   />
                   <KitchenButton
-                    title="Spiżarka ❄️"
+                    title={t('Spiżarka ❄️')}
                     variant="primary"
                     onPress={() => handleMoveToPantry(batch.id)}
                     style={{ flex: 1, marginLeft: 4 }}
@@ -306,16 +308,16 @@ export default function FermentTimelineScreen() {
         <SafeAreaView style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <ModalHeader
-              title="Wpis w Dzienniku"
+              title={t('Wpis w Dzienniku')}
               onClose={() => setActiveBatchForLog(null)}
-              closeLabel="Anuluj"
+              closeLabel={t('Anuluj')}
             />
             <ScrollView style={styles.modalBody}>
               <Text style={styles.modalSubtitle}>
-                Partia: {activeBatchForLog?.recipeTitle}
+                {t('Partia: {title}', { title: activeBatchForLog?.recipeTitle || '' })}
               </Text>
 
-              <Text style={styles.fieldLabel}>Ocena ogólna (gwiazdki):</Text>
+              <Text style={styles.fieldLabel}>{t('Ocena ogólna (gwiazdki):')}</Text>
               <View style={styles.starRow}>
                 {[1, 2, 3, 4, 5].map((star) => (
                   <TouchableOpacity
@@ -330,13 +332,13 @@ export default function FermentTimelineScreen() {
                 ))}
               </View>
 
-              <Text style={styles.fieldLabel}>Profil sensoryczny (5 osi rzemiosła):</Text>
+              <Text style={styles.fieldLabel}>{t('Profil sensoryczny (5 osi rzemiosła):')}</Text>
               {[
-                { label: 'Kwasowość', val: profileAcidity, set: setProfileAcidity },
-                { label: 'Słoność', val: profileSalinity, set: setProfileSalinity },
-                { label: 'Chrupkość', val: profileCrispness, set: setProfileCrispness },
-                { label: 'Musowanie / Gaz', val: profileEffervescence, set: setProfileEffervescence },
-                { label: 'Aromat ziół', val: profileAroma, set: setProfileAroma },
+                { label: t('Kwasowość'), val: profileAcidity, set: setProfileAcidity },
+                { label: t('Słoność'), val: profileSalinity, set: setProfileSalinity },
+                { label: t('Chrupkość'), val: profileCrispness, set: setProfileCrispness },
+                { label: t('Musowanie / Gaz'), val: profileEffervescence, set: setProfileEffervescence },
+                { label: t('Aromat ziół'), val: profileAroma, set: setProfileAroma },
               ].map((axisItem) => (
                 <View key={axisItem.label} style={styles.axisControlRow}>
                   <Text style={styles.axisControlLabel}>{axisItem.label}:</Text>
@@ -364,7 +366,7 @@ export default function FermentTimelineScreen() {
                 </View>
               ))}
 
-              <Text style={styles.fieldLabel}>Pomiar pH (np. papierek lakmusowy / pehametr):</Text>
+              <Text style={styles.fieldLabel}>{t('Pomiar pH (np. papierek lakmusowy / pehametr):')}</Text>
               <TextInput
                 style={styles.textInput}
                 value={logPh}
@@ -374,20 +376,20 @@ export default function FermentTimelineScreen() {
                 placeholderTextColor={theme.colors.textMuted}
               />
 
-              <Text style={styles.fieldLabel}>Notatki sensoryczne (chrupkość, bąbelki, aromat):</Text>
+              <Text style={styles.fieldLabel}>{t('Notatki sensoryczne (chrupkość, bąbelki, aromat):')}</Text>
               <TextInput
                 style={[styles.textInput, { height: 80 }]}
                 value={logNote}
                 onChangeText={setLogNote}
                 multiline
                 numberOfLines={3}
-                placeholder="np. Przyjemny czosnkowy aromat, mocny trzask, zalewa mętna..."
+                placeholder={t('np. Przyjemny czosnkowy aromat, mocny trzask, zalewa mętna...')}
                 placeholderTextColor={theme.colors.textMuted}
               />
 
 
               <KitchenButton
-                title="Zapisz wpis w paszporcie 🫙"
+                title={t('Zapisz wpis w paszporcie 🫙')}
                 onPress={handleSaveLog}
                 style={{ marginTop: 20, marginBottom: 30 }}
               />

@@ -33,8 +33,10 @@ import { ModalHeader } from '../../src/ui/components/ModalHeader';
 import { QrScannerModal } from '../../src/ui/components/QrScannerModal';
 import { useAppAccess } from '../../src/core/access/app-access';
 import { PaywallModal } from '../../src/ui/components/PaywallModal';
+import { t, useLang } from '../../src/lib/i18n';
 
 export default function PantryScreen() {
+  useLang();
   const router = useRouter();
   const { canCreate } = useAppAccess();
   const [isPaywallOpen, setIsPaywallOpen] = useState(false);
@@ -75,12 +77,12 @@ export default function PantryScreen() {
 
   const handleConsume = (itemId: string, label: string) => {
     Alert.alert(
-      'Smacznego! 🍴',
-      `Czy otworzyłeś słoik "${label}"? Zmniejszymy stan spiżarni o 1 sztukę.`,
+      t('Smacznego! 🍴'),
+      t('Czy otworzyłeś słoik "{label}"? Zmniejszymy stan spiżarni o 1 sztukę.', { label }),
       [
-        { text: 'Anuluj', style: 'cancel' },
+        { text: t('Anuluj'), style: 'cancel' },
         {
-          text: 'Tak, zjedzony!',
+          text: t('Tak, zjedzony!'),
           onPress: () => {
             dbStore.consumePantryItem(itemId, 1);
             reloadPantry();
@@ -97,7 +99,7 @@ export default function PantryScreen() {
       recipeTitle: item.label,
       preparedDate: new Date(item.sealedAt).toLocaleDateString(),
       bestBeforeDate: new Date(item.bestBefore).toLocaleDateString(),
-      salinityOrSugarInfo: 'Tradycyjny wyrób rzemieślniczy',
+      salinityOrSugarInfo: t('Tradycyjny wyrób rzemieślniczy'),
       format: 'side_rectangle_80x50mm',
     });
     setActiveLabel(label);
@@ -122,7 +124,7 @@ export default function PantryScreen() {
       return;
     }
 
-    Alert.alert('Zeskanowano kod QR', `Paszport słoika: ${targetId}`);
+    Alert.alert(t('Zeskanowano kod QR'), t('Paszport słoika: {id}', { id: targetId }));
   };
 
   const handleExportPdf = async () => {
@@ -134,7 +136,7 @@ export default function PantryScreen() {
           recipeTitle: selectedItem.label,
           preparedDate: new Date(selectedItem.sealedAt).toLocaleDateString(),
           bestBeforeDate: new Date(selectedItem.bestBefore).toLocaleDateString(),
-          salinityOrSugarInfo: 'Tradycyjny wyrób rzemieślniczy',
+          salinityOrSugarInfo: t('Tradycyjny wyrób rzemieślniczy'),
           format: 'side_rectangle_80x50mm',
         },
         count: 8,
@@ -142,7 +144,7 @@ export default function PantryScreen() {
       });
       setActiveLabel(null);
     } catch {
-      Alert.alert('Błąd eksportu', 'Nie udało się wygenerować arkusza PDF.');
+      Alert.alert(t('Błąd eksportu'), t('Nie udało się wygenerować arkusza PDF.'));
     }
   };
 
@@ -154,7 +156,7 @@ export default function PantryScreen() {
         message: csv,
       });
     } catch {
-      Alert.alert('Eksport CSV', 'Wygenerowano zawartość CSV spiżarni.');
+      Alert.alert(t('Eksport CSV'), t('Wygenerowano zawartość CSV spiżarni.'));
     }
   };
 
@@ -170,7 +172,7 @@ export default function PantryScreen() {
       return;
     }
     if (!newIngName.trim()) {
-      Alert.alert('Brak nazwy', 'Podaj nazwę surowca.');
+      Alert.alert(t('Brak nazwy'), t('Podaj nazwę surowca.'));
       return;
     }
     const amt = parseFloat(newIngAmount) || 1;
@@ -201,26 +203,26 @@ export default function PantryScreen() {
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.header}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={theme.typography.heroTitle}>Moja Spiżarnia 🫙</Text>
+            <Text style={theme.typography.heroTitle}>{t('Moja Spiżarnia 🫙')}</Text>
             <View style={{ flexDirection: 'row', gap: 6 }}>
               <TouchableOpacity
                 onPress={() => setIsCostModalOpen(true)}
                 style={styles.headerActionBtn}
-                accessibilityLabel="Kalkulator kosztów słoika"
+                accessibilityLabel={t('Kalkulator kosztów słoika')}
               >
-                <Text style={styles.headerActionText}>💰 Koszt</Text>
+                <Text style={styles.headerActionText}>{t('💰 Koszt')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => setIsScannerOpen(true)}
                 style={styles.headerActionBtn}
-                accessibilityLabel="Skanuj słoik aparatem"
+                accessibilityLabel={t('Skanuj słoik aparatem')}
               >
-                <Text style={styles.headerActionText}>📷 Skan</Text>
+                <Text style={styles.headerActionText}>{t('📷 Skan')}</Text>
               </TouchableOpacity>
             </View>
           </View>
           <Text style={styles.tagline}>
-            Zapas słoików, magazyn surowców kuchennych i kalkulacja domowych oszczędności.
+            {t('Zapas słoików, magazyn surowców kuchennych i kalkulacja domowych oszczędności.')}
           </Text>
         </View>
 
@@ -234,7 +236,7 @@ export default function PantryScreen() {
             <Text
               style={[styles.tabButtonText, activeTab === 'jars' && styles.tabButtonTextActive]}
             >
-              🫙 Gotowe Słoiki ({items.length})
+              {t('🫙 Gotowe Słoiki ({count})', { count: items.length })}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -245,7 +247,7 @@ export default function PantryScreen() {
             <Text
               style={[styles.tabButtonText, activeTab === 'warehouse' && styles.tabButtonTextActive]}
             >
-              📦 Magazyn Surowców ({ingredients.length})
+              {t('📦 Magazyn Surowców ({count})', { count: ingredients.length })}
             </Text>
           </TouchableOpacity>
         </View>
@@ -257,10 +259,10 @@ export default function PantryScreen() {
             <View style={styles.filterRow}>
               {(
                 [
-                  { label: 'Wszystkie', value: 'all' },
-                  { label: 'Piwnica 🏠', value: 'cellar' },
-                  { label: 'Szafka 🪵', value: 'pantry_cupboard' },
-                  { label: 'Lodówka ❄️', value: 'fridge' },
+                  { label: t('Wszystkie'), value: 'all' },
+                  { label: t('Piwnica 🏠'), value: 'cellar' },
+                  { label: t('Szafka 🪵'), value: 'pantry_cupboard' },
+                  { label: t('Lodówka ❄️'), value: 'fridge' },
                 ] as const
               ).map((loc) => (
                 <TouchableOpacity
@@ -287,9 +289,9 @@ export default function PantryScreen() {
             {items.length === 0 ? (
               <KitchenCard style={styles.emptyCard}>
                 <Text style={{ fontSize: 40, textAlign: 'center', marginBottom: 8 }}>🧺</Text>
-                <Text style={styles.emptyTitle}>Pusta półka</Text>
+                <Text style={styles.emptyTitle}>{t('Pusta półka')}</Text>
                 <Text style={styles.emptySubtitle}>
-                  Gdy skończysz kisić lub zapasteryzujesz słoiki, pojawią się tutaj z datą ważności i etykietami!
+                  {t('Gdy skończysz kisić lub zapasteryzujesz słoiki, pojawią się tutaj z datą ważności i etykietami!')}
                 </Text>
               </KitchenCard>
             ) : (
@@ -303,22 +305,25 @@ export default function PantryScreen() {
                       <View style={{ flex: 1 }}>
                         <Text style={styles.itemTitle}>{item.label}</Text>
                         <Text style={styles.itemSub}>
-                          Pojemność: {item.jarVolumeMl} ml · Ważne do: {new Date(item.bestBefore).toLocaleDateString()} • Paszport ➔
+                          {t('Pojemność: {volume} ml · Ważne do: {date} • Paszport ➔', {
+                            volume: item.jarVolumeMl,
+                            date: new Date(item.bestBefore).toLocaleDateString(),
+                          })}
                         </Text>
                       </View>
-                      <Badge label={`ILOŚĆ: ${item.quantity}`} variant={item.quantity > 1 ? 'green' : 'amber'} />
+                      <Badge label={t('ILOŚĆ: {count}', { count: item.quantity })} variant={item.quantity > 1 ? 'green' : 'amber'} />
                     </View>
                   </TouchableOpacity>
 
                   <View style={styles.actionsRow}>
                     <KitchenButton
-                      title="Drukuj etykietę QR 🏷️"
+                      title={t('Drukuj etykietę QR 🏷️')}
                       variant="secondary"
                       onPress={() => handleShowLabel(item)}
                       style={{ flex: 1, marginRight: 6 }}
                     />
                     <KitchenButton
-                      title="Otwórz / Zjedz 🍴"
+                      title={t('Otwórz / Zjedz 🍴')}
                       variant="primary"
                       onPress={() => handleConsume(item.id, item.label)}
                       style={{ flex: 1, marginLeft: 6 }}
@@ -330,7 +335,7 @@ export default function PantryScreen() {
 
             {items.length > 0 && (
               <KitchenButton
-                title="Eksportuj stan spiżarni do CSV 📊"
+                title={t('Eksportuj stan spiżarni do CSV 📊')}
                 variant="ghost"
                 onPress={handleExportCsv}
                 style={{ marginTop: 12 }}
@@ -342,7 +347,7 @@ export default function PantryScreen() {
           <View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <Text style={{ fontSize: 16, fontWeight: '700', color: theme.colors.textPrimary }}>
-                Stan soli, szkła, przypraw i octów
+                {t('Stan soli, szkła, przypraw i octów')}
               </Text>
               <TouchableOpacity
                 onPress={() => {
@@ -355,17 +360,17 @@ export default function PantryScreen() {
                 style={styles.addIngHeaderBtn}
               >
                 <Text style={{ fontSize: 13, fontWeight: '700', color: theme.colors.pickleGreen }}>
-                  {isAddingIngredient ? 'Anuluj ✕' : '+ Dodaj surowiec'}
+                  {isAddingIngredient ? t('Anuluj ✕') : t('+ Dodaj surowiec')}
                 </Text>
               </TouchableOpacity>
             </View>
 
             {isAddingIngredient && (
               <KitchenCard variant="highlight" style={styles.addIngCard}>
-                <Text style={styles.addIngTitle}>Nowy surowiec kuchenny</Text>
+                <Text style={styles.addIngTitle}>{t('Nowy surowiec kuchenny')}</Text>
                 <TextInput
                   style={styles.textInput}
-                  placeholder="Nazwa surowca (np. Słoiki Weck 0.9L)"
+                  placeholder={t('Nazwa surowca (np. Słoiki Weck 0.9L)')}
                   placeholderTextColor={theme.colors.textMuted}
                   value={newIngName}
                   onChangeText={setNewIngName}
@@ -374,7 +379,7 @@ export default function PantryScreen() {
                 <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
                   <TextInput
                     style={[styles.textInput, { flex: 1 }]}
-                    placeholder="Ilość"
+                    placeholder={t('Ilość')}
                     keyboardType="numeric"
                     placeholderTextColor={theme.colors.textMuted}
                     value={newIngAmount}
@@ -382,14 +387,14 @@ export default function PantryScreen() {
                   />
                   <TextInput
                     style={[styles.textInput, { flex: 1 }]}
-                    placeholder="Jednostka (kg/szt/L)"
+                    placeholder={t('Jednostka (kg/szt/L)')}
                     placeholderTextColor={theme.colors.textMuted}
                     value={newIngUnit}
                     onChangeText={setNewIngUnit}
                   />
                   <TextInput
                     style={[styles.textInput, { flex: 1 }]}
-                    placeholder="Cena zł/jedn."
+                    placeholder={t('Cena zł/jedn.')}
                     keyboardType="numeric"
                     placeholderTextColor={theme.colors.textMuted}
                     value={newIngCost}
@@ -398,7 +403,7 @@ export default function PantryScreen() {
                 </View>
 
                 <KitchenButton
-                  title="Zapisz w magazynie 📦"
+                  title={t('Zapisz w magazynie 📦')}
                   onPress={handleSaveNewIngredient}
                   style={{ marginTop: 12 }}
                 />
@@ -410,7 +415,11 @@ export default function PantryScreen() {
                 <View style={{ flex: 1 }}>
                   <Text style={styles.ingName}>{ing.name}</Text>
                   <Text style={styles.ingSub}>
-                    Kategoria: {ing.category} · Szac. koszt: {ing.costPerUnit} zł/{ing.unit}
+                    {t('Kategoria: {category} · Szac. koszt: {cost} zł/{unit}', {
+                      category: ing.category,
+                      cost: ing.costPerUnit,
+                      unit: ing.unit,
+                    })}
                   </Text>
                 </View>
 
@@ -444,13 +453,13 @@ export default function PantryScreen() {
         <SafeAreaView style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <ModalHeader
-              title="Etykieta Kuchenna"
+              title={t('Etykieta Kuchenna')}
               onClose={() => setActiveLabel(null)}
-              closeLabel="Zamknij"
+              closeLabel={t('Zamknij')}
             />
             <View style={styles.modalBody}>
               <Text style={styles.modalTip}>
-                Gotowa etykieta z kodem QR do naklejenia na słoik:
+                {t('Gotowa etykieta z kodem QR do naklejenia na słoik:')}
               </Text>
 
               <View style={styles.labelPreviewBox}>
@@ -461,12 +470,12 @@ export default function PantryScreen() {
                   URI: {activeLabel?.qrPayload}
                 </Text>
                 <Text style={{ fontSize: 12, color: theme.colors.pickleGreen, fontWeight: '600' }}>
-                  Format: 80x50 mm (Standardowa etykieta boczna)
+                  {t('Format: 80x50 mm (Standardowa etykieta boczna)')}
                 </Text>
               </View>
 
               <KitchenButton
-                title="Drukuj / Eksportuj arkusz PDF 🖨️"
+                title={t('Drukuj / Eksportuj arkusz PDF 🖨️')}
                 onPress={handleExportPdf}
                 style={{ marginTop: 20 }}
               />
@@ -480,16 +489,16 @@ export default function PantryScreen() {
         <SafeAreaView style={styles.modalOverlay}>
           <View style={[styles.modalContent, { maxHeight: '90%' }]}>
             <ModalHeader
-              title="Kalkulator Kosztu Słoika 💰"
+              title={t('Kalkulator Kosztu Słoika 💰')}
               onClose={() => setIsCostModalOpen(false)}
-              closeLabel="Zamknij"
+              closeLabel={t('Zamknij')}
             />
             <ScrollView contentContainerStyle={styles.modalBody}>
               <Text style={styles.modalTip}>
-                Rzeczywisty koszt rzemieślniczego słoika vs delikatesowa półka sklepowa:
+                {t('Rzeczywisty koszt rzemieślniczego słoika vs delikatesowa półka sklepowa:')}
               </Text>
 
-              <Text style={styles.fieldLabel}>Liczba słoików w partii:</Text>
+              <Text style={styles.fieldLabel}>{t('Liczba słoików w partii:')}</Text>
               <View style={styles.presetRow}>
                 {[2, 4, 6, 8, 12].map((cnt) => (
                   <TouchableOpacity
@@ -498,13 +507,13 @@ export default function PantryScreen() {
                     style={[styles.presetBtn, calcJarsCount === cnt && styles.presetBtnActive]}
                   >
                     <Text style={[styles.presetText, calcJarsCount === cnt && styles.presetTextActive]}>
-                      {cnt} szt.
+                      {t('{count} szt.', { count: cnt })}
                     </Text>
                   </TouchableOpacity>
                 ))}
               </View>
 
-              <Text style={styles.fieldLabel}>Waga warzyw (g):</Text>
+              <Text style={styles.fieldLabel}>{t('Waga warzyw (g):')}</Text>
               <TextInput
                 style={styles.textInput}
                 keyboardType="numeric"
@@ -512,7 +521,7 @@ export default function PantryScreen() {
                 onChangeText={(v) => setCalcProduceGrams(parseInt(v, 10) || 0)}
               />
 
-              <Text style={styles.fieldLabel}>Cena warzyw (zł / kg):</Text>
+              <Text style={styles.fieldLabel}>{t('Cena warzyw (zł / kg):')}</Text>
               <TextInput
                 style={styles.textInput}
                 keyboardType="numeric"
@@ -524,11 +533,11 @@ export default function PantryScreen() {
               <View style={styles.costResultBox}>
                 <View style={styles.costBigRow}>
                   <View>
-                    <Text style={styles.costBigLabel}>Koszt całej partii:</Text>
+                    <Text style={styles.costBigLabel}>{t('Koszt całej partii:')}</Text>
                     <Text style={styles.costBigValue}>{costMetrics.totalBatchCost.toFixed(2)} zł</Text>
                   </View>
                   <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={styles.costBigLabel}>Za 1 słoik:</Text>
+                    <Text style={styles.costBigLabel}>{t('Za 1 słoik:')}</Text>
                     <Text style={[styles.costBigValue, { color: theme.colors.pickleGreen }]}>
                       {costMetrics.costPerJar.toFixed(2)} zł
                     </Text>
@@ -537,22 +546,38 @@ export default function PantryScreen() {
 
                 <View style={styles.savingsBox}>
                   <Text style={styles.savingsTitle}>
-                    🎉 Twoja oszczędność vs sklep bio ({costMetrics.storeBenchmarkTotalCost.toFixed(2)} zł):
+                    {t('🎉 Twoja oszczędność vs sklep bio ({cost} zł):', {
+                      cost: costMetrics.storeBenchmarkTotalCost.toFixed(2),
+                    })}
                   </Text>
                   <Text style={styles.savingsAmount}>
-                    +{costMetrics.totalSavings.toFixed(2)} zł ({costMetrics.savingsPercent}% taniej!)
+                    {t('+{savings} zł ({percent}% taniej!)', {
+                      savings: costMetrics.totalSavings.toFixed(2),
+                      percent: costMetrics.savingsPercent,
+                    })}
                   </Text>
                 </View>
 
                 <View style={styles.costBreakdown}>
-                  <Text style={styles.breakdownItem}>• Warzywa: {costMetrics.produceCost.toFixed(2)} zł</Text>
                   <Text style={styles.breakdownItem}>
-                    • Solanka (woda + sól): {(costMetrics.waterCost + costMetrics.saltCost).toFixed(2)} zł
+                    {t('• Warzywa: {cost} zł', { cost: costMetrics.produceCost.toFixed(2) })}
                   </Text>
-                  <Text style={styles.breakdownItem}>• Przyprawy i zioła: {costMetrics.herbsCost.toFixed(2)} zł</Text>
-                  <Text style={styles.breakdownItem}>• Słoiki i nowe wieczka: {costMetrics.jarsCost.toFixed(2)} zł</Text>
                   <Text style={styles.breakdownItem}>
-                    • Energia kuchenna: {costMetrics.energyCost.toFixed(2)} zł ({costMetrics.energyKwh} kWh)
+                    {t('• Solanka (woda + sól): {cost} zł', {
+                      cost: (costMetrics.waterCost + costMetrics.saltCost).toFixed(2),
+                    })}
+                  </Text>
+                  <Text style={styles.breakdownItem}>
+                    {t('• Przyprawy i zioła: {cost} zł', { cost: costMetrics.herbsCost.toFixed(2) })}
+                  </Text>
+                  <Text style={styles.breakdownItem}>
+                    {t('• Słoiki i nowe wieczka: {cost} zł', { cost: costMetrics.jarsCost.toFixed(2) })}
+                  </Text>
+                  <Text style={styles.breakdownItem}>
+                    {t('• Energia kuchenna: {cost} zł ({kwh} kWh)', {
+                      cost: costMetrics.energyCost.toFixed(2),
+                      kwh: costMetrics.energyKwh,
+                    })}
                   </Text>
                 </View>
               </View>
@@ -572,8 +597,8 @@ export default function PantryScreen() {
       <PaywallModal
         visible={isPaywallOpen}
         onClose={() => setIsPaywallOpen(false)}
-        reasonTitle="Okres próbny wygasł 📦"
-        reasonSubtitle="Twój dotychczasowy magazyn i spiżarnia są w 100% bezpieczne w trybie Read-Only. Odblokuj dodawanie nowych surowców i słoików subskrybując taniej niż kawa espresso ($0.99 / $4.99)!"
+        reasonTitle={t('Okres próbny wygasł 📦')}
+        reasonSubtitle={t('Twój dotychczasowy magazyn i spiżarnia są w 100% bezpieczne w trybie Read-Only. Odblokuj dodawanie nowych surowców i słoików subskrybując taniej niż kawa espresso ($0.99 / $4.99)!')}
       />
     </SafeAreaView>
   );

@@ -23,8 +23,10 @@ import { theme } from '../../src/ui/theme';
 import { KitchenCard } from '../../src/ui/components/KitchenCard';
 import { KitchenButton } from '../../src/ui/components/KitchenButton';
 import { Badge } from '../../src/ui/components/Badge';
+import { t, useLang } from '../../src/lib/i18n';
 
 export default function DoctorScreen() {
+  useLang();
   const [activeTab, setActiveTab] = useState<'diagnosis' | 'emergency'>('diagnosis');
 
   // Stan dla drzewa diagnostycznego
@@ -62,9 +64,9 @@ export default function DoctorScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.header}>
-          <Text style={theme.typography.heroTitle}>Słoikowy Ratownik 🩺</Text>
+          <Text style={theme.typography.heroTitle}>{t('Słoikowy Ratownik 🩺')}</Text>
           <Text style={styles.tagline}>
-            Diagnoza mikrobiologiczna i natychmiastowe procedury ratowania fermentacji.
+            {t('Diagnoza mikrobiologiczna i natychmiastowe procedury ratowania fermentacji.')}
           </Text>
         </View>
 
@@ -78,7 +80,7 @@ export default function DoctorScreen() {
             <Text
               style={[styles.tabButtonText, activeTab === 'diagnosis' && styles.tabButtonTextActive]}
             >
-              🩺 Diagnoza Objawów
+              {t('🩺 Diagnoza Objawów')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -89,7 +91,7 @@ export default function DoctorScreen() {
             <Text
               style={[styles.tabButtonText, activeTab === 'emergency' && styles.tabButtonTextActive]}
             >
-              🚨 Procedury Ratunkowe
+              {t('🚨 Procedury Ratunkowe')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -117,7 +119,7 @@ export default function DoctorScreen() {
 
               {currentNodeId !== 'ROOT' && (
                 <KitchenButton
-                  title="Wróć do początku ↺"
+                  title={t('Wróć do początku ↺')}
                   variant="ghost"
                   onPress={handleReset}
                   style={{ marginTop: 12 }}
@@ -136,7 +138,7 @@ export default function DoctorScreen() {
               >
                 <View style={styles.diagHeader}>
                   <Badge
-                    label={activeDiagnosis.isSafeToEat ? 'BEZPIECZNE DO JEDZENIA ✅' : 'BEZWZGLĘDNIE WYRZUĆ ⚠️'}
+                    label={activeDiagnosis.isSafeToEat ? t('BEZPIECZNE DO JEDZENIA ✅') : t('BEZWZGLĘDNIE WYRZUĆ ⚠️')}
                     variant={activeDiagnosis.isSafeToEat ? 'green' : 'red'}
                   />
                 </View>
@@ -145,12 +147,12 @@ export default function DoctorScreen() {
                 <Text style={styles.diagShort}>{activeDiagnosis.shortExplanation}</Text>
 
                 <View style={styles.diagSection}>
-                  <Text style={styles.diagSectionHeader}>🔬 Wyjaśnienie biologiczne:</Text>
+                  <Text style={styles.diagSectionHeader}>{t('🔬 Wyjaśnienie biologiczne:')}</Text>
                   <Text style={styles.diagBodyText}>{activeDiagnosis.detailedCause}</Text>
                 </View>
 
                 <View style={styles.diagSection}>
-                  <Text style={styles.diagSectionHeader}>🛠️ Co zrobić teraz (Krok po kroku):</Text>
+                  <Text style={styles.diagSectionHeader}>{t('🛠️ Co zrobić teraz (Krok po kroku):')}</Text>
                   {activeDiagnosis.actionSteps.map((step, idx) => (
                     <Text key={idx} style={styles.stepItem}>
                       {idx + 1}. {step}
@@ -159,13 +161,13 @@ export default function DoctorScreen() {
                 </View>
 
                 <View style={styles.diagSection}>
-                  <Text style={styles.diagSectionHeader}>💡 Jak zapobiec temu w przyszłości:</Text>
+                  <Text style={styles.diagSectionHeader}>{t('💡 Jak zapobiec temu w przyszłości:')}</Text>
                   <Text style={styles.diagBodyText}>{activeDiagnosis.howToPreventNextTime}</Text>
                 </View>
               </KitchenCard>
 
               <KitchenButton
-                title="Sprawdź inny słoik / Zdiagnozuj ponownie ↺"
+                title={t('Sprawdź inny słoik / Zdiagnozuj ponownie ↺')}
                 onPress={handleReset}
                 style={{ marginTop: 16 }}
               />
@@ -177,16 +179,15 @@ export default function DoctorScreen() {
             {/* Kalkulator Dolania Solanki Uzupełniającej */}
             <KitchenCard variant="elevated" style={styles.calculatorCard}>
               <View style={styles.calcHeaderRow}>
-                <Text style={styles.calcTitle}>💧 Kalkulator Solanki Uzupełniającej</Text>
-                <Badge label="100% OFFLINE" variant="green" />
+                <Text style={styles.calcTitle}>{t('💧 Kalkulator Solanki Uzupełniającej')}</Text>
+                <Badge label={t('100% OFFLINE')} variant="green" />
               </View>
               <Text style={styles.calcSubtitle}>
-                Warzywa wystają lub solanka wykipiała? Przygotuj dolewkę o identycznym stężeniu %,
-                aby nie dopuścić do zakażenia tlenowego.
+                {t('Warzywa wystają lub solanka wykipiała? Przygotuj dolewkę o identycznym stężeniu %, aby nie dopuścić do zakażenia tlenowego.')}
               </Text>
 
               {/* Wybór objętości */}
-              <Text style={styles.fieldLabel}>Brakująca objętość cieczy (ml):</Text>
+              <Text style={styles.fieldLabel}>{t('Brakująca objętość cieczy (ml):')}</Text>
               <View style={styles.presetRow}>
                 {[100, 200, 250, 500, 750].map((vol) => (
                   <TouchableOpacity
@@ -203,7 +204,7 @@ export default function DoctorScreen() {
                         missingVolumeMl === vol && styles.presetTextActive,
                       ]}
                     >
-                      {vol} ml
+                      {t('{volume} ml', { volume: vol })}
                     </Text>
                   </TouchableOpacity>
                 ))}
@@ -218,12 +219,12 @@ export default function DoctorScreen() {
                   if (!isNaN(num) && num > 0) setMissingVolumeMl(num);
                   else if (val === '') setMissingVolumeMl(0);
                 }}
-                placeholder="Wpisz własną objętość w ml..."
+                placeholder={t('Wpisz własną objętość w ml...')}
                 placeholderTextColor={theme.colors.textMuted}
               />
 
               {/* Wybór stężenia solanki */}
-              <Text style={styles.fieldLabel}>Docelowe stężenie solanki (%):</Text>
+              <Text style={styles.fieldLabel}>{t('Docelowe stężenie solanki (%):')}</Text>
               <View style={styles.presetRow}>
                 {[1.8, 2.0, 2.5, 3.0, 3.5].map((sal) => (
                   <TouchableOpacity
@@ -240,7 +241,7 @@ export default function DoctorScreen() {
                         targetSalinity === sal && styles.presetTextActive,
                       ]}
                     >
-                      {sal}%
+                      {t('{sal}%', { sal })}
                     </Text>
                   </TouchableOpacity>
                 ))}
@@ -248,13 +249,13 @@ export default function DoctorScreen() {
 
               {/* Wynik kalkulacji */}
               <View style={styles.resultBox}>
-                <Text style={styles.resultHeader}>⚖️ Receptura dolewki:</Text>
+                <Text style={styles.resultHeader}>{t('⚖️ Receptura dolewki:')}</Text>
                 <View style={styles.resultRow}>
                   <Text style={styles.resultItem}>
-                    🌊 Woda: <Text style={styles.resultBold}>{brineCalculation.waterMl} ml</Text>
+                    {t('🌊 Woda:')} <Text style={styles.resultBold}>{brineCalculation.waterMl} ml</Text>
                   </Text>
                   <Text style={styles.resultItem}>
-                    🧂 Sól kamienna: <Text style={styles.resultBold}>{brineCalculation.saltGrams} g</Text>
+                    {t('🧂 Sól kamienna:')} <Text style={styles.resultBold}>{brineCalculation.saltGrams} g</Text>
                   </Text>
                 </View>
 
@@ -276,7 +277,7 @@ export default function DoctorScreen() {
 
             {/* Baza Dedykowanych Procedur Ratunkowych */}
             <Text style={styles.proceduresSectionTitle}>
-              🛠️ Baza Złotych Procedur Ratunkowych
+              {t('🛠️ Baza Złotych Procedur Ratunkowych')}
             </Text>
 
             {EMERGENCY_PROCEDURES.map((proc) => {
@@ -293,8 +294,8 @@ export default function DoctorScreen() {
                         <Badge
                           label={
                             proc.urgency === 'high_critical'
-                              ? 'PILNE ⚡'
-                              : 'ŚREDNIE ⏳'
+                              ? t('PILNE ⚡')
+                              : t('ŚREDNIE ⏳')
                           }
                           variant={proc.urgency === 'high_critical' ? 'red' : 'amber'}
                         />
@@ -309,7 +310,7 @@ export default function DoctorScreen() {
 
                   {isExpanded && (
                     <View style={styles.procedureDetails}>
-                      <Text style={styles.procSubhead}>📋 Kroki postępowania:</Text>
+                      <Text style={styles.procSubhead}>{t('📋 Kroki postępowania:')}</Text>
                       {proc.steps.map((st, i) => (
                         <Text key={i} style={styles.stepItem}>
                           {i + 1}. {st}
@@ -317,7 +318,7 @@ export default function DoctorScreen() {
                       ))}
 
                       <Text style={[styles.procSubhead, { color: theme.colors.pickleGreen }]}>
-                        💡 Wskazówki mistrza przetwórstwa:
+                        {t('💡 Wskazówki mistrza przetwórstwa:')}
                       </Text>
                       {proc.proTips.map((tip, i) => (
                         <Text key={i} style={styles.tipItem}>
@@ -326,7 +327,7 @@ export default function DoctorScreen() {
                       ))}
 
                       <Text style={[styles.procSubhead, { color: theme.colors.danger }]}>
-                        🚫 Czego bezwzględnie unikać:
+                        {t('🚫 Czego bezwzględnie unikać:')}
                       </Text>
                       {proc.mistakesToAvoid.map((mistake, i) => (
                         <Text key={i} style={styles.mistakeItem}>

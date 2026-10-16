@@ -26,6 +26,7 @@ import { KitchenButton } from '../../src/ui/components/KitchenButton';
 import { Badge } from '../../src/ui/components/Badge';
 import { useAppAccess } from '../../src/core/access/app-access';
 import { PaywallModal } from '../../src/ui/components/PaywallModal';
+import { t, useLang } from '../../src/lib/i18n';
 import {
   useUnitSystem,
   formatProduceWeight,
@@ -84,6 +85,7 @@ const QUICK_PRESETS: QuickPreset[] = [
 
 export default function WizardScreen() {
   const { canCreate } = useAppAccess();
+  useLang();
   const unitSystem = useUnitSystem();
   const [isPaywallOpen, setIsPaywallOpen] = useState(false);
 
@@ -111,7 +113,7 @@ export default function WizardScreen() {
     : Math.round(produceWeightNum * (activePreset?.waterRatio || 0.8));
 
   const effectiveTitle =
-    customTitle.trim() || activePreset?.name || 'Własny nastaw rzemieślniczy';
+    customTitle.trim() || activePreset?.name || t('Własny nastaw rzemieślniczy');
 
   const brineResult = calculateBrine({
     produceWeightGrams: produceWeightNum,
@@ -170,9 +172,9 @@ export default function WizardScreen() {
     scheduleFermentationAlerts(newBatch.id, timeline).catch(() => {});
 
     Alert.alert(
-      'Partia nastawiona! 🫙',
-      `Słoik "${newBatch.recipeTitle}" trafił do aktywnego kalendarza fermentacji. Zaplanowano przypomnienia o odgazowaniu (burping).`,
-      [{ text: 'Wspaniale!' }]
+      t('Partia nastawiona! 🫙'),
+      t('Słoik "{title}" trafił do aktywnego kalendarza fermentacji. Zaplanowano przypomnienia o odgazowaniu (burping).', { title: newBatch.recipeTitle }),
+      [{ text: t('Wspaniale!') }]
     );
   };
 
@@ -183,14 +185,14 @@ export default function WizardScreen() {
       <ScrollView contentContainerStyle={styles.container}>
         {/* Nagłówek */}
         <View style={styles.header}>
-          <Text style={theme.typography.heroTitle}>Kalkulator Solanki 🥒</Text>
+          <Text style={theme.typography.heroTitle}>{t('Kalkulator Solanki 🥒')}</Text>
           <Text style={styles.tagline}>
-            Tryb 1-Tap „Do Słoika na Wagę”. Idealna chrupkość w mniej niż 20 sekund.
+            {t('Tryb 1-Tap „Do Słoika na Wagę”. Idealna chrupkość w mniej niż 20 sekund.')}
           </Text>
         </View>
 
         {/* 1. SELEKTOR SZYBKIEGO NASTAWU */}
-        <Text style={styles.sectionLabel}>Co dzisiaj kisisz?</Text>
+        <Text style={styles.sectionLabel}>{t('Co dzisiaj kisisz?')}</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
           {QUICK_PRESETS.map((preset) => {
             const isSelected = selectedPresetId === preset.id;
@@ -202,7 +204,7 @@ export default function WizardScreen() {
                 style={[styles.presetChip, isSelected && styles.presetChipActive]}
               >
                 <Text style={[styles.presetChipText, isSelected && styles.presetChipTextActive]}>
-                  {preset.name}
+                  {t(preset.name)}
                 </Text>
               </TouchableOpacity>
             );
@@ -211,7 +213,7 @@ export default function WizardScreen() {
 
         {/* 2. KROK 1: ILE MASZ WARZYW? (ZASADA BRUDNEGO KCIUKA - STEPPERY >= 52PT) */}
         <KitchenCard variant="elevated" style={styles.card}>
-          <Text style={styles.cardHeaderTitle}>1. Ile masz warzyw na wadze kuchennej?</Text>
+          <Text style={styles.cardHeaderTitle}>{t('1. Ile masz warzyw na wadze kuchennej?')}</Text>
 
           <View style={styles.stepperContainer}>
             <View style={styles.stepperRow}>
@@ -261,13 +263,13 @@ export default function WizardScreen() {
 
         {/* 3. KROK 2: NATYCHMIASTOWA RECEPTA KUCHENNA */}
         <KitchenCard variant="highlight" style={styles.recipeBox}>
-          <Text style={styles.recipeHeader}>2. Wsyp dokładnie do słoika:</Text>
+          <Text style={styles.recipeHeader}>{t('2. Wsyp dokładnie do słoika:')}</Text>
 
           <View style={styles.ingredientRow}>
             <Text style={styles.ingEmoji}>🧂</Text>
             <View style={{ flex: 1 }}>
               <Text style={styles.ingMain}>
-                Sól kamienna niejodowana:{' '}
+                {t('Sól kamienna niejodowana:')}{' '}
                 <Text style={styles.ingBold}>
                   {unitSystem === 'imperial'
                     ? `${formatSaltWeight(brineResult.saltGrams, 'imperial')} (${brineResult.saltGrams} g)`
@@ -275,7 +277,7 @@ export default function WizardScreen() {
                 </Text>
               </Text>
               <Text style={styles.ingSub}>
-                (~{spoonsOfSalt} płaskiej łyżki stołowej · stężenie {effectiveSalinity}%)
+                {t('(~{spoons} płaskiej łyżki stołowej · stężenie {salinity}%)', { spoons: spoonsOfSalt, salinity: effectiveSalinity })}
               </Text>
             </View>
           </View>
@@ -284,10 +286,10 @@ export default function WizardScreen() {
             <Text style={styles.ingEmoji}>💧</Text>
             <View style={{ flex: 1 }}>
               <Text style={styles.ingMain}>
-                Woda przegotowana / przefiltrowana:{' '}
+                {t('Woda przegotowana / przefiltrowana:')}{' '}
                 <Text style={styles.ingBold}>
                   {effectiveDrySalting
-                    ? '0 ml (Sok własny)'
+                    ? t('0 ml (Sok własny)')
                     : unitSystem === 'imperial'
                     ? `${formatBrineVolume(effectiveWaterWeight, 'imperial')} (${effectiveWaterWeight} ml)`
                     : `${effectiveWaterWeight} ml`}
@@ -295,8 +297,8 @@ export default function WizardScreen() {
               </Text>
               <Text style={styles.ingSub}>
                 {effectiveDrySalting
-                  ? 'Solenie na sucho: po 20 min mocno ugnieć warzywa, aż puszczą sok'
-                  : 'Ostudź do temperatury pokojowej (<22°C) przed zalaniem'}
+                  ? t('Solenie na sucho: po 20 min mocno ugnieć warzywa, aż puszczą sok')
+                  : t('Ostudź do temperatury pokojowej (<22°C) przed zalaniem')}
               </Text>
             </View>
           </View>
@@ -304,16 +306,16 @@ export default function WizardScreen() {
           <View style={styles.ingredientRow}>
             <Text style={styles.ingEmoji}>🌿</Text>
             <View style={{ flex: 1 }}>
-              <Text style={styles.ingMain}>Dodatki rzemieślnika (Chrupkość i aromat):</Text>
+              <Text style={styles.ingMain}>{t('Dodatki rzemieślnika (Chrupkość i aromat):')}</Text>
               <Text style={styles.ingSub}>
-                {activePreset?.herbs || 'Czosnek, baldach kopru, kawałek chrzanu, liść dębu'}
+                {activePreset?.herbs ? t(activePreset.herbs) : t('Czosnek, baldach kopru, kawałek chrzanu, liść dębu')}
               </Text>
             </View>
           </View>
 
           {/* PRZYCISK GŁÓWNY 1-TAP (52pt) */}
           <KitchenButton
-            title="🫙 NASTAW SŁOIK W 1 TAP"
+            title={t('🫙 NASTAW SŁOIK W 1 TAP')}
             onPress={handleSaveToPantry}
             style={styles.oneTapButton}
           />
@@ -328,10 +330,10 @@ export default function WizardScreen() {
           >
             <View style={{ flex: 1 }}>
               <Text style={styles.accordionTitle}>
-                🔬 Parametry Rzemieślnicze & Chemia Kiszonki
+                {t('🔬 Parametry Rzemieślnicze & Chemia Kiszonki')}
               </Text>
               <Text style={styles.accordionSubtitle}>
-                Dla zaawansowanych: własne stężenie soli %, solenie na sucho, chlorki, pH
+                {t('Dla zaawansowanych: własne stężenie soli %, solenie na sucho, chlorki, pH')}
               </Text>
             </View>
             <Text style={styles.accordionArrow}>{isAdvancedOpen ? '▲' : '▼'}</Text>
@@ -339,32 +341,32 @@ export default function WizardScreen() {
 
           {isAdvancedOpen && (
             <View style={styles.accordionBody}>
-              <Text style={styles.advLabel}>Własna nazwa partii:</Text>
+              <Text style={styles.advLabel}>{t('Własna nazwa partii:')}</Text>
               <TextInput
                 style={styles.advInput}
                 value={customTitle}
                 onChangeText={setCustomTitle}
-                placeholder="np. Ogórki z imbirem i chili"
+                placeholder={t('np. Ogórki z imbirem i chili')}
                 placeholderTextColor={theme.colors.textMuted}
               />
 
               <View style={{ flexDirection: 'row', gap: 10, marginVertical: 8 }}>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.advLabel}>Własna woda (ml):</Text>
+                  <Text style={styles.advLabel}>{t('Własna woda (ml):')}</Text>
                   <TextInput
                     style={styles.advInput}
                     keyboardType="numeric"
                     value={String(customWaterWeight)}
-                    onChangeText={(t) => setCustomWaterWeight(parseInt(t, 10) || 0)}
+                    onChangeText={(tVal) => setCustomWaterWeight(parseInt(tVal, 10) || 0)}
                   />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.advLabel}>Pomiar pH:</Text>
+                  <Text style={styles.advLabel}>{t('Pomiar pH:')}</Text>
                   <TextInput
                     style={styles.advInput}
                     keyboardType="numeric"
                     value={String(foodPh)}
-                    onChangeText={(t) => setFoodPh(parseFloat(t) || 3.8)}
+                    onChangeText={(tVal) => setFoodPh(parseFloat(tVal) || 3.8)}
                   />
                 </View>
               </View>
@@ -375,12 +377,12 @@ export default function WizardScreen() {
               >
                 <Text style={{ fontSize: 18 }}>{isDrySaltingCustom ? '☑️' : '◻️'}</Text>
                 <Text style={styles.toggleText}>
-                  Wymuś solenie na sucho (Dry Salting — bez wody)
+                  {t('Wymuś solenie na sucho (Dry Salting — bez wody)')}
                 </Text>
               </TouchableOpacity>
 
               <Text style={[styles.advLabel, { marginTop: 8 }]}>
-                Precyzyjne stężenie soli (%):
+                {t('Precyzyjne stężenie soli (%):')}
               </Text>
               <View style={styles.saltChipsRow}>
                 {[1.8, 2.0, 2.2, 2.5, 3.0, 3.5].map((sal) => (
@@ -416,11 +418,11 @@ export default function WizardScreen() {
 
               <View style={styles.safetyBox}>
                 <Text style={styles.safetyHeader}>
-                  {safetyResult.isSafeForWaterBath ? '✅ Bezpieczeństwo biologiczne USDA' : '⚠️ Ostrzeżenie USDA'}
+                  {safetyResult.isSafeForWaterBath ? t('✅ Bezpieczeństwo biologiczne USDA') : t('⚠️ Ostrzeżenie USDA')}
                 </Text>
                 <Text style={styles.safetyText}>
                   {safetyResult.isSafeForWaterBath
-                    ? `Produkt kwaśny (pH < 4.60). Czas pasteryzacji słoika 1L: ${safetyResult.targetMinutes} minut.`
+                    ? t('Produkt kwaśny (pH < 4.60). Czas pasteryzacji słoika 1L: {minutes} minut.', { minutes: safetyResult.targetMinutes })
                     : safetyResult.safetyWarning}
                 </Text>
               </View>
@@ -433,8 +435,8 @@ export default function WizardScreen() {
       <PaywallModal
         visible={isPaywallOpen}
         onClose={() => setIsPaywallOpen(false)}
-        reasonTitle="Okres próbny wygasł 🫙"
-        reasonSubtitle="Twoja dotychczasowa spiżarnia i przepisy są zawsze bezpieczne w trybie Read-Only. Odblokuj tworzenie nowych słoików taniej niż kawa espresso ($0.99 / $4.99)!"
+        reasonTitle={t('Okres próbny wygasł 🫙')}
+        reasonSubtitle={t('Twoja dotychczasowa spiżarnia i przepisy są zawsze bezpieczne w trybie Read-Only. Odblokuj tworzenie nowych słoików taniej niż kawa espresso ($0.99 / $4.99)!')}
       />
     </SafeAreaView>
   );

@@ -15,6 +15,7 @@ import { theme } from '../../src/ui/theme';
 import { KitchenCard } from '../../src/ui/components/KitchenCard';
 import { KitchenButton } from '../../src/ui/components/KitchenButton';
 import { Badge } from '../../src/ui/components/Badge';
+import { t, useLang } from '../../src/lib/i18n';
 
 
 const CATEGORIES: { label: string; value: RecipeCategory | 'all' }[] = [
@@ -31,6 +32,7 @@ import { useRouter } from 'expo-router';
 
 export default function RecipesScreen() {
   const router = useRouter();
+  useLang();
   const [selectedCategory, setSelectedCategory] = useState<RecipeCategory | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRecipe, setSelectedRecipe] = useState<MasterRecipe | null>(null);
@@ -58,26 +60,26 @@ export default function RecipesScreen() {
         {/* Nagłówek */}
         <View style={styles.header}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={theme.typography.heroTitle}>Słoik (Jarwise) 🫙</Text>
+            <Text style={theme.typography.heroTitle}>{t('Słoik (Jarwise) 🫙')}</Text>
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <TouchableOpacity
                 onPress={() => router.push('/experiments')}
                 style={styles.iconButton}
-                accessibilityLabel="Laboratorium Eksperymentów"
+                accessibilityLabel={t('Laboratorium Eksperymentów')}
               >
                 <Text style={{ fontSize: 20 }}>🔬</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => router.push('/pasteurizer')}
                 style={styles.iconButton}
-                accessibilityLabel="Stoper Pasteryzacji"
+                accessibilityLabel={t('Stoper Pasteryzacji')}
               >
                 <Text style={{ fontSize: 20 }}>⏱️</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => router.push('/settings')}
                 style={styles.iconButton}
-                accessibilityLabel="Ustawienia i Kopia"
+                accessibilityLabel={t('Ustawienia i Kopia')}
               >
                 <Text style={{ fontSize: 20 }}>⚙️</Text>
               </TouchableOpacity>
@@ -85,7 +87,7 @@ export default function RecipesScreen() {
           </View>
 
           <Text style={styles.tagline}>
-            Od chrupiących ogórków babci po kimchi i pikle ze świata.
+            {t('Od chrupiących ogórków babci po kimchi i pikle ze świata.')}
           </Text>
         </View>
 
@@ -94,12 +96,12 @@ export default function RecipesScreen() {
           activeOpacity={0.85}
           onPress={() => router.push('/(tabs)/kreator')}
           style={styles.quickStartBanner}
-          accessibilityLabel="Szybki Start 1-Tap w Kreatorze Solanki"
+          accessibilityLabel={t('Szybki Start 1-Tap w Kreatorze Solanki')}
         >
           <View style={{ flex: 1 }}>
-            <Text style={styles.quickStartTitle}>⚡ Szybki Start 1-Tap: Nowy Słoik</Text>
+            <Text style={styles.quickStartTitle}>{t('⚡ Szybki Start 1-Tap: Nowy Słoik')}</Text>
             <Text style={styles.quickStartSub}>
-              Waga kuchenna na blat i idealna solanka gotowa w 20 sekund!
+              {t('Waga kuchenna na blat i idealna solanka gotowa w 20 sekund!')}
             </Text>
           </View>
           <Text style={styles.quickStartArrow}>🥒 ➔</Text>
@@ -110,7 +112,7 @@ export default function RecipesScreen() {
           <Text style={{ fontSize: 16, marginRight: 8 }}>🔍</Text>
           <TextInput
             style={styles.searchInput}
-            placeholder="Szukaj ogórków, kimchi, dżemu, octu..."
+            placeholder={t('Szukaj ogórków, kimchi, dżemu, octu...')}
             placeholderTextColor={theme.colors.textMuted}
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -134,7 +136,7 @@ export default function RecipesScreen() {
                   selectedCategory === cat.value && styles.categoryChipTextActive,
                 ]}
               >
-                {cat.label}
+                {t(cat.label)}
               </Text>
             </TouchableOpacity>
           ))}
@@ -142,7 +144,7 @@ export default function RecipesScreen() {
 
         {/* Licznik receptur */}
         <Text style={styles.countText}>
-          Znaleziono receptur: {filteredRecipes.length} z 24
+          {t('Znaleziono receptur: {count} z 24', { count: filteredRecipes.length })}
         </Text>
 
         {/* Lista Receptur */}
@@ -166,31 +168,37 @@ export default function RecipesScreen() {
 
               <View style={styles.paramRow}>
                 <Text style={styles.paramText}>
-                  ⚖️ Sól: <Text style={{ fontWeight: '700', color: theme.colors.pickleGreen }}>{recipe.defaultSalinityPercent > 0 ? `${recipe.defaultSalinityPercent}%` : 'Bez soli'}</Text>
+                  {t('Sól:')}{' '}
+                  <Text style={{ fontWeight: '700', color: theme.colors.pickleGreen }}>
+                    {recipe.defaultSalinityPercent > 0 ? `${recipe.defaultSalinityPercent}%` : t('Bez soli')}
+                  </Text>
                 </Text>
                 <Text style={styles.paramText}>
-                  ⏳ Czas: <Text style={{ fontWeight: '700', color: theme.colors.pickleGreen }}>{recipe.fermentationDays > 0 ? `${recipe.fermentationDays} dni` : 'Pasteryzacja'}</Text>
+                  {t('Czas:')}{' '}
+                  <Text style={{ fontWeight: '700', color: theme.colors.pickleGreen }}>
+                    {recipe.fermentationDays > 0 ? `${recipe.fermentationDays} ${t('dni')}` : t('Pasteryzacja')}
+                  </Text>
                 </Text>
               </View>
 
               {/* Rozwinięcie szczegółów receptury */}
               {selectedRecipe?.id === recipe.id && (
                 <View style={styles.expandedDetails}>
-                  <Text style={styles.detailSectionTitle}>🥬 Składniki na słoik 1L:</Text>
+                  <Text style={styles.detailSectionTitle}>{t('🥬 Składniki na słoik 1L:')}</Text>
                   {recipe.ingredients.map((ing, idx) => (
                     <Text key={idx} style={styles.ingredientItem}>
                       • {ing.name}: {ing.amount} {ing.unit}
                     </Text>
                   ))}
 
-                  <Text style={styles.detailSectionTitle}>✨ Sekret Chrupkości:</Text>
+                  <Text style={styles.detailSectionTitle}>{t('✨ Sekret Chrupkości:')}</Text>
                   {recipe.crispnessSecrets.map((secret, idx) => (
                     <Text key={idx} style={styles.secretText}>
                       💡 {secret}
                     </Text>
                   ))}
 
-                  <Text style={styles.detailSectionTitle}>📝 Przygotowanie krok po kroku:</Text>
+                  <Text style={styles.detailSectionTitle}>{t('📝 Przygotowanie krok po kroku:')}</Text>
                   {recipe.steps.map((step, idx) => (
                     <Text key={idx} style={styles.stepText}>
                       {idx + 1}. {step}
@@ -199,7 +207,7 @@ export default function RecipesScreen() {
 
                   <View style={{ marginTop: 14 }}>
                     <KitchenButton
-                      title="Przelicz na wagę w Kreatorze ⚖️ ➔"
+                      title={t('Przelicz na wagę w Kreatorze ⚖️ ➔')}
                       variant="primary"
                       onPress={() => router.push('/(tabs)/kreator')}
                     />
