@@ -18,9 +18,13 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.apps4brew.sloik",
+      "appleTeamId": "8NQ9GHY8GF",
       "buildNumber": "1",
       "infoPlist": {
         "UIBackgroundModes": ["audio"],
+        "UIFileSharingEnabled": true,
+        "LSSupportsOpeningDocumentsInPlace": true,
+        "CFBundleAllowMixedLocalizations": true,
         "NSCameraUsageDescription": "Aparat jest używany do szybkiego skanowania kodów QR na etykietach słoików w Twojej spiżarni.",
         "ITSAppUsesNonExemptEncryption": false
       }
