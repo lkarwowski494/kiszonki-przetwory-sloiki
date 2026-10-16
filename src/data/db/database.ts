@@ -6,6 +6,12 @@
 
 import { MASTER_RECIPES } from '../../core/recipes/recipes-data';
 import { MasterRecipe } from '../../core/types';
+import {
+  ExperimentSeries,
+  ExperimentVariant,
+  SensoryEvaluation,
+} from '../../core/experiments/types';
+import { promoteVariantToCustomRecipe } from '../../core/experiments/experiment-engine';
 
 export interface BatchRecord {
   id: string;
@@ -56,12 +62,16 @@ export interface DatabaseBackupPayload {
   batches: BatchRecord[];
   pantryItems: PantryItemRecord[];
   fermentationLogs: FermentationLogRecord[];
+  experimentSeries?: ExperimentSeries[];
+  customRecipes?: MasterRecipe[];
 }
 
 export class LocalDatabaseStore {
   private batches: BatchRecord[] = [];
   private pantryItems: PantryItemRecord[] = [];
   private fermentationLogs: FermentationLogRecord[] = [];
+  private experimentSeries: ExperimentSeries[] = [];
+  private customRecipes: MasterRecipe[] = [];
   private initialized = false;
 
   public init(): void {
@@ -100,6 +110,71 @@ export class LocalDatabaseStore {
         sensoryNote: 'Zalewa mętna, czuć silny zapach czosnku i kopru.',
         burped: true,
         tasted: false,
+      },
+    ];
+
+    this.experimentSeries = [
+      {
+        id: 'exp_demo_01',
+        title: 'Wielki Test Chrupkości Ogórka 2026',
+        baseProduceName: 'Ogórki gruntowe Śremski',
+        totalProduceGrams: 2000,
+        jarCount: 4,
+        hypothesis: 'Wpływ źródeł tanin i soli na chrupkość po 14 dniach',
+        axis: 'tannins_crispness',
+        status: 'fermenting',
+        blindCuppingEnabled: true,
+        createdAt: now - 1000 * 60 * 60 * 48,
+        variants: [
+          {
+            id: 'exp_demo_01_var_a',
+            seriesId: 'exp_demo_01',
+            variantLetter: 'A',
+            name: 'Słoik A (Kontrola)',
+            parameterDelta: 'Bez dodatków garbnikowych (solanka 2.0%)',
+            produceGrams: 500,
+            waterGrams: 400,
+            saltGrams: 18.0,
+            salinityPercent: 2.0,
+            specialAdditions: ['Koper: 1 baldach', 'Czosnek: 2 ząbki'],
+          },
+          {
+            id: 'exp_demo_01_var_b',
+            seriesId: 'exp_demo_01',
+            variantLetter: 'B',
+            name: 'Słoik B (Liść dębu)',
+            parameterDelta: '2 świeże liście dębu (taniny elagowe)',
+            produceGrams: 500,
+            waterGrams: 400,
+            saltGrams: 18.0,
+            salinityPercent: 2.0,
+            specialAdditions: ['Koper: 1 baldach', 'Czosnek: 2 ząbki', 'Liście dębu: 2 szt.'],
+          },
+          {
+            id: 'exp_demo_01_var_c',
+            seriesId: 'exp_demo_01',
+            variantLetter: 'C',
+            name: 'Słoik C (Liść czarnej porzeczki)',
+            parameterDelta: '3 liście czarnej porzeczki (taniny + enzymy)',
+            produceGrams: 500,
+            waterGrams: 400,
+            saltGrams: 18.0,
+            salinityPercent: 2.0,
+            specialAdditions: ['Koper: 1 baldach', 'Czosnek: 2 ząbki', 'Liście porzeczki: 3 szt.'],
+          },
+          {
+            id: 'exp_demo_01_var_d',
+            seriesId: 'exp_demo_01',
+            variantLetter: 'D',
+            name: 'Słoik D (Chlorek wapnia CaCl2)',
+            parameterDelta: '0.5g CaCl2 na słoik (mostki pektynowe)',
+            produceGrams: 500,
+            waterGrams: 400,
+            saltGrams: 18.0,
+            salinityPercent: 2.0,
+            specialAdditions: ['Koper: 1 baldach', 'Czosnek: 2 ząbki', 'CaCl2: 0.5g'],
+          },
+        ],
       },
     ];
 
@@ -205,6 +280,99 @@ export class LocalDatabaseStore {
       .sort((a, b) => a.dayNumber - b.dayNumber);
   }
 
+  // --- Laboratorium Eksperymentów & Panel Sensoryczny (Multi-Jar Split-Batch) ---
+
+  public createExperimentSeries(series: ExperimentSeries): ExperimentSeries {
+    this.experimentSeries.unshift(series);
+    return series;
+  }
+
+  public getAllExperimentSeries(): ExperimentSeries[] {
+    return [...this.experimentSeries];
+  }
+
+  public getExperimentSeriesById(id: string): ExperimentSeries | undefined {
+    return this.experimentSeries.find((s) => s.id === id);
+  }
+
+  public updateExperimentSeriesStatus(
+    id: string,
+    status: ExperimentSeries['status']
+  ): boolean {
+    const series = this.experimentSeries.find((s) => s.id === id);
+    if (!series) return false;
+    series.status = status;
+    if (status === 'completed') {
+      series.completedAt = Date.now();
+    }
+    return true;
+  }
+
+  public toggleBlindCupping(id: string, enabled: boolean): boolean {
+    const series = this.experimentSeries.find((s) => s.id === id);
+    if (!series) return false;
+    series.blindCuppingEnabled = enabled;
+    return true;
+  }
+
+  public updateVariantSensoryScore(
+    seriesId: string,
+    variantId: string,
+    score: SensoryEvaluation
+  ): boolean {
+    const series = this.experimentSeries.find((s) => s.id === seriesId);
+    if (!series) return false;
+    const variant = series.variants.find((v) => v.id === variantId);
+    if (!variant) return false;
+
+    variant.sensoryScore = score;
+    return true;
+  }
+
+  public toggleVariantWinner(
+    seriesId: string,
+    variantId: string,
+    isWinner: boolean
+  ): boolean {
+    const series = this.experimentSeries.find((s) => s.id === seriesId);
+    if (!series) return false;
+    const variant = series.variants.find((v) => v.id === variantId);
+    if (!variant) return false;
+
+    variant.isWinner = isWinner;
+    return true;
+  }
+
+  public saveCustomRecipe(recipe: MasterRecipe): MasterRecipe {
+    const idx = this.customRecipes.findIndex((r) => r.id === recipe.id);
+    if (idx >= 0) {
+      this.customRecipes[idx] = recipe;
+    } else {
+      this.customRecipes.unshift(recipe);
+    }
+    return recipe;
+  }
+
+  public getCustomRecipes(): MasterRecipe[] {
+    return [...this.customRecipes];
+  }
+
+  public promoteVariantToMasterRecipe(
+    seriesId: string,
+    variantId: string,
+    customTitle?: string
+  ): MasterRecipe | null {
+    const series = this.experimentSeries.find((s) => s.id === seriesId);
+    if (!series) return null;
+    const variant = series.variants.find((v) => v.id === variantId);
+    if (!variant) return null;
+
+    variant.isWinner = true;
+    const masterRecipe = promoteVariantToCustomRecipe(variant, series.title, customTitle);
+    this.saveCustomRecipe(masterRecipe);
+    return masterRecipe;
+  }
+
   // --- Eksport i Import Kopii Zapasowej JSON (Zero Data Loss) ---
 
   public exportBackupJson(): string {
@@ -214,6 +382,8 @@ export class LocalDatabaseStore {
       batches: this.batches,
       pantryItems: this.pantryItems,
       fermentationLogs: this.fermentationLogs,
+      experimentSeries: this.experimentSeries,
+      customRecipes: this.customRecipes,
     };
     return JSON.stringify(payload, null, 2);
   }
@@ -228,6 +398,8 @@ export class LocalDatabaseStore {
       this.batches = data.batches;
       this.pantryItems = data.pantryItems;
       this.fermentationLogs = data.fermentationLogs || [];
+      this.experimentSeries = data.experimentSeries || [];
+      this.customRecipes = data.customRecipes || [];
       return true;
     } catch {
       return false;
@@ -238,8 +410,11 @@ export class LocalDatabaseStore {
     this.batches = [];
     this.pantryItems = [];
     this.fermentationLogs = [];
+    this.experimentSeries = [];
+    this.customRecipes = [];
     this.initialized = false;
   }
 }
 
 export const dbStore = new LocalDatabaseStore();
+

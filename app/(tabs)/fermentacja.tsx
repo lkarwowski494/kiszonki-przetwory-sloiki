@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   Alert,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { dbStore, BatchRecord, FermentationLogRecord } from '../../src/data/db/database';
 import { getRecipeById } from '../../src/core/recipes/recipes-data';
 import { calculateFermentationTimeline } from '../../src/core/timeline/fermentation-timeline';
@@ -19,6 +20,7 @@ import { ModalHeader } from '../../src/ui/components/ModalHeader';
 import { Modal, TextInput } from 'react-native';
 
 export default function FermentTimelineScreen() {
+  const router = useRouter();
   const [activeBatches, setActiveBatches] = useState<BatchRecord[]>([]);
   const [activeBatchForLog, setActiveBatchForLog] = useState<BatchRecord | null>(null);
   const [logNote, setLogNote] = useState('');
@@ -97,6 +99,32 @@ export default function FermentTimelineScreen() {
             Żywy kalendarz słoików stojących na Twoim blacie kuchennym.
           </Text>
         </View>
+
+        {/* Baner Laboratorium Eksperymentów & Konkursu Słoików */}
+        <TouchableOpacity
+          onPress={() => router.push('/experiments')}
+          activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="Otwórz Laboratorium Eksperymentów i Konkurs Słoików"
+        >
+          <KitchenCard style={styles.experimentBanner}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <Text style={{ fontSize: 30 }}>🔬</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.experimentBannerTitle}>
+                  Laboratorium Eksperymentów & Konkurs
+                </Text>
+                <Text style={styles.experimentBannerSubtitle}>
+                  Porównaj 2–8 słoików split-batch, ślepa próba i wybór mistrza!
+                </Text>
+              </View>
+              <Text style={{ fontSize: 18, color: theme.colors.pickleGreen, fontWeight: '700' }}>
+                →
+              </Text>
+            </View>
+          </KitchenCard>
+        </TouchableOpacity>
+
 
         {activeBatches.length === 0 ? (
           <KitchenCard style={styles.emptyCard}>
@@ -417,4 +445,22 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: theme.colors.textPrimary,
   },
+  experimentBanner: {
+    backgroundColor: '#FFFDF9',
+    borderColor: theme.colors.pickleGreen,
+    borderWidth: 1.5,
+    padding: theme.spacing.md,
+    marginBottom: theme.spacing.md,
+  },
+  experimentBannerTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: theme.colors.textPrimary,
+  },
+  experimentBannerSubtitle: {
+    fontSize: 12,
+    color: theme.colors.textSecondary,
+    marginTop: 2,
+  },
 });
+

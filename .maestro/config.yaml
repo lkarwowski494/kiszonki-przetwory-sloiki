@@ -9,3 +9,5 @@ executionOrder:
     - 04-spizarnia-etykieta.yaml
     - 05-ratownik-doktor.yaml
     - 06-pasteryzator-timer.yaml
+    - 07-laboratorium-eksperymentow.yaml
+

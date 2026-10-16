@@ -1,0 +1,18 @@
+appId: com.apps4brew.sloik
+name: 07 Laboratorium Eksperymentów i Panel Sensoryczny Split-Batch
+---
+- launchApp
+- tapOn: "🔬"
+- assertVisible: "Laboratorium & Konkurs"
+- assertVisible: "Twoje serie eksperymentalne"
+- tapOn: "Wielki Test Chrupkości Ogórka 2026"
+- assertVisible: "4 SŁOIKI W SERII"
+- assertVisible: "Zestawienie słoików w serii"
+- tapOn: "🕶️ Ślepa Próba: WŁĄCZONA"
+- assertVisible: "Ślepa Próbka #A"
+- tapOn: "Oceń w panelu 100 pkt ⚖️"
+- assertVisible: "Arkusz Sensoryczny: Słoik A"
+- assertVisible: "1. Tekstura i Chrupkość (0 – 35 pkt)"
+- tapOn: "Zatwierdź Ocenę Sensoryczną ✅"
+- tapOn: "Zamknij"
+- takeScreenshot: 07-laboratorium-eksperymentow

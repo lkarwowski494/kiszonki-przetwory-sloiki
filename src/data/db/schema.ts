@@ -67,5 +67,37 @@ export const SQLITE_INIT_QUERIES = [
     ingredients_json TEXT NOT NULL,
     steps_json TEXT NOT NULL,
     created_at INTEGER NOT NULL
+  );`,
+
+  `CREATE TABLE IF NOT EXISTS experiment_series (
+    id TEXT PRIMARY KEY NOT NULL,
+    title TEXT NOT NULL,
+    base_produce_name TEXT NOT NULL,
+    total_produce_grams REAL NOT NULL,
+    jar_count INTEGER NOT NULL,
+    hypothesis TEXT NOT NULL,
+    axis TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'draft',
+    blind_cupping_enabled INTEGER NOT NULL DEFAULT 0,
+    created_at INTEGER NOT NULL,
+    completed_at INTEGER
+  );`,
+
+  `CREATE TABLE IF NOT EXISTS experiment_variants (
+    id TEXT PRIMARY KEY NOT NULL,
+    series_id TEXT NOT NULL,
+    variant_letter TEXT NOT NULL,
+    name TEXT NOT NULL,
+    parameter_delta TEXT NOT NULL,
+    produce_grams REAL NOT NULL,
+    water_grams REAL NOT NULL,
+    salt_grams REAL NOT NULL,
+    salinity_percent REAL NOT NULL,
+    special_additions_json TEXT NOT NULL DEFAULT '[]',
+    batch_id TEXT,
+    sensory_score_json TEXT,
+    is_winner INTEGER NOT NULL DEFAULT 0,
+    FOREIGN KEY(series_id) REFERENCES experiment_series(id) ON DELETE CASCADE
   );`
 ];
+

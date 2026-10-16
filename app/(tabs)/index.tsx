@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,10 +9,12 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { MASTER_RECIPES } from '../../src/core/recipes/recipes-data';
+import { dbStore } from '../../src/data/db/database';
 import { MasterRecipe, RecipeCategory } from '../../src/core/types';
 import { theme } from '../../src/ui/theme';
 import { KitchenCard } from '../../src/ui/components/KitchenCard';
 import { Badge } from '../../src/ui/components/Badge';
+
 
 const CATEGORIES: { label: string; value: RecipeCategory | 'all' }[] = [
   { label: 'Wszystkie', value: 'all' },
@@ -31,8 +33,15 @@ export default function RecipesScreen() {
   const [selectedCategory, setSelectedCategory] = useState<RecipeCategory | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRecipe, setSelectedRecipe] = useState<MasterRecipe | null>(null);
+  const [customRecipes, setCustomRecipes] = useState<MasterRecipe[]>([]);
 
-  const filteredRecipes = MASTER_RECIPES.filter((r) => {
+  useEffect(() => {
+    setCustomRecipes(dbStore.getCustomRecipes());
+  }, []);
+
+  const allRecipes = [...customRecipes, ...MASTER_RECIPES];
+
+  const filteredRecipes = allRecipes.filter((r) => {
     const matchesCategory =
       selectedCategory === 'all' || r.category === selectedCategory;
     const matchesSearch =
@@ -51,6 +60,13 @@ export default function RecipesScreen() {
             <Text style={theme.typography.heroTitle}>Słoik (Jarwise) 🫙</Text>
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <TouchableOpacity
+                onPress={() => router.push('/experiments')}
+                style={styles.iconButton}
+                accessibilityLabel="Laboratorium Eksperymentów"
+              >
+                <Text style={{ fontSize: 20 }}>🔬</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
                 onPress={() => router.push('/pasteurizer')}
                 style={styles.iconButton}
                 accessibilityLabel="Stoper Pasteryzacji"
@@ -66,6 +82,7 @@ export default function RecipesScreen() {
               </TouchableOpacity>
             </View>
           </View>
+
           <Text style={styles.tagline}>
             Od chrupiących ogórków babci po kimchi i pikle ze świata.
           </Text>

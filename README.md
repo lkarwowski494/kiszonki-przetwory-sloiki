@@ -52,12 +52,13 @@ Aplikacja mobilna na systemy iOS i watchOS dla pasjonatów domowych przetworów:
 5. **🔔 Powiadomienia Lokalne Offline (Kitchen Push Notifications) `[STATUS: ✅ Wdrożone]`:**
    - Lokalne powiadomienia iOS/Android (`expo-notifications`) bez serwera i bez kosztów (0 PLN).
    - Przypomnienie o codziennym odgazowaniu (burp) w fazie burzliwej (dni 1–3) i alert optymalnego smaku małosolnych.
-6. **🔬 Laboratorium Eksperymentów & Panel Degustacyjny (Multi-Jar Split-Batch Lab & Showdown) `[STATUS: ⏳ Zaprojektowane w BRD / Gotowe do wdrożenia]`:**
+6. **🔬 Laboratorium Eksperymentów & Panel Degustacyjny (Multi-Jar Split-Batch Lab & Showdown) `[STATUS: ✅ Wdrożone]`:**
    - Nastawianie serii $N$ słoików ($N=2$ do $8$) z jednej bazy surowca z kontrolowaną matrycą różnic (zróżnicowane stężenia soli, liście dębu vs wiśni vs porzeczki, $CaCl_2$, gramatury czosnku i chili).
    - Indywidualne etykiety z kodami QR i oznaczeniem wariantów (`WARIANT A`, `WARIANT B`, `WARIANT C`...).
    - Błyskawiczne przywołanie dokładnego składu po nakierowaniu aparatu na dowolny słoik w piwnicy po miesiącach.
    - Panel ślepej degustacji (Blind Cupping) z punktacją 0–100 pkt (chrupkość, kwasowość, bukiet, wygląd) i pomiarem pH.
    - Matryca porównawcza Side-by-Side i wyłonienie zwycięzcy: jedno dotknięcie zapisuje zwycięski wariant jako stałą, autorską recepturę mistrzowską z możliwością skalowania na dowolną wagę.
+
 7. **🩺 Słoikowy Ratownik (Jar Doctor / Troubleshooting) `[STATUS: ✅ Wdrożone]`:**
    - Wizualne drzewo decyzyjne z natychmiastową odpowiedzią na kuchenne wątpliwości:
      - *Biały nalot na powierzchni?* $\to$ Spokojnie, to bezpieczny kożuch drożdżowy (*Kahm yeast*). Zbierz łyżką, kiszonka jest zdrowa!

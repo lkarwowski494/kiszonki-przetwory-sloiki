@@ -61,7 +61,8 @@ for (const f of appFiles) {
       (route === '/spizarnia' && m.content.includes('Spiżarnia')) ||
       (route === '/ratownik' && m.content.includes('Ratownik')) ||
       (route === '/pasteurizer' && m.content.includes('Pasteryzacj')) ||
-      (route === '/settings' && (m.content.includes('Ustawienia') || m.content.includes('01')))
+      (route === '/settings' && (m.content.includes('Ustawienia') || m.content.includes('01'))) ||
+      (route === '/experiments' && (m.content.includes('Eksperyment') || m.content.includes('07')))
     ) {
       testHits.push(m.file);
     }
@@ -101,7 +102,12 @@ const coreExports = [
   { id: 'scheduleFermentationAlerts', file: 'src/core/notifications/kitchen-notifications.ts' },
   { id: 'generateA4SheetHtml', file: 'src/core/pantry/pdf-sheet-generator.ts' },
   { id: 'exportLabelSheetAsPdf', file: 'src/core/pantry/pdf-sheet-generator.ts' },
+  { id: 'createSplitBatchExperiment', file: 'src/core/experiments/experiment-engine.ts' },
+  { id: 'calculateSensoryScore', file: 'src/core/experiments/experiment-engine.ts' },
+  { id: 'rankVariants', file: 'src/core/experiments/experiment-engine.ts' },
+  { id: 'promoteVariantToCustomRecipe', file: 'src/core/experiments/experiment-engine.ts' },
 ];
+
 
 for (const exp of coreExports) {
   const hits = [];
