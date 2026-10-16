@@ -106,6 +106,14 @@ const coreExports = [
   { id: 'calculateSensoryScore', file: 'src/core/experiments/experiment-engine.ts' },
   { id: 'rankVariants', file: 'src/core/experiments/experiment-engine.ts' },
   { id: 'promoteVariantToCustomRecipe', file: 'src/core/experiments/experiment-engine.ts' },
+  { id: 'calculateBrineTopUp', file: 'src/core/doctor/emergency-recovery.ts' },
+  { id: 'EMERGENCY_PROCEDURES', file: 'src/core/doctor/emergency-recovery.ts' },
+  { id: 'calculateJarBatchCost', file: 'src/core/pantry/cost-calculator.ts' },
+  { id: 'calculateRadarCoordinates', file: 'src/core/sensory-radar.ts' },
+  { id: 'celsiusToFahrenheit', file: 'src/core/unit-converter.ts' },
+  { id: 'formatProduceWeight', file: 'src/core/unit-converter.ts' },
+  { id: 'buildBackup', file: 'src/lib/backup.ts' },
+  { id: 'exportPantryToCsv', file: 'src/lib/backup.ts' },
 ];
 
 

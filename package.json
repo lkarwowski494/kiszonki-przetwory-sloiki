@@ -13,8 +13,9 @@
     "typecheck": "tsc --noEmit",
     "check:matrix": "node scripts/test-matrix.mjs --check",
     "matrix:write": "node scripts/test-matrix.mjs --write",
+    "check:i18n": "node scripts/check-i18n.mjs",
     "check:maestro": "node scripts/check-maestro.mjs",
-    "verify": "npm run typecheck && npm test && npm run check:matrix && npm run check:maestro"
+    "verify": "npm run typecheck && npm test && npm run check:i18n && npm run check:matrix && npm run check:maestro"
   },
   "dependencies": {
     "expo": "~57.0.26",

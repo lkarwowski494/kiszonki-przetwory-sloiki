@@ -81,3 +81,14 @@ jest.mock('expo-clipboard', () => ({
   setStringAsync: jest.fn().mockResolvedValue(true),
   getStringAsync: jest.fn().mockResolvedValue(''),
 }));
+
+jest.mock('expo-sqlite', () => ({
+  openDatabaseSync: jest.fn(() => ({
+    execSync: jest.fn(),
+    runSync: jest.fn(),
+    getAllSync: jest.fn(() => []),
+    getFirstSync: jest.fn(() => null),
+    closeSync: jest.fn(),
+  })),
+}));
+

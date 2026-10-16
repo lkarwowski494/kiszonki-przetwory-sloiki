@@ -98,6 +98,17 @@ export const SQLITE_INIT_QUERIES = [
     sensory_score_json TEXT,
     is_winner INTEGER NOT NULL DEFAULT 0,
     FOREIGN KEY(series_id) REFERENCES experiment_series(id) ON DELETE CASCADE
+  );`,
+
+  `CREATE TABLE IF NOT EXISTS pantry_ingredients (
+    id TEXT PRIMARY KEY NOT NULL,
+    name TEXT NOT NULL,
+    category TEXT NOT NULL, -- 'salt' | 'vinegar' | 'produce' | 'spice' | 'jar_lid'
+    stock_amount REAL NOT NULL,
+    unit TEXT NOT NULL,
+    cost_per_unit REAL NOT NULL DEFAULT 0.0,
+    updated_at INTEGER NOT NULL
   );`
 ];
+
 

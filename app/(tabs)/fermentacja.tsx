@@ -18,6 +18,11 @@ import { KitchenButton } from '../../src/ui/components/KitchenButton';
 import { Badge } from '../../src/ui/components/Badge';
 import { ModalHeader } from '../../src/ui/components/ModalHeader';
 import { Modal, TextInput } from 'react-native';
+import { SensoryRadarChart } from '../../src/ui/components/SensoryRadarChart';
+import {
+  DEFAULT_FERMENT_SENSORY_PROFILE,
+  FermentSensoryProfile,
+} from '../../src/core/sensory-radar';
 
 export default function FermentTimelineScreen() {
   const router = useRouter();
@@ -26,8 +31,15 @@ export default function FermentTimelineScreen() {
   const [logNote, setLogNote] = useState('');
   const [logPh, setLogPh] = useState('3.8');
   const [crispnessStars, setCrispnessStars] = useState(5);
+  const [profileAcidity, setProfileAcidity] = useState(3);
+  const [profileSalinity, setProfileSalinity] = useState(3);
+  const [profileCrispness, setProfileCrispness] = useState(5);
+  const [profileEffervescence, setProfileEffervescence] = useState(3);
+  const [profileAroma, setProfileAroma] = useState(4);
+  const [expandedRadarBatchId, setExpandedRadarBatchId] = useState<string | null>('batch_demo_01');
 
   const reloadData = () => {
+
     setActiveBatches(dbStore.getActiveFerments());
   };
 
@@ -57,12 +69,20 @@ export default function FermentTimelineScreen() {
       phReading: ph,
       burped: false,
       tasted: true,
+      sensoryProfile: {
+        acidity: profileAcidity,
+        salinity: profileSalinity,
+        crispness: profileCrispness,
+        effervescence: profileEffervescence,
+        aroma: profileAroma,
+      },
     });
-    Alert.alert('Zapisano wpis sensoryczny! 📝', 'Notatka i ocena chrupkości zostały zarchiwizowane w paszporcie partii.');
+    Alert.alert('Zapisano wpis sensoryczny! 📝', 'Notatka i profil radarowy zostały zarchiwizowane w paszporcie partii.');
     setActiveBatchForLog(null);
     setLogNote('');
     reloadData();
   };
+
 
   const handleMoveToPantry = (batchId: string) => {
     Alert.alert(
@@ -205,6 +225,34 @@ export default function FermentTimelineScreen() {
                   );
                 })()}
 
+                {/* Wektorowy Radar Sensoryczny Kiszonki (5 osi - Parity S3) */}
+                <TouchableOpacity
+                  onPress={() =>
+                    setExpandedRadarBatchId(
+                      expandedRadarBatchId === batch.id ? null : batch.id
+                    )
+                  }
+                  style={styles.radarToggleRow}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.radarToggleText}>
+                    🕸️ Wykres Radarowy Sensoryki (5 osi){' '}
+                    {expandedRadarBatchId === batch.id ? '▲' : '▼'}
+                  </Text>
+                </TouchableOpacity>
+
+                {expandedRadarBatchId === batch.id && (
+                  <View style={styles.radarContainer}>
+                    <SensoryRadarChart
+                      profile={
+                        dbStore.getLogsForBatch(batch.id).find((l) => l.sensoryProfile)
+                          ?.sensoryProfile || DEFAULT_FERMENT_SENSORY_PROFILE
+                      }
+                      size={200}
+                    />
+                  </View>
+                )}
+
                 {/* Przyciski Akcji Kuchennych */}
                 <View style={styles.actionsRow}>
                   <KitchenButton
@@ -246,7 +294,7 @@ export default function FermentTimelineScreen() {
                 Partia: {activeBatchForLog?.recipeTitle}
               </Text>
 
-              <Text style={styles.fieldLabel}>Ocena chrupkości / smaku:</Text>
+              <Text style={styles.fieldLabel}>Ocena ogólna (gwiazdki):</Text>
               <View style={styles.starRow}>
                 {[1, 2, 3, 4, 5].map((star) => (
                   <TouchableOpacity
@@ -260,6 +308,40 @@ export default function FermentTimelineScreen() {
                   </TouchableOpacity>
                 ))}
               </View>
+
+              <Text style={styles.fieldLabel}>Profil sensoryczny (5 osi rzemiosła):</Text>
+              {[
+                { label: 'Kwasowość', val: profileAcidity, set: setProfileAcidity },
+                { label: 'Słoność', val: profileSalinity, set: setProfileSalinity },
+                { label: 'Chrupkość', val: profileCrispness, set: setProfileCrispness },
+                { label: 'Musowanie / Gaz', val: profileEffervescence, set: setProfileEffervescence },
+                { label: 'Aromat ziół', val: profileAroma, set: setProfileAroma },
+              ].map((axisItem) => (
+                <View key={axisItem.label} style={styles.axisControlRow}>
+                  <Text style={styles.axisControlLabel}>{axisItem.label}:</Text>
+                  <View style={{ flexDirection: 'row', gap: 6 }}>
+                    {[1, 2, 3, 4, 5].map((num) => (
+                      <TouchableOpacity
+                        key={num}
+                        onPress={() => axisItem.set(num)}
+                        style={[
+                          styles.axisNumberBtn,
+                          axisItem.val === num && styles.axisNumberBtnActive,
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.axisNumberText,
+                            axisItem.val === num && styles.axisNumberTextActive,
+                          ]}
+                        >
+                          {num}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              ))}
 
               <Text style={styles.fieldLabel}>Pomiar pH (np. papierek lakmusowy / pehametr):</Text>
               <TextInput
@@ -281,6 +363,7 @@ export default function FermentTimelineScreen() {
                 placeholder="np. Przyjemny czosnkowy aromat, mocny trzask, zalewa mętna..."
                 placeholderTextColor={theme.colors.textMuted}
               />
+
 
               <KitchenButton
                 title="Zapisz wpis w paszporcie 🫙"
@@ -461,6 +544,63 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: theme.colors.textSecondary,
     marginTop: 2,
+  },
+  radarToggleRow: {
+    paddingVertical: 10,
+    marginTop: 8,
+    alignItems: 'center',
+    backgroundColor: '#F3EFE6',
+    borderRadius: theme.borderRadius.sm,
+  },
+  radarToggleText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: theme.colors.pickleGreen,
+  },
+  radarContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 12,
+    backgroundColor: theme.colors.bgCard,
+    padding: theme.spacing.sm,
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  axisControlRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+  },
+  axisControlLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: theme.colors.textPrimary,
+  },
+  axisNumberBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: theme.colors.bgSecondary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  axisNumberBtnActive: {
+    backgroundColor: theme.colors.pickleGreen,
+    borderColor: theme.colors.pickleGreen,
+  },
+  axisNumberText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: theme.colors.textPrimary,
+  },
+  axisNumberTextActive: {
+    color: '#FFFFFF',
   },
 });
 
