@@ -33,8 +33,7 @@
       "package": "com.apps4brew.sloik",
       "versionCode": 1,
       "permissions": [
-        "CAMERA",
-        "RECORD_AUDIO"
+        "CAMERA"
       ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

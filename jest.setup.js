@@ -31,17 +31,17 @@ jest.mock('expo-haptics', () => ({
   },
 }));
 
-jest.mock('expo-av', () => ({
-  Audio: {
-    Sound: {
-      createAsync: jest.fn().mockResolvedValue({
-        sound: {
-          unloadAsync: jest.fn().mockResolvedValue(undefined),
-          playAsync: jest.fn().mockResolvedValue(undefined),
-        },
-      }),
-    },
-  },
+jest.mock('expo-audio', () => ({
+  createAudioPlayer: jest.fn(() => ({
+    play: jest.fn(),
+    pause: jest.fn(),
+    remove: jest.fn(),
+  })),
+  useAudioPlayer: jest.fn(() => ({
+    play: jest.fn(),
+    pause: jest.fn(),
+    remove: jest.fn(),
+  })),
 }));
 
 jest.mock('expo-notifications', () => ({
