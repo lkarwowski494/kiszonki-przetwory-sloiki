@@ -15,6 +15,7 @@
     "matrix:write": "node scripts/test-matrix.mjs --write",
     "check:i18n": "node scripts/check-i18n.mjs",
     "check:maestro": "node scripts/check-maestro.mjs",
+    "generate:assets": "node scripts/generate-assets.mjs",
     "verify": "npm run typecheck && npm test && npm run check:i18n && npm run check:matrix && npm run check:maestro"
   },
   "dependencies": {
