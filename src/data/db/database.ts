@@ -94,9 +94,17 @@ export class LocalDatabaseStore {
   private pantryIngredients: PantryIngredientRecord[] = [];
   private settings: Map<string, string> = new Map();
   private initialized = false;
+  private clearedForTesting = false;
+
+  public ensureInitialized(): void {
+    if (!this.initialized && !this.clearedForTesting) {
+      this.init();
+    }
+  }
 
   public init(): void {
     if (this.initialized) return;
+    this.clearedForTesting = false;
 
     // Próba podłączenia bezpiecznej bazy SQLite w /Library/SQLite (Apps4Brew SEC-09)
     if (!this.db) {
@@ -497,6 +505,7 @@ export class LocalDatabaseStore {
   public createBatch(
     input: Omit<BatchRecord, 'id' | 'createdAt' | 'qrCodeUri'> & { id?: string }
   ): BatchRecord {
+    this.ensureInitialized();
     const id = input.id || `batch_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
     const newBatch: BatchRecord = {
       ...input,
@@ -543,14 +552,17 @@ export class LocalDatabaseStore {
 
 
   public getBatchById(id: string): BatchRecord | undefined {
+    this.ensureInitialized();
     return this.batches.find((b) => b.id === id);
   }
 
   public getAllBatches(): BatchRecord[] {
+    this.ensureInitialized();
     return [...this.batches];
   }
 
   public getActiveFerments(): BatchRecord[] {
+    this.ensureInitialized();
     return this.batches.filter((b) => b.status === 'fermenting');
   }
 
@@ -560,6 +572,7 @@ export class LocalDatabaseStore {
     ratingStars?: number,
     notes?: string
   ): boolean {
+    this.ensureInitialized();
     const batch = this.batches.find((b) => b.id === id);
     if (!batch) return false;
 
@@ -585,6 +598,7 @@ export class LocalDatabaseStore {
   public addPantryItem(
     input: Omit<PantryItemRecord, 'id' | 'isConsumed'> & { id?: string }
   ): PantryItemRecord {
+    this.ensureInitialized();
     const id = input.id || `pantry_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
     const newItem: PantryItemRecord = {
       ...input,
@@ -620,12 +634,14 @@ export class LocalDatabaseStore {
   }
 
   public getPantryItems(filterLocation?: PantryItemRecord['location']): PantryItemRecord[] {
+    this.ensureInitialized();
     return this.pantryItems
       .filter((item) => !item.isConsumed)
       .filter((item) => (filterLocation ? item.location === filterLocation : true));
   }
 
   public consumePantryItem(itemId: string, quantityToConsume: number = 1): boolean {
+    this.ensureInitialized();
     const item = this.pantryItems.find((i) => i.id === itemId);
     if (!item) return false;
 
@@ -655,6 +671,7 @@ export class LocalDatabaseStore {
   public addFermentationLog(
     input: Omit<FermentationLogRecord, 'id' | 'loggedAt'> & { id?: string }
   ): FermentationLogRecord {
+    this.ensureInitialized();
     const id = input.id || `log_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
     const newLog: FermentationLogRecord = {
       ...input,
@@ -689,6 +706,7 @@ export class LocalDatabaseStore {
 
 
   public getLogsForBatch(batchId: string): FermentationLogRecord[] {
+    this.ensureInitialized();
     return this.fermentationLogs
       .filter((l) => l.batchId === batchId)
       .sort((a, b) => a.dayNumber - b.dayNumber);
@@ -697,6 +715,7 @@ export class LocalDatabaseStore {
   // --- Laboratorium Eksperymentów & Panel Sensoryczny (Multi-Jar Split-Batch) ---
 
   public createExperimentSeries(series: ExperimentSeries): ExperimentSeries {
+    this.ensureInitialized();
     this.experimentSeries.unshift(series);
     try {
       if (this.db && typeof this.db.runSync === 'function') {
@@ -751,10 +770,12 @@ export class LocalDatabaseStore {
   }
 
   public getAllExperimentSeries(): ExperimentSeries[] {
+    this.ensureInitialized();
     return [...this.experimentSeries];
   }
 
   public getExperimentSeriesById(id: string): ExperimentSeries | undefined {
+    this.ensureInitialized();
     return this.experimentSeries.find((s) => s.id === id);
   }
 
@@ -762,6 +783,7 @@ export class LocalDatabaseStore {
     id: string,
     status: ExperimentSeries['status']
   ): boolean {
+    this.ensureInitialized();
     const series = this.experimentSeries.find((s) => s.id === id);
     if (!series) return false;
     series.status = status;
@@ -782,6 +804,7 @@ export class LocalDatabaseStore {
   }
 
   public toggleBlindCupping(id: string, enabled: boolean): boolean {
+    this.ensureInitialized();
     const series = this.experimentSeries.find((s) => s.id === id);
     if (!series) return false;
     series.blindCuppingEnabled = enabled;
@@ -801,6 +824,7 @@ export class LocalDatabaseStore {
     variantId: string,
     score: SensoryEvaluation
   ): boolean {
+    this.ensureInitialized();
     const series = this.experimentSeries.find((s) => s.id === seriesId);
     if (!series) return false;
     const variant = series.variants.find((v) => v.id === variantId);
@@ -823,6 +847,7 @@ export class LocalDatabaseStore {
     variantId: string,
     isWinner: boolean
   ): boolean {
+    this.ensureInitialized();
     const series = this.experimentSeries.find((s) => s.id === seriesId);
     if (!series) return false;
     const variant = series.variants.find((v) => v.id === variantId);
@@ -841,6 +866,7 @@ export class LocalDatabaseStore {
   }
 
   public saveCustomRecipe(recipe: MasterRecipe): MasterRecipe {
+    this.ensureInitialized();
     const idx = this.customRecipes.findIndex((r) => r.id === recipe.id);
     if (idx >= 0) {
       this.customRecipes[idx] = recipe;
@@ -879,6 +905,7 @@ export class LocalDatabaseStore {
   }
 
   public getCustomRecipes(): MasterRecipe[] {
+    this.ensureInitialized();
     return [...this.customRecipes];
   }
 
@@ -887,6 +914,7 @@ export class LocalDatabaseStore {
     variantId: string,
     customTitle?: string
   ): MasterRecipe | null {
+    this.ensureInitialized();
     const series = this.experimentSeries.find((s) => s.id === seriesId);
     if (!series) return null;
     const variant = series.variants.find((v) => v.id === variantId);
@@ -901,12 +929,14 @@ export class LocalDatabaseStore {
   // --- Magazyn Surowców Spiżarni (Pantry Ingredients / Inventory — Parity S4) ---
 
   public getPantryIngredients(): PantryIngredientRecord[] {
+    this.ensureInitialized();
     return [...this.pantryIngredients];
   }
 
   public addPantryIngredient(
     input: Omit<PantryIngredientRecord, 'id' | 'updatedAt'> & { id?: string }
   ): PantryIngredientRecord {
+    this.ensureInitialized();
     const id = input.id || `ing_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
     const newItem: PantryIngredientRecord = {
       ...input,
@@ -938,6 +968,7 @@ export class LocalDatabaseStore {
   }
 
   public updatePantryIngredientStock(id: string, newAmount: number): boolean {
+    this.ensureInitialized();
     const item = this.pantryIngredients.find((i) => i.id === id);
     if (!item) return false;
     item.stockAmount = Math.max(0, Math.round(newAmount * 100) / 100);
@@ -960,6 +991,7 @@ export class LocalDatabaseStore {
     saltKg?: number;
     jarsCount?: number;
   }): boolean {
+    this.ensureInitialized();
     if (params.saltKg) {
       const saltItem = this.pantryIngredients.find((i) => i.category === 'salt');
       if (saltItem) {
@@ -997,6 +1029,7 @@ export class LocalDatabaseStore {
   }
 
   public getBackupData(): SloikBackupData {
+    this.ensureInitialized();
     return {
       batches: this.batches,
       pantryItems: this.pantryItems,
@@ -1009,6 +1042,7 @@ export class LocalDatabaseStore {
   // --- Eksport i Import Kopii Zapasowej JSON (Zero Data Loss) ---
 
   public exportBackupJson(): string {
+    this.ensureInitialized();
     const payload: DatabaseBackupPayload = {
       version: 1,
       exportedAt: Date.now(),
@@ -1035,6 +1069,8 @@ export class LocalDatabaseStore {
       this.experimentSeries = data.experimentSeries || [];
       this.customRecipes = data.customRecipes || [];
       this.pantryIngredients = data.pantryIngredients || this.pantryIngredients;
+      this.initialized = true;
+      this.clearedForTesting = false;
 
       try {
         if (this.db && typeof this.db.runSync === 'function') {
@@ -1139,6 +1175,7 @@ export class LocalDatabaseStore {
   }
 
   public getSetting(key: string): string | null {
+    this.ensureInitialized();
     if (this.settings.has(key)) {
       return this.settings.get(key) || null;
     }
@@ -1158,6 +1195,7 @@ export class LocalDatabaseStore {
   }
 
   public setSetting(key: string, value: string): void {
+    this.ensureInitialized();
     this.settings.set(key, value);
     try {
       if (this.db && typeof this.db.runSync === 'function') {
@@ -1178,6 +1216,7 @@ export class LocalDatabaseStore {
     this.pantryIngredients = [];
     this.settings.clear();
     this.initialized = false;
+    this.clearedForTesting = true;
     try {
       if (this.db && typeof this.db.execSync === 'function') {
         this.db.execSync(
@@ -1190,4 +1229,5 @@ export class LocalDatabaseStore {
 
 
 export const dbStore = new LocalDatabaseStore();
+dbStore.init();
 

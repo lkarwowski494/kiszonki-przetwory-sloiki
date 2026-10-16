@@ -127,6 +127,10 @@ export default function ExperimentsScreen() {
   };
 
   const handleOpenCuppingModal = (variant: ExperimentVariant) => {
+    if (!canCreate) {
+      setIsPaywallOpen(true);
+      return;
+    }
     setCuppingVariant(variant);
     if (variant.sensoryScore) {
       setScoreTexture(variant.sensoryScore.textureCrispness.toString());
@@ -145,6 +149,10 @@ export default function ExperimentsScreen() {
 
   const handleSaveCuppingScore = () => {
     if (!selectedSeries || !cuppingVariant) return;
+    if (!canCreate) {
+      setIsPaywallOpen(true);
+      return;
+    }
 
     const texture = parseFloat(scoreTexture) || 0;
     const flavor = parseFloat(scoreFlavor) || 0;
@@ -171,6 +179,10 @@ export default function ExperimentsScreen() {
 
   const handlePromoteToMasterRecipe = (variant: ExperimentVariant) => {
     if (!selectedSeries) return;
+    if (!canCreate) {
+      setIsPaywallOpen(true);
+      return;
+    }
 
     Alert.alert(
       'Koronacja Zwycięzcy 👑',
@@ -200,6 +212,10 @@ export default function ExperimentsScreen() {
 
   const handleToggleBlindCupping = () => {
     if (!selectedSeries) return;
+    if (!canCreate) {
+      setIsPaywallOpen(true);
+      return;
+    }
     const nextVal = !selectedSeries.blindCuppingEnabled;
     dbStore.toggleBlindCupping(selectedSeries.id, nextVal);
     reloadData();
