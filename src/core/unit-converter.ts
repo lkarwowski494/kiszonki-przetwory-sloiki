@@ -4,7 +4,48 @@
 // 100% Offline-First, Deterministyczna matematyka kuchenna.
 // ============================================================================
 
+import { useState, useEffect } from 'react';
+import { dbStore } from '../data/db/database';
+
 export type UnitSystem = 'metric' | 'imperial';
+
+let currentUnitSystem: UnitSystem = 'metric';
+type UnitSystemListener = (u: UnitSystem) => void;
+const unitListeners = new Set<UnitSystemListener>();
+
+export function setUnitSystem(unit: UnitSystem, persist = true): void {
+  currentUnitSystem = unit;
+  if (persist) {
+    dbStore.setSetting('app_unit_system', unit);
+  }
+  unitListeners.forEach((fn) => fn(unit));
+}
+
+export function getUnitSystem(): UnitSystem {
+  const saved = dbStore.getSetting('app_unit_system');
+  if (saved === 'metric' || saved === 'imperial') {
+    currentUnitSystem = saved;
+  }
+  return currentUnitSystem;
+}
+
+export function useUnitSystem(): UnitSystem {
+  const [unit, setUnit] = useState<UnitSystem>(() => {
+    const saved = dbStore.getSetting('app_unit_system');
+    if (saved === 'metric' || saved === 'imperial') {
+      currentUnitSystem = saved;
+      return saved;
+    }
+    return currentUnitSystem;
+  });
+  useEffect(() => {
+    unitListeners.add(setUnit);
+    return () => {
+      unitListeners.delete(setUnit);
+    };
+  }, []);
+  return unit;
+}
 
 /**
  * Przelicza stopnie Celsjusza na Fahrenheita

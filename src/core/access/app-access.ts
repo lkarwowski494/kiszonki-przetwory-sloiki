@@ -103,8 +103,8 @@ export class AppAccessService {
     const elapsedDays = (Date.now() - installedAt) / (1000 * 60 * 60 * 24);
     const completedBatchesCount = dbStore.getAllBatches().length;
 
-    // Trial jest aktywny przez 7 dni LUB do 3 ukończonych partii (co nastąpi później dla korzyści użytkownika)
-    if (elapsedDays <= TRIAL_DAYS || completedBatchesCount < TRIAL_FREE_BATCHES_ALLOWED) {
+    // Trial jest aktywny przez 7 dni ORAZ do 3 ukończonych partii (co nastąpi pierwsze)
+    if (elapsedDays <= TRIAL_DAYS && completedBatchesCount < TRIAL_FREE_BATCHES_ALLOWED) {
       return 'trial_active';
     }
 

@@ -26,6 +26,12 @@ import { KitchenButton } from '../../src/ui/components/KitchenButton';
 import { Badge } from '../../src/ui/components/Badge';
 import { useAppAccess } from '../../src/core/access/app-access';
 import { PaywallModal } from '../../src/ui/components/PaywallModal';
+import {
+  useUnitSystem,
+  formatProduceWeight,
+  formatSaltWeight,
+  formatBrineVolume,
+} from '../../src/core/unit-converter';
 
 interface QuickPreset {
   id: string;
@@ -78,6 +84,7 @@ const QUICK_PRESETS: QuickPreset[] = [
 
 export default function WizardScreen() {
   const { canCreate } = useAppAccess();
+  const unitSystem = useUnitSystem();
   const [isPaywallOpen, setIsPaywallOpen] = useState(false);
 
   // Stan szybkiego startu
@@ -225,7 +232,9 @@ export default function WizardScreen() {
 
               <View style={styles.weightDisplayBox}>
                 <Text style={styles.weightNumber}>
-                  {produceWeightNum >= 1000
+                  {unitSystem === 'imperial'
+                    ? formatProduceWeight(produceWeightNum, 'imperial')
+                    : produceWeightNum >= 1000
                     ? `${(produceWeightNum / 1000).toFixed(1)} kg`
                     : `${produceWeightNum} g`}
                 </Text>
@@ -258,7 +267,12 @@ export default function WizardScreen() {
             <Text style={styles.ingEmoji}>🧂</Text>
             <View style={{ flex: 1 }}>
               <Text style={styles.ingMain}>
-                Sól kamienna niejodowana: <Text style={styles.ingBold}>{brineResult.saltGrams} g</Text>
+                Sól kamienna niejodowana:{' '}
+                <Text style={styles.ingBold}>
+                  {unitSystem === 'imperial'
+                    ? `${formatSaltWeight(brineResult.saltGrams, 'imperial')} (${brineResult.saltGrams} g)`
+                    : `${brineResult.saltGrams} g`}
+                </Text>
               </Text>
               <Text style={styles.ingSub}>
                 (~{spoonsOfSalt} płaskiej łyżki stołowej · stężenie {effectiveSalinity}%)
@@ -272,7 +286,11 @@ export default function WizardScreen() {
               <Text style={styles.ingMain}>
                 Woda przegotowana / przefiltrowana:{' '}
                 <Text style={styles.ingBold}>
-                  {effectiveDrySalting ? '0 ml (Sok własny)' : `${effectiveWaterWeight} ml`}
+                  {effectiveDrySalting
+                    ? '0 ml (Sok własny)'
+                    : unitSystem === 'imperial'
+                    ? `${formatBrineVolume(effectiveWaterWeight, 'imperial')} (${effectiveWaterWeight} ml)`
+                    : `${effectiveWaterWeight} ml`}
                 </Text>
               </Text>
               <Text style={styles.ingSub}>

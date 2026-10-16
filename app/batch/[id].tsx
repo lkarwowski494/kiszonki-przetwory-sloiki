@@ -19,9 +19,21 @@ import { KitchenCard } from '../../src/ui/components/KitchenCard';
 import { KitchenButton } from '../../src/ui/components/KitchenButton';
 import { Badge } from '../../src/ui/components/Badge';
 import { ModalHeader } from '../../src/ui/components/ModalHeader';
+import { useAppAccess } from '../../src/core/access/app-access';
+import { PaywallModal } from '../../src/ui/components/PaywallModal';
+import {
+  useUnitSystem,
+  formatProduceWeight,
+  formatSaltWeight,
+  formatBrineVolume,
+} from '../../src/core/unit-converter';
+import { t } from '../../src/lib/i18n';
 
 export default function BatchPassportScreen() {
   const router = useRouter();
+  const { canCreate } = useAppAccess();
+  const unitSystem = useUnitSystem();
+  const [isPaywallOpen, setIsPaywallOpen] = useState(false);
   const params = useLocalSearchParams<{ id: string }>();
   const batchId = params.id;
 
@@ -69,6 +81,10 @@ export default function BatchPassportScreen() {
   });
 
   const handleBurp = () => {
+    if (!canCreate) {
+      setIsPaywallOpen(true);
+      return;
+    }
     dbStore.addFermentationLog({
       batchId: batch.id,
       dayNumber: elapsedDays,
@@ -99,6 +115,10 @@ export default function BatchPassportScreen() {
   };
 
   const handleConsume = () => {
+    if (!canCreate) {
+      setIsPaywallOpen(true);
+      return;
+    }
     Alert.alert(
       'Otwarcie słoika 🍴',
       `Czy chcesz oznaczyć "${batch.recipeTitle}" jako otwarty/zjedzony?`,
@@ -146,19 +166,31 @@ export default function BatchPassportScreen() {
 
           <View style={styles.paramGrid}>
             <View style={styles.paramBox}>
-              <Text style={styles.paramLabel}>WARZYWA NA WADZE</Text>
-              <Text style={styles.paramVal}>{batch.produceWeightGrams} g</Text>
+              <Text style={styles.paramLabel}>{t('WARZYWA NA WADZE')}</Text>
+              <Text style={styles.paramVal}>
+                {unitSystem === 'imperial'
+                  ? formatProduceWeight(batch.produceWeightGrams, 'imperial')
+                  : `${batch.produceWeightGrams} g`}
+              </Text>
             </View>
             <View style={styles.paramBox}>
-              <Text style={styles.paramLabel}>ZALICZONA SÓL</Text>
-              <Text style={styles.paramVal}>{batch.saltWeightGrams} g ({batch.salinityPercent}%)</Text>
+              <Text style={styles.paramLabel}>{t('ZALICZONA SÓL')}</Text>
+              <Text style={styles.paramVal}>
+                {unitSystem === 'imperial'
+                  ? `${formatSaltWeight(batch.saltWeightGrams, 'imperial')} (${batch.salinityPercent}%)`
+                  : `${batch.saltWeightGrams} g (${batch.salinityPercent}%)`}
+              </Text>
             </View>
             <View style={styles.paramBox}>
-              <Text style={styles.paramLabel}>WODA / ZALEWA</Text>
-              <Text style={styles.paramVal}>{batch.waterWeightGrams} ml</Text>
+              <Text style={styles.paramLabel}>{t('WODA / ZALEWA')}</Text>
+              <Text style={styles.paramVal}>
+                {unitSystem === 'imperial'
+                  ? formatBrineVolume(batch.waterWeightGrams, 'imperial')
+                  : `${batch.waterWeightGrams} ml`}
+              </Text>
             </View>
             <View style={styles.paramBox}>
-              <Text style={styles.paramLabel}>WIEK KISZONKI</Text>
+              <Text style={styles.paramLabel}>{t('WIEK KISZONKI')}</Text>
               <Text style={styles.paramVal}>{elapsedDays} dni na blacie</Text>
             </View>
           </View>
@@ -237,6 +269,11 @@ export default function BatchPassportScreen() {
           </View>
         </View>
       </ScrollView>
+
+      <PaywallModal
+        visible={isPaywallOpen}
+        onClose={() => setIsPaywallOpen(false)}
+      />
     </SafeAreaView>
   );
 }

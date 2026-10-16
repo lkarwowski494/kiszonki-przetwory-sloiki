@@ -9,6 +9,8 @@ import { dbStore } from '../../data/db/database';
 describe('AppAccessService & "Cheaper than Espresso" Monetization Model', () => {
   beforeEach(() => {
     // Reset debug states and settings before each test
+    dbStore.clearAllForTesting();
+    dbStore.init();
     appAccessService.setDebugState('reset');
     dbStore.setSetting('subscription_tier', '');
     dbStore.setSetting('access_debug_state', '');
@@ -57,12 +59,22 @@ describe('AppAccessService & "Cheaper than Espresso" Monetization Model', () => 
   });
 
   describe('Trial Expiration and Read-Only Enforcement', () => {
-    it('transitions to trial_expired when elapsed time exceeds 7 days and minimum batches are met', () => {
-      // Simulate installation 10 days ago
+    it('transitions to trial_expired when elapsed time exceeds 7 days (even with only 1 batch)', () => {
+      // Simulate installation 10 days ago with default demo batch
       const tenDaysAgo = Date.now() - 10 * 24 * 60 * 60 * 1000;
       dbStore.setSetting('app_installed_at', String(tenDaysAgo));
 
-      // Ensure at least 3 batches exist to satisfy trial conditions
+      const status = appAccessService.getAccessStatus();
+      expect(status).toBe('trial_expired');
+      expect(appAccessService.canCreate()).toBe(false);
+      expect(appAccessService.getDaysLeftInTrial()).toBe(0);
+    });
+
+    it('transitions to trial_expired when 3 batches are reached (even on day 1)', () => {
+      // Fresh install today
+      dbStore.setSetting('app_installed_at', String(Date.now()));
+
+      // Create 3 batches
       const currentBatches = dbStore.getAllBatches();
       for (let i = currentBatches.length; i < 3; i++) {
         dbStore.createBatch({
@@ -83,7 +95,17 @@ describe('AppAccessService & "Cheaper than Espresso" Monetization Model', () => 
       const status = appAccessService.getAccessStatus();
       expect(status).toBe('trial_expired');
       expect(appAccessService.canCreate()).toBe(false);
-      expect(appAccessService.getDaysLeftInTrial()).toBe(0);
+    });
+
+    it('remains trial_active when within 7 days and fewer than 3 batches', () => {
+      // Installed 2 days ago, exactly 1 batch
+      const twoDaysAgo = Date.now() - 2 * 24 * 60 * 60 * 1000;
+      dbStore.setSetting('app_installed_at', String(twoDaysAgo));
+
+      const status = appAccessService.getAccessStatus();
+      expect(status).toBe('trial_active');
+      expect(appAccessService.canCreate()).toBe(true);
+      expect(appAccessService.getDaysLeftInTrial()).toBeGreaterThan(0);
     });
 
     it('guarantees that reading existing batches and pantry remains 100% functional even when trial_expired', () => {

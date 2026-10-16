@@ -99,172 +99,395 @@ export class LocalDatabaseStore {
     if (this.initialized) return;
 
     // Próba podłączenia bezpiecznej bazy SQLite w /Library/SQLite (Apps4Brew SEC-09)
-    try {
-      if (SQLite && typeof (SQLite as any).openDatabaseSync === 'function') {
-        const safeDir = dbDirectory((SQLite as any).defaultDatabaseDirectory);
-        this.db = safeDir
-          ? (SQLite as any).openDatabaseSync('sloik.db', undefined, safeDir)
-          : (SQLite as any).openDatabaseSync('sloik.db');
-        if (this.db) {
-          for (const query of SQLITE_INIT_QUERIES) {
-            try {
-              this.db.execSync?.(query);
-            } catch {
-              // Ignoruj błąd gdy tabele już istnieją
+    if (!this.db) {
+      try {
+        if (SQLite && typeof (SQLite as any).openDatabaseSync === 'function') {
+          const safeDir = dbDirectory((SQLite as any).defaultDatabaseDirectory);
+          this.db = safeDir
+            ? (SQLite as any).openDatabaseSync('sloik.db', undefined, safeDir)
+            : (SQLite as any).openDatabaseSync('sloik.db');
+          if (this.db) {
+            for (const query of SQLITE_INIT_QUERIES) {
+              try {
+                this.db.execSync?.(query);
+              } catch {
+                // Ignoruj błąd gdy tabele już istnieją
+              }
             }
           }
         }
+      } catch {
+        // In-memory fallback dla środowiska testowego Node/Jest
       }
-    } catch {
-      // In-memory fallback dla środowiska testowego Node/Jest
     }
 
-    // Przykładowa partia początkowa — dla demonstracji domowej spiżarni
-    const now = Date.now();
-    const demoBatchId = 'batch_demo_01';
+    let loadedFromDb = false;
+    if (this.db && typeof this.db.getFirstSync === 'function') {
+      try {
+        const countRow = this.db.getFirstSync('SELECT count(*) as count FROM batches');
+        const batchCount = countRow ? Number((countRow as any).count ?? (countRow as any)['count(*)'] ?? 0) : 0;
 
-    this.batches = [
-      {
-        id: demoBatchId,
-        recipeId: 'REC-01',
-        recipeTitle: 'Ogórki małosolne chrupiące',
-        culture: 'Polska',
-        method: 'lacto_fermentation',
-        startedAt: now - 1000 * 60 * 60 * 36, // 36 godzin temu
-        targetFermentationDays: 3,
-        produceWeightGrams: 600,
-        waterWeightGrams: 500,
-        saltWeightGrams: 22.4,
-        salinityPercent: 2.0,
-        status: 'fermenting',
-        notes: 'Ogórki z targu od pani Stasi, dodane liście wiśni.',
-        qrCodeUri: `sloik://batch/${demoBatchId}`,
-        createdAt: now - 1000 * 60 * 60 * 36,
-      },
-    ];
+        if (batchCount > 0) {
+          // 1. Wczytaj partie (Batches)
+          const batchRows = (this.db.getAllSync('SELECT * FROM batches ORDER BY started_at DESC') || []) as any[];
+          this.batches = batchRows.map((r) => ({
+            id: String(r.id),
+            recipeId: String(r.recipe_id),
+            recipeTitle: String(r.recipe_title),
+            culture: String(r.culture),
+            method: String(r.method),
+            startedAt: Number(r.started_at),
+            targetFermentationDays: Number(r.target_fermentation_days),
+            produceWeightGrams: Number(r.produce_weight_grams),
+            waterWeightGrams: Number(r.water_weight_grams),
+            saltWeightGrams: Number(r.salt_weight_grams),
+            salinityPercent: Number(r.salinity_percent),
+            status: r.status as BatchRecord['status'],
+            ratingStars: r.rating_stars != null ? Number(r.rating_stars) : undefined,
+            notes: r.notes || undefined,
+            qrCodeUri: r.qr_code_uri || undefined,
+            createdAt: Number(r.created_at),
+          }));
 
-    this.fermentationLogs = [
-      {
-        id: 'log_demo_01',
-        batchId: demoBatchId,
-        loggedAt: now - 1000 * 60 * 60 * 12,
-        dayNumber: 1,
-        sensoryNote: 'Zalewa mętna, czuć silny zapach czosnku i kopru.',
-        burped: true,
-        tasted: false,
-        sensoryProfile: {
-          acidity: 2,
-          salinity: 3,
-          crispness: 5,
-          effervescence: 3,
-          aroma: 4,
+          // 2. Wczytaj słoiki w spiżarni (Pantry Items)
+          const pantryRows = (this.db.getAllSync('SELECT * FROM pantry_items ORDER BY sealed_at DESC') || []) as any[];
+          this.pantryItems = pantryRows.map((r) => ({
+            id: String(r.id),
+            batchId: String(r.batch_id),
+            label: String(r.label),
+            jarVolumeMl: Number(r.jar_volume_ml),
+            location: r.location,
+            quantity: Number(r.quantity),
+            sealedAt: Number(r.sealed_at),
+            bestBefore: Number(r.best_before),
+            openedAt: r.opened_at != null ? Number(r.opened_at) : undefined,
+            isConsumed: Boolean(r.is_consumed),
+          }));
+
+          // 3. Wczytaj wpisy dziennika (Fermentation Logs)
+          const logRows = (this.db.getAllSync('SELECT * FROM fermentation_logs ORDER BY logged_at ASC') || []) as any[];
+          this.fermentationLogs = logRows.map((r) => ({
+            id: String(r.id),
+            batchId: String(r.batch_id),
+            loggedAt: Number(r.logged_at),
+            dayNumber: Number(r.day_number),
+            sensoryNote: r.sensory_note || undefined,
+            phReading: r.ph_reading != null ? Number(r.ph_reading) : undefined,
+            burped: Boolean(r.burped),
+            tasted: Boolean(r.tasted),
+          }));
+
+          // 4. Wczytaj receptury własne (Custom Recipes)
+          const customRecipeRows = (this.db.getAllSync('SELECT * FROM custom_recipes ORDER BY created_at DESC') || []) as any[];
+          this.customRecipes = customRecipeRows.map((r) => {
+            let ingredients = [];
+            let steps = [];
+            try { ingredients = JSON.parse(r.ingredients_json || '[]'); } catch {}
+            try { steps = JSON.parse(r.steps_json || '[]'); } catch {}
+            return {
+              id: String(r.id),
+              title: String(r.title),
+              subtitle: String(r.subtitle || ''),
+              culture: String(r.culture || 'Własny przepis'),
+              category: r.category,
+              method: r.method,
+              defaultProduceWeightGrams: Number(r.produce_weight_grams || 1000),
+              defaultSalinityPercent: Number(r.salinity_percent || 2.0),
+              fermentationDays: Number(r.fermentation_days || 7),
+              shelfLifeMonths: Number(r.shelf_life_months || 12),
+              recommendedJarType: 'Słoik 1000 ml',
+              ingredients,
+              steps,
+              crispnessSecrets: [],
+              sensoryMilestones: [],
+              commonMistakes: [],
+            };
+          });
+
+          // 5. Wczytaj serie eksperymentów (Experiment Series)
+          const expRows = (this.db.getAllSync('SELECT * FROM experiment_series ORDER BY created_at DESC') || []) as any[];
+          this.experimentSeries = expRows.map((r) => {
+            const variantRows = (this.db.getAllSync('SELECT * FROM experiment_variants WHERE series_id = ?', [r.id]) || []) as any[];
+            const variants = variantRows.map((vr) => {
+              let specialAdditions = [];
+              let sensoryScore = undefined;
+              try { specialAdditions = JSON.parse(vr.special_additions_json || '[]'); } catch {}
+              try { sensoryScore = vr.sensory_score_json ? JSON.parse(vr.sensory_score_json) : undefined; } catch {}
+              return {
+                id: String(vr.id),
+                seriesId: String(vr.series_id),
+                variantLetter: String(vr.variant_letter),
+                name: String(vr.name),
+                parameterDelta: String(vr.parameter_delta),
+                produceGrams: Number(vr.produce_grams),
+                waterGrams: Number(vr.water_grams),
+                saltGrams: Number(vr.salt_grams),
+                salinityPercent: Number(vr.salinity_percent),
+                specialAdditions,
+                batchId: vr.batch_id || undefined,
+                sensoryScore,
+                isWinner: Boolean(vr.is_winner),
+              };
+            });
+
+            return {
+              id: String(r.id),
+              title: String(r.title),
+              baseProduceName: String(r.base_produce_name),
+              totalProduceGrams: Number(r.total_produce_grams),
+              jarCount: Number(r.jar_count),
+              hypothesis: String(r.hypothesis),
+              axis: r.axis,
+              status: r.status,
+              blindCuppingEnabled: Boolean(r.blind_cupping_enabled),
+              createdAt: Number(r.created_at),
+              completedAt: r.completed_at != null ? Number(r.completed_at) : undefined,
+              variants,
+            };
+          });
+
+          // 6. Wczytaj surowce magazynu (Pantry Ingredients)
+          const ingRows = (this.db.getAllSync('SELECT * FROM pantry_ingredients ORDER BY name ASC') || []) as any[];
+          if (ingRows.length > 0) {
+            this.pantryIngredients = ingRows.map((r) => ({
+              id: String(r.id),
+              name: String(r.name),
+              category: r.category,
+              stockAmount: Number(r.stock_amount),
+              unit: String(r.unit),
+              costPerUnit: Number(r.cost_per_unit),
+              updatedAt: Number(r.updated_at),
+            }));
+          }
+
+          // 7. Wczytaj ustawienia (App Settings)
+          const settingRows = (this.db.getAllSync('SELECT key, value FROM app_settings') || []) as any[];
+          for (const s of settingRows) {
+            if (s.key && s.value != null) {
+              this.settings.set(String(s.key), String(s.value));
+            }
+          }
+
+          loadedFromDb = true;
+        }
+      } catch {
+        // Fallback do ziaren demonstracyjnych
+      }
+    }
+
+    if (!loadedFromDb) {
+      // Przykładowa partia początkowa — dla demonstracji domowej spiżarni
+      const now = Date.now();
+      const demoBatchId = 'batch_demo_01';
+
+      this.batches = [
+        {
+          id: demoBatchId,
+          recipeId: 'REC-01',
+          recipeTitle: 'Ogórki małosolne chrupiące',
+          culture: 'Polska',
+          method: 'lacto_fermentation',
+          startedAt: now - 1000 * 60 * 60 * 36, // 36 godzin temu
+          targetFermentationDays: 3,
+          produceWeightGrams: 600,
+          waterWeightGrams: 500,
+          saltWeightGrams: 22.4,
+          salinityPercent: 2.0,
+          status: 'fermenting',
+          notes: 'Ogórki z targu od pani Stasi, dodane liście wiśni.',
+          qrCodeUri: `sloik://batch/${demoBatchId}`,
+          createdAt: now - 1000 * 60 * 60 * 36,
         },
-      },
-    ];
+      ];
 
-    this.experimentSeries = [
-      {
-        id: 'exp_demo_01',
-        title: 'Wielki Test Chrupkości Ogórka 2026',
-        baseProduceName: 'Ogórki gruntowe Śremski',
-        totalProduceGrams: 2000,
-        jarCount: 4,
-        hypothesis: 'Wpływ źródeł tanin i soli na chrupkość po 14 dniach',
-        axis: 'tannins_crispness',
-        status: 'fermenting',
-        blindCuppingEnabled: true,
-        createdAt: now - 1000 * 60 * 60 * 48,
-        variants: [
-          {
-            id: 'exp_demo_01_var_a',
-            seriesId: 'exp_demo_01',
-            variantLetter: 'A',
-            name: 'Słoik A (Kontrola)',
-            parameterDelta: 'Bez dodatków garbnikowych (solanka 2.0%)',
-            produceGrams: 500,
-            waterGrams: 400,
-            saltGrams: 18.0,
-            salinityPercent: 2.0,
-            specialAdditions: ['Koper: 1 baldach', 'Czosnek: 2 ząbki'],
+      this.fermentationLogs = [
+        {
+          id: 'log_demo_01',
+          batchId: demoBatchId,
+          loggedAt: now - 1000 * 60 * 60 * 12,
+          dayNumber: 1,
+          sensoryNote: 'Zalewa mętna, czuć silny zapach czosnku i kopru.',
+          burped: true,
+          tasted: false,
+          sensoryProfile: {
+            acidity: 2,
+            salinity: 3,
+            crispness: 5,
+            effervescence: 3,
+            aroma: 4,
           },
-          {
-            id: 'exp_demo_01_var_b',
-            seriesId: 'exp_demo_01',
-            variantLetter: 'B',
-            name: 'Słoik B (Liść dębu)',
-            parameterDelta: '2 świeże liście dębu (taniny elagowe)',
-            produceGrams: 500,
-            waterGrams: 400,
-            saltGrams: 18.0,
-            salinityPercent: 2.0,
-            specialAdditions: ['Koper: 1 baldach', 'Czosnek: 2 ząbki', 'Liście dębu: 2 szt.'],
-          },
-          {
-            id: 'exp_demo_01_var_c',
-            seriesId: 'exp_demo_01',
-            variantLetter: 'C',
-            name: 'Słoik C (Liść czarnej porzeczki)',
-            parameterDelta: '3 liście czarnej porzeczki (taniny + enzymy)',
-            produceGrams: 500,
-            waterGrams: 400,
-            saltGrams: 18.0,
-            salinityPercent: 2.0,
-            specialAdditions: ['Koper: 1 baldach', 'Czosnek: 2 ząbki', 'Liście porzeczki: 3 szt.'],
-          },
-          {
-            id: 'exp_demo_01_var_d',
-            seriesId: 'exp_demo_01',
-            variantLetter: 'D',
-            name: 'Słoik D (Chlorek wapnia CaCl2)',
-            parameterDelta: '0.5g CaCl2 na słoik (mostki pektynowe)',
-            produceGrams: 500,
-            waterGrams: 400,
-            saltGrams: 18.0,
-            salinityPercent: 2.0,
-            specialAdditions: ['Koper: 1 baldach', 'Czosnek: 2 ząbki', 'CaCl2: 0.5g'],
-          },
-        ],
-      },
-    ];
+        },
+      ];
 
-    this.pantryIngredients = [
-      {
-        id: 'ing_salt_klodawa',
-        name: 'Sól kamienna niejodowana Kłodawa',
-        category: 'salt',
-        stockAmount: 3.0,
-        unit: 'kg',
-        costPerUnit: 3.0,
-        updatedAt: now,
-      },
-      {
-        id: 'ing_vinegar_apple',
-        name: 'Żywy ocet jabłkowy 5%',
-        category: 'vinegar',
-        stockAmount: 1.5,
-        unit: 'L',
-        costPerUnit: 14.0,
-        updatedAt: now,
-      },
-      {
-        id: 'ing_garlic',
-        name: 'Czosnek polski Harnaś',
-        category: 'spice',
-        stockAmount: 12,
-        unit: 'główek',
-        costPerUnit: 2.5,
-        updatedAt: now,
-      },
-      {
-        id: 'ing_empty_jars_1000',
-        name: 'Słoiki Weck / Twist-off 1000 ml',
-        category: 'jar_lid',
-        stockAmount: 16,
-        unit: 'szt.',
-        costPerUnit: 2.2,
-        updatedAt: now,
-      },
-    ];
+      this.experimentSeries = [
+        {
+          id: 'exp_demo_01',
+          title: 'Wielki Test Chrupkości Ogórka 2026',
+          baseProduceName: 'Ogórki gruntowe Śremski',
+          totalProduceGrams: 2000,
+          jarCount: 4,
+          hypothesis: 'Wpływ źródeł tanin i soli na chrupkość po 14 dniach',
+          axis: 'tannins_crispness',
+          status: 'fermenting',
+          blindCuppingEnabled: true,
+          createdAt: now - 1000 * 60 * 60 * 48,
+          variants: [
+            {
+              id: 'exp_demo_01_var_a',
+              seriesId: 'exp_demo_01',
+              variantLetter: 'A',
+              name: 'Słoik A (Kontrola)',
+              parameterDelta: 'Bez dodatków garbnikowych (solanka 2.0%)',
+              produceGrams: 500,
+              waterGrams: 400,
+              saltGrams: 18.0,
+              salinityPercent: 2.0,
+              specialAdditions: ['Koper: 1 baldach', 'Czosnek: 2 ząbki'],
+            },
+            {
+              id: 'exp_demo_01_var_b',
+              seriesId: 'exp_demo_01',
+              variantLetter: 'B',
+              name: 'Słoik B (Liść dębu)',
+              parameterDelta: '2 świeże liście dębu (taniny elagowe)',
+              produceGrams: 500,
+              waterGrams: 400,
+              saltGrams: 18.0,
+              salinityPercent: 2.0,
+              specialAdditions: ['Koper: 1 baldach', 'Czosnek: 2 ząbki', 'Liście dębu: 2 szt.'],
+            },
+            {
+              id: 'exp_demo_01_var_c',
+              seriesId: 'exp_demo_01',
+              variantLetter: 'C',
+              name: 'Słoik C (Liść czarnej porzeczki)',
+              parameterDelta: '3 liście czarnej porzeczki (taniny + enzymy)',
+              produceGrams: 500,
+              waterGrams: 400,
+              saltGrams: 18.0,
+              salinityPercent: 2.0,
+              specialAdditions: ['Koper: 1 baldach', 'Czosnek: 2 ząbki', 'Liście porzeczki: 3 szt.'],
+            },
+            {
+              id: 'exp_demo_01_var_d',
+              seriesId: 'exp_demo_01',
+              variantLetter: 'D',
+              name: 'Słoik D (Chlorek wapnia CaCl2)',
+              parameterDelta: '0.5g CaCl2 na słoik (mostki pektynowe)',
+              produceGrams: 500,
+              waterGrams: 400,
+              saltGrams: 18.0,
+              salinityPercent: 2.0,
+              specialAdditions: ['Koper: 1 baldach', 'Czosnek: 2 ząbki', 'CaCl2: 0.5g'],
+            },
+          ],
+        },
+      ];
+
+      this.pantryIngredients = [
+        {
+          id: 'ing_salt_klodawa',
+          name: 'Sól kamienna niejodowana Kłodawa',
+          category: 'salt',
+          stockAmount: 3.0,
+          unit: 'kg',
+          costPerUnit: 3.0,
+          updatedAt: now,
+        },
+        {
+          id: 'ing_vinegar_apple',
+          name: 'Żywy ocet jabłkowy 5%',
+          category: 'vinegar',
+          stockAmount: 1.5,
+          unit: 'L',
+          costPerUnit: 14.0,
+          updatedAt: now,
+        },
+        {
+          id: 'ing_garlic',
+          name: 'Czosnek polski Harnaś',
+          category: 'spice',
+          stockAmount: 12,
+          unit: 'główek',
+          costPerUnit: 2.5,
+          updatedAt: now,
+        },
+        {
+          id: 'ing_empty_jars_1000',
+          name: 'Słoiki Weck / Twist-off 1000 ml',
+          category: 'jar_lid',
+          stockAmount: 16,
+          unit: 'szt.',
+          costPerUnit: 2.2,
+          updatedAt: now,
+        },
+      ];
+
+      // Jeśli SQLite jest dostępne, zapisz demonstracyjne dane startowe do bazy
+      try {
+        if (this.db && typeof this.db.runSync === 'function') {
+          const b = this.batches[0];
+          this.db.runSync(
+            `INSERT OR REPLACE INTO batches (
+              id, recipe_id, recipe_title, culture, method, started_at,
+              target_fermentation_days, produce_weight_grams, water_weight_grams,
+              salt_weight_grams, salinity_percent, status, notes, qr_code_uri, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              b.id, b.recipeId, b.recipeTitle, b.culture, b.method, b.startedAt,
+              b.targetFermentationDays, b.produceWeightGrams, b.waterWeightGrams,
+              b.saltWeightGrams, b.salinityPercent, b.status, b.notes ?? null,
+              b.qrCodeUri ?? null, b.createdAt,
+            ]
+          );
+
+          const l = this.fermentationLogs[0];
+          this.db.runSync(
+            `INSERT OR REPLACE INTO fermentation_logs (
+              id, batch_id, logged_at, day_number, sensory_note, ph_reading, burped, tasted
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [l.id, l.batchId, l.loggedAt, l.dayNumber, l.sensoryNote ?? null, null, l.burped ? 1 : 0, l.tasted ? 1 : 0]
+          );
+
+          const s = this.experimentSeries[0];
+          this.db.runSync(
+            `INSERT OR REPLACE INTO experiment_series (
+              id, title, base_produce_name, total_produce_grams, jar_count,
+              hypothesis, axis, status, blind_cupping_enabled, created_at, completed_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              s.id, s.title, s.baseProduceName, s.totalProduceGrams, s.jarCount,
+              s.hypothesis, s.axis, s.status, s.blindCuppingEnabled ? 1 : 0,
+              s.createdAt, null,
+            ]
+          );
+
+          for (const v of s.variants) {
+            this.db.runSync(
+              `INSERT OR REPLACE INTO experiment_variants (
+                id, series_id, variant_letter, name, parameter_delta,
+                produce_grams, water_grams, salt_grams, salinity_percent,
+                special_additions_json, batch_id, sensory_score_json, is_winner
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              [
+                v.id, s.id, v.variantLetter, v.name, v.parameterDelta,
+                v.produceGrams, v.waterGrams, v.saltGrams, v.salinityPercent,
+                JSON.stringify(v.specialAdditions || []), null, null, 0,
+              ]
+            );
+          }
+
+          for (const ing of this.pantryIngredients) {
+            this.db.runSync(
+              `INSERT OR REPLACE INTO pantry_ingredients (
+                id, name, category, stock_amount, unit, cost_per_unit, updated_at
+              ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+              [ing.id, ing.name, ing.category, ing.stockAmount, ing.unit, ing.costPerUnit, ing.updatedAt]
+            );
+          }
+        }
+      } catch {}
+    }
 
     this.initialized = true;
   }
@@ -343,6 +566,17 @@ export class LocalDatabaseStore {
     batch.status = status;
     if (ratingStars !== undefined) batch.ratingStars = ratingStars;
     if (notes !== undefined) batch.notes = notes;
+
+    try {
+      if (this.db && typeof this.db.runSync === 'function') {
+        this.db.runSync(
+          `UPDATE batches SET status = ?, rating_stars = ?, notes = ? WHERE id = ?`,
+          [batch.status, batch.ratingStars ?? null, batch.notes ?? null, batch.id]
+        );
+      }
+    } catch {}
+
+    autoBackup(this.getBackupData()).catch(() => {});
     return true;
   }
 
@@ -464,6 +698,55 @@ export class LocalDatabaseStore {
 
   public createExperimentSeries(series: ExperimentSeries): ExperimentSeries {
     this.experimentSeries.unshift(series);
+    try {
+      if (this.db && typeof this.db.runSync === 'function') {
+        this.db.runSync(
+          `INSERT OR REPLACE INTO experiment_series (
+            id, title, base_produce_name, total_produce_grams, jar_count,
+            hypothesis, axis, status, blind_cupping_enabled, created_at, completed_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            series.id,
+            series.title,
+            series.baseProduceName,
+            series.totalProduceGrams,
+            series.jarCount,
+            series.hypothesis,
+            series.axis,
+            series.status,
+            series.blindCuppingEnabled ? 1 : 0,
+            series.createdAt,
+            series.completedAt ?? null,
+          ]
+        );
+        for (const v of series.variants) {
+          this.db.runSync(
+            `INSERT OR REPLACE INTO experiment_variants (
+              id, series_id, variant_letter, name, parameter_delta,
+              produce_grams, water_grams, salt_grams, salinity_percent,
+              special_additions_json, batch_id, sensory_score_json, is_winner
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              v.id,
+              series.id,
+              v.variantLetter,
+              v.name,
+              v.parameterDelta,
+              v.produceGrams,
+              v.waterGrams,
+              v.saltGrams,
+              v.salinityPercent,
+              JSON.stringify(v.specialAdditions || []),
+              v.batchId ?? null,
+              v.sensoryScore ? JSON.stringify(v.sensoryScore) : null,
+              v.isWinner ? 1 : 0,
+            ]
+          );
+        }
+      }
+    } catch {}
+
+    autoBackup(this.getBackupData()).catch(() => {});
     return series;
   }
 
@@ -485,6 +768,16 @@ export class LocalDatabaseStore {
     if (status === 'completed') {
       series.completedAt = Date.now();
     }
+    try {
+      if (this.db && typeof this.db.runSync === 'function') {
+        this.db.runSync(
+          `UPDATE experiment_series SET status = ?, completed_at = ? WHERE id = ?`,
+          [series.status, series.completedAt ?? null, id]
+        );
+      }
+    } catch {}
+
+    autoBackup(this.getBackupData()).catch(() => {});
     return true;
   }
 
@@ -492,6 +785,14 @@ export class LocalDatabaseStore {
     const series = this.experimentSeries.find((s) => s.id === id);
     if (!series) return false;
     series.blindCuppingEnabled = enabled;
+    try {
+      if (this.db && typeof this.db.runSync === 'function') {
+        this.db.runSync(
+          `UPDATE experiment_series SET blind_cupping_enabled = ? WHERE id = ?`,
+          [enabled ? 1 : 0, id]
+        );
+      }
+    } catch {}
     return true;
   }
 
@@ -506,6 +807,14 @@ export class LocalDatabaseStore {
     if (!variant) return false;
 
     variant.sensoryScore = score;
+    try {
+      if (this.db && typeof this.db.runSync === 'function') {
+        this.db.runSync(
+          `UPDATE experiment_variants SET sensory_score_json = ? WHERE id = ? AND series_id = ?`,
+          [JSON.stringify(score), variantId, seriesId]
+        );
+      }
+    } catch {}
     return true;
   }
 
@@ -520,6 +829,14 @@ export class LocalDatabaseStore {
     if (!variant) return false;
 
     variant.isWinner = isWinner;
+    try {
+      if (this.db && typeof this.db.runSync === 'function') {
+        this.db.runSync(
+          `UPDATE experiment_variants SET is_winner = ? WHERE id = ? AND series_id = ?`,
+          [isWinner ? 1 : 0, variantId, seriesId]
+        );
+      }
+    } catch {}
     return true;
   }
 
@@ -530,6 +847,34 @@ export class LocalDatabaseStore {
     } else {
       this.customRecipes.unshift(recipe);
     }
+    try {
+      if (this.db && typeof this.db.runSync === 'function') {
+        this.db.runSync(
+          `INSERT OR REPLACE INTO custom_recipes (
+            id, title, subtitle, culture, category, method,
+            produce_weight_grams, salinity_percent, fermentation_days,
+            shelf_life_months, ingredients_json, steps_json, created_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            recipe.id,
+            recipe.title,
+            recipe.subtitle ?? null,
+            recipe.culture,
+            recipe.category,
+            recipe.method,
+            recipe.defaultProduceWeightGrams ?? 1000,
+            recipe.defaultSalinityPercent ?? 2.0,
+            recipe.fermentationDays ?? 7,
+            recipe.shelfLifeMonths ?? 12,
+            JSON.stringify(recipe.ingredients || []),
+            JSON.stringify(recipe.steps || []),
+            Date.now(),
+          ]
+        );
+      }
+    } catch {}
+
+    autoBackup(this.getBackupData()).catch(() => {});
     return recipe;
   }
 
@@ -623,6 +968,14 @@ export class LocalDatabaseStore {
           Math.round((saltItem.stockAmount - params.saltKg) * 100) / 100
         );
         saltItem.updatedAt = Date.now();
+        try {
+          if (this.db && typeof this.db.runSync === 'function') {
+            this.db.runSync(
+              `UPDATE pantry_ingredients SET stock_amount = ?, updated_at = ? WHERE id = ?`,
+              [saltItem.stockAmount, saltItem.updatedAt, saltItem.id]
+            );
+          }
+        } catch {}
       }
     }
     if (params.jarsCount) {
@@ -630,6 +983,14 @@ export class LocalDatabaseStore {
       if (jarItem) {
         jarItem.stockAmount = Math.max(0, jarItem.stockAmount - params.jarsCount);
         jarItem.updatedAt = Date.now();
+        try {
+          if (this.db && typeof this.db.runSync === 'function') {
+            this.db.runSync(
+              `UPDATE pantry_ingredients SET stock_amount = ?, updated_at = ? WHERE id = ?`,
+              [jarItem.stockAmount, jarItem.updatedAt, jarItem.id]
+            );
+          }
+        } catch {}
       }
     }
     return true;
@@ -674,6 +1035,103 @@ export class LocalDatabaseStore {
       this.experimentSeries = data.experimentSeries || [];
       this.customRecipes = data.customRecipes || [];
       this.pantryIngredients = data.pantryIngredients || this.pantryIngredients;
+
+      try {
+        if (this.db && typeof this.db.runSync === 'function') {
+          for (const b of this.batches) {
+            this.db.runSync(
+              `INSERT OR REPLACE INTO batches (
+                id, recipe_id, recipe_title, culture, method, started_at,
+                target_fermentation_days, produce_weight_grams, water_weight_grams,
+                salt_weight_grams, salinity_percent, status, rating_stars, notes, qr_code_uri, created_at
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              [
+                b.id, b.recipeId, b.recipeTitle, b.culture, b.method, b.startedAt,
+                b.targetFermentationDays, b.produceWeightGrams, b.waterWeightGrams,
+                b.saltWeightGrams, b.salinityPercent, b.status, b.ratingStars ?? null,
+                b.notes ?? null, b.qrCodeUri ?? null, b.createdAt
+              ]
+            );
+          }
+          for (const p of this.pantryItems) {
+            this.db.runSync(
+              `INSERT OR REPLACE INTO pantry_items (
+                id, batch_id, label, jar_volume_ml, location, quantity,
+                sealed_at, best_before, opened_at, is_consumed
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              [
+                p.id, p.batchId, p.label, p.jarVolumeMl, p.location, p.quantity,
+                p.sealedAt, p.bestBefore, p.openedAt ?? null, p.isConsumed ? 1 : 0
+              ]
+            );
+          }
+          for (const l of this.fermentationLogs) {
+            this.db.runSync(
+              `INSERT OR REPLACE INTO fermentation_logs (
+                id, batch_id, logged_at, day_number, sensory_note, ph_reading, burped, tasted
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+              [
+                l.id, l.batchId, l.loggedAt, l.dayNumber, l.sensoryNote ?? null,
+                l.phReading ?? null, l.burped ? 1 : 0, l.tasted ? 1 : 0
+              ]
+            );
+          }
+          for (const r of this.customRecipes) {
+            this.db.runSync(
+              `INSERT OR REPLACE INTO custom_recipes (
+                id, title, subtitle, culture, category, method, produce_weight_grams,
+                salinity_percent, fermentation_days, shelf_life_months, ingredients_json, steps_json, created_at
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              [
+                r.id, r.title, r.subtitle ?? null, r.culture, r.category, r.method,
+                r.defaultProduceWeightGrams ?? 1000, r.defaultSalinityPercent ?? 2.0,
+                r.fermentationDays ?? 7, r.shelfLifeMonths ?? 12,
+                JSON.stringify(r.ingredients || []), JSON.stringify(r.steps || []),
+                Date.now()
+              ]
+            );
+          }
+          for (const s of this.experimentSeries) {
+            this.db.runSync(
+              `INSERT OR REPLACE INTO experiment_series (
+                id, title, base_produce_name, total_produce_grams, jar_count,
+                hypothesis, axis, status, blind_cupping_enabled, created_at, completed_at
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              [
+                s.id, s.title, s.baseProduceName, s.totalProduceGrams, s.jarCount,
+                s.hypothesis, s.axis, s.status, s.blindCuppingEnabled ? 1 : 0,
+                s.createdAt, s.completedAt ?? null
+              ]
+            );
+            for (const v of s.variants) {
+              this.db.runSync(
+                `INSERT OR REPLACE INTO experiment_variants (
+                  id, series_id, variant_letter, name, parameter_delta,
+                  produce_grams, water_grams, salt_grams, salinity_percent,
+                  special_additions_json, batch_id, sensory_score_json, is_winner
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                  v.id, s.id, v.variantLetter, v.name, v.parameterDelta,
+                  v.produceGrams, v.waterGrams, v.saltGrams, v.salinityPercent,
+                  JSON.stringify(v.specialAdditions || []), v.batchId ?? null,
+                  v.sensoryScore ? JSON.stringify(v.sensoryScore) : null,
+                  v.isWinner ? 1 : 0
+                ]
+              );
+            }
+          }
+          for (const ing of this.pantryIngredients) {
+            this.db.runSync(
+              `INSERT OR REPLACE INTO pantry_ingredients (
+                id, name, category, stock_amount, unit, cost_per_unit, updated_at
+              ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+              [ing.id, ing.name, ing.category, ing.stockAmount, ing.unit, ing.costPerUnit, ing.updatedAt]
+            );
+          }
+        }
+      } catch {}
+
+      autoBackup(this.getBackupData()).catch(() => {});
       return true;
     } catch {
       return false;
@@ -690,9 +1148,9 @@ export class LocalDatabaseStore {
           'SELECT value FROM app_settings WHERE key = ?',
           [key]
         );
-        if (row && typeof row.value === 'string') {
-          this.settings.set(key, row.value);
-          return row.value;
+        if (row && typeof (row as any).value === 'string') {
+          this.settings.set(key, (row as any).value);
+          return (row as any).value || null;
         }
       }
     } catch {}
@@ -720,6 +1178,13 @@ export class LocalDatabaseStore {
     this.pantryIngredients = [];
     this.settings.clear();
     this.initialized = false;
+    try {
+      if (this.db && typeof this.db.execSync === 'function') {
+        this.db.execSync(
+          'DELETE FROM batches; DELETE FROM pantry_items; DELETE FROM fermentation_logs; DELETE FROM custom_recipes; DELETE FROM experiment_series; DELETE FROM experiment_variants; DELETE FROM pantry_ingredients; DELETE FROM app_settings;'
+        );
+      }
+    } catch {}
   }
 }
 

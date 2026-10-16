@@ -115,4 +115,101 @@ describe('LocalDatabaseStore (100% Offline-First SQLite Persistence)', () => {
     const importedBatches = newStore.getAllBatches();
     expect(importedBatches.some((b) => b.recipeTitle === 'Powidła śliwkowe')).toBe(true);
   });
+
+  it('wczytuje istniejące rekordy z bazy SQLite podczas init() zamiast ich nadpisywania demo danymi', () => {
+    const mockDb = {
+      getFirstSync: jest.fn().mockImplementation((query: string) => {
+        if (query.toLowerCase().includes('count') && query.toLowerCase().includes('batches')) {
+          return { count: 2 };
+        }
+        return null;
+      }),
+      getAllSync: jest.fn().mockImplementation((query: string) => {
+        if (query.includes('FROM batches')) {
+          return [
+            {
+              id: 'batch_persisted_1',
+              recipe_id: 'REC-09',
+              recipe_title: 'Kiszona rzepa',
+              culture: 'Polska',
+              method: 'lacto_fermentation',
+              started_at: 1700000000000,
+              target_fermentation_days: 7,
+              produce_weight_grams: 800,
+              water_weight_grams: 600,
+              salt_weight_grams: 28,
+              salinity_percent: 2.0,
+              status: 'fermenting',
+              rating_stars: null,
+              notes: 'Z targu',
+              qr_code_uri: 'sloik://batch/batch_persisted_1',
+              created_at: 1700000000000,
+            },
+            {
+              id: 'batch_persisted_2',
+              recipe_id: 'REC-10',
+              recipe_title: 'Czosnek w miodzie',
+              culture: 'Polska',
+              method: 'lacto_fermentation',
+              started_at: 1700005000000,
+              target_fermentation_days: 30,
+              produce_weight_grams: 500,
+              water_weight_grams: 0,
+              salt_weight_grams: 0,
+              salinity_percent: 0,
+              status: 'pantry',
+              rating_stars: 5,
+              notes: null,
+              qr_code_uri: 'sloik://batch/batch_persisted_2',
+              created_at: 1700005000000,
+            },
+          ];
+        }
+        if (query.includes('FROM pantry_items')) {
+          return [
+            {
+              id: 'pantry_persisted_1',
+              batch_id: 'batch_persisted_2',
+              label: 'Czosnek w miodzie',
+              jar_volume_ml: 500,
+              location: 'pantry_cupboard',
+              quantity: 2,
+              sealed_at: 1700005000000,
+              best_before: 1730005000000,
+              opened_at: null,
+              is_consumed: 0,
+            },
+          ];
+        }
+        if (query.includes('FROM fermentation_logs')) return [];
+        if (query.includes('FROM custom_recipes')) return [];
+        if (query.includes('FROM experiment_series')) return [];
+        if (query.includes('FROM pantry_ingredients')) return [];
+        if (query.includes('FROM app_settings')) {
+          return [{ key: 'app_language', value: 'en' }];
+        }
+        return [];
+      }),
+      runSync: jest.fn(),
+      execSync: jest.fn(),
+    };
+
+    const sqliteStore = new LocalDatabaseStore();
+    sqliteStore.clearAllForTesting();
+    (sqliteStore as any).db = mockDb;
+    sqliteStore.init();
+
+    const batches = sqliteStore.getAllBatches();
+    expect(batches.length).toBe(2);
+    expect(batches[0].recipeTitle).toBe('Kiszona rzepa');
+    expect(batches[1].recipeTitle).toBe('Czosnek w miodzie');
+    expect(sqliteStore.getSetting('app_language')).toBe('en');
+
+    // Mutacja updateBatchStatus wykonuje runSync na SQLite
+    sqliteStore.updateBatchStatus('batch_persisted_1', 'pantry', 4, 'Bardzo udana');
+    expect(mockDb.runSync).toHaveBeenCalledWith(
+      expect.stringContaining('UPDATE batches SET status = ?'),
+      expect.arrayContaining(['pantry', 4, 'Bardzo udana', 'batch_persisted_1'])
+    );
+  });
 });

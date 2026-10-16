@@ -83,4 +83,29 @@ export const EN: Record<string, string> = {
   'Kopia zapasowa spiżarni': 'Pantry Backup',
   'Czas minął! 🔔': 'Time’s Up! 🔔',
   'Wyjmij słoiki na ściereczkę i pozostaw do powolnego ostygnięcia dnem do góry.': 'Remove jars onto a kitchen towel and let cool slowly upside down.',
+
+  // Ustawienia i Język
+  'Język & Jednostki': 'Language & Units',
+  'Język aplikacji': 'App Language',
+  'Układ jednostek': 'Unit System',
+  'Polski': 'Polish',
+  'Angielski': 'English',
+  'Metryczny (°C, g, ml)': 'Metric (°C, g, ml)',
+  'Imperialny (°F, oz, fl oz)': 'Imperial (°F, oz, fl oz)',
+  'Twoja Spiżarnia w Liczbach': 'Your Pantry in Numbers',
+  'Model „Taniej niż espresso”': '“Cheaper than Espresso” Model',
+  'Kopia Zapasowa (Zero Data Loss)': 'Backup (Zero Data Loss)',
+  'Prywatność i Regulamin': 'Privacy & Terms',
+  'O Aplikacji': 'About App',
+
+  // Kreator & Paszport
+  'Kalkulator Solanki 🥒': 'Brine Calculator 🥒',
+  'Paszport Słoika': 'Jar Passport',
+  'WARZYWA NA WADZE': 'PRODUCE WEIGHT',
+  'ZALICZONA SÓL': 'SALT WEIGHT',
+  'WODA / ZALEWA': 'WATER / BRINE',
+  'WIEK KISZONKI': 'FERMENT AGE',
+  'Odgazuj Słoik 🫧': 'Burp Jar 🫧',
+  'Drukuj Arkusz Etykiet QR (PDF) 🏷️': 'Print QR Label Sheet (PDF) 🏷️',
+  'Otwarcie słoika 🍴': 'Jar Opening 🍴',
 };

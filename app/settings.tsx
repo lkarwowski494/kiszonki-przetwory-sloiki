@@ -22,9 +22,13 @@ import * as Clipboard from 'expo-clipboard';
 import { Badge } from '../src/ui/components/Badge';
 import { useAppAccess } from '../src/core/access/app-access';
 import { PaywallModal } from '../src/ui/components/PaywallModal';
+import { useLang, setLang, t } from '../src/lib/i18n';
+import { useUnitSystem, setUnitSystem } from '../src/core/unit-converter';
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const lang = useLang();
+  const unitSystem = useUnitSystem();
   const [importJsonText, setImportJsonText] = useState('');
   const [showImportBox, setShowImportBox] = useState(false);
   const [isPaywallOpen, setIsPaywallOpen] = useState(false);
@@ -100,9 +104,65 @@ export default function SettingsScreen() {
       />
 
       <ScrollView contentContainerStyle={styles.container}>
+        {/* JĘZYK & JEDNOSTKI KUCHENNE */}
+        <KitchenCard variant="default" style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>🌐 {t('Język & Jednostki')}</Text>
+          <Text style={styles.sectionDesc}>
+            Dostosuj język aplikacji oraz preferowany układ jednostek kuchennych (waga i objętość).
+          </Text>
+
+          <View style={{ marginBottom: 12 }}>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: theme.colors.textPrimary, marginBottom: 6 }}>
+              {t('Język aplikacji')}:
+            </Text>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <TouchableOpacity
+                onPress={() => setLang('pl')}
+                style={[styles.choiceChip, lang === 'pl' && styles.choiceChipActive]}
+              >
+                <Text style={[styles.choiceChipText, lang === 'pl' && styles.choiceChipTextActive]}>
+                  🇵🇱 {t('Polski')}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setLang('en')}
+                style={[styles.choiceChip, lang === 'en' && styles.choiceChipActive]}
+              >
+                <Text style={[styles.choiceChipText, lang === 'en' && styles.choiceChipTextActive]}>
+                  🇬🇧 {t('Angielski')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: theme.colors.textPrimary, marginBottom: 6 }}>
+              {t('Układ jednostek')}:
+            </Text>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <TouchableOpacity
+                onPress={() => setUnitSystem('metric')}
+                style={[styles.choiceChip, unitSystem === 'metric' && styles.choiceChipActive]}
+              >
+                <Text style={[styles.choiceChipText, unitSystem === 'metric' && styles.choiceChipTextActive]}>
+                  {t('Metryczny (°C, g, ml)')}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setUnitSystem('imperial')}
+                style={[styles.choiceChip, unitSystem === 'imperial' && styles.choiceChipActive]}
+              >
+                <Text style={[styles.choiceChipText, unitSystem === 'imperial' && styles.choiceChipTextActive]}>
+                  {t('Imperialny (°F, oz, fl oz)')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </KitchenCard>
+
         {/* STATYSTYKI SPIŻARNI */}
         <KitchenCard variant="highlight" style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>📊 Twoja Spiżarnia w Liczbach</Text>
+          <Text style={styles.sectionTitle}>📊 {t('Twoja Spiżarnia w Liczbach')}</Text>
           <View style={styles.statsRow}>
             <View style={styles.statBox}>
               <Text style={styles.statNumber}>{batches.length}</Text>
@@ -122,7 +182,7 @@ export default function SettingsScreen() {
         {/* MODEL MONETYZACJI & DOSTĘP APPS4BREW */}
         <KitchenCard variant={isSubscribed ? 'highlight' : 'elevated'} style={styles.sectionCard}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-            <Text style={styles.sectionTitle}>💎 Model „Taniej niż espresso”</Text>
+            <Text style={styles.sectionTitle}>💎 {t('Model „Taniej niż espresso”')}</Text>
             <Badge
               label={
                 isSubscribed
@@ -451,5 +511,28 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     color: theme.colors.textMuted,
+  },
+  choiceChip: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: theme.colors.bgSecondary,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    alignItems: 'center',
+  },
+  choiceChipActive: {
+    backgroundColor: theme.colors.pickleGreen,
+    borderColor: theme.colors.pickleGreen,
+  },
+  choiceChipText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: theme.colors.textPrimary,
+  },
+  choiceChipTextActive: {
+    color: '#FFF',
+    fontWeight: '700',
   },
 });

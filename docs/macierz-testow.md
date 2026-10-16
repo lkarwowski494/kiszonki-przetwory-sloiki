@@ -12,7 +12,7 @@
 | **EKRAN** | `/batch/[id]` | `app/batch/[id].tsx` | `.maestro/08-paszport-sloika.yaml`<br>`src/ui/__tests__/batch-passport.test.ts` | ✅ Pokryty |
 | **EKRAN** | `/experiments` | `app/experiments.tsx` | `.maestro/07-laboratorium-eksperymentow.yaml`<br>`src/core/__tests__/experiments.test.ts` | ✅ Pokryty |
 | **EKRAN** | `/pasteurizer` | `app/pasteurizer.tsx` | `.maestro/06-pasteryzator-timer.yaml` | ✅ Pokryty |
-| **EKRAN** | `/settings` | `app/settings.tsx` | `.maestro/01-receptury.yaml`<br>`src/core/__tests__/app-access.test.ts` | ✅ Pokryty |
+| **EKRAN** | `/settings` | `app/settings.tsx` | `.maestro/01-receptury.yaml`<br>`src/core/__tests__/app-access.test.ts`<br>`src/data/__tests__/database.test.ts` | ✅ Pokryty |
 | **LOGIKA** | `calculateBrine` | `src/core/brine/brine-calculator.ts` | `src/core/__tests__/brine-calculator.test.ts`<br>`src/core/__tests__/corpus-brine-topup.test.ts`<br>`src/core/__tests__/corpus-recipe-scaling.test.ts`<br>`src/core/__tests__/emergency-recovery.test.ts`<br>`src/core/__tests__/invariants.test.ts` | ✅ Pokryty |
 | **LOGIKA** | `evaluatePasteurizationSafety` | `src/core/safety/safety-guard.ts` | `src/core/__tests__/corpus-safety-usda.test.ts`<br>`src/core/__tests__/invariants.test.ts`<br>`src/core/__tests__/safety-guard.test.ts`<br>`src/ui/__tests__/batch-passport.test.ts` | ✅ Pokryty |
 | **LOGIKA** | `BOTULISM_PH_CRITICAL` | `src/core/safety/safety-guard.ts` | `src/core/__tests__/corpus-safety-usda.test.ts`<br>`src/core/__tests__/invariants.test.ts`<br>`src/core/__tests__/safety-guard.test.ts` | ✅ Pokryty |

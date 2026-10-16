@@ -23,9 +23,13 @@ import {
   DEFAULT_FERMENT_SENSORY_PROFILE,
   FermentSensoryProfile,
 } from '../../src/core/sensory-radar';
+import { useAppAccess } from '../../src/core/access/app-access';
+import { PaywallModal } from '../../src/ui/components/PaywallModal';
 
 export default function FermentTimelineScreen() {
   const router = useRouter();
+  const { canCreate } = useAppAccess();
+  const [isPaywallOpen, setIsPaywallOpen] = useState(false);
   const [activeBatches, setActiveBatches] = useState<BatchRecord[]>([]);
   const [activeBatchForLog, setActiveBatchForLog] = useState<BatchRecord | null>(null);
   const [logNote, setLogNote] = useState('');
@@ -48,6 +52,10 @@ export default function FermentTimelineScreen() {
   }, []);
 
   const handleBurp = (batchId: string) => {
+    if (!canCreate) {
+      setIsPaywallOpen(true);
+      return;
+    }
     dbStore.addFermentationLog({
       batchId,
       dayNumber: 2,
@@ -61,6 +69,10 @@ export default function FermentTimelineScreen() {
 
   const handleSaveLog = () => {
     if (!activeBatchForLog) return;
+    if (!canCreate) {
+      setIsPaywallOpen(true);
+      return;
+    }
     const ph = parseFloat(logPh) || undefined;
     dbStore.addFermentationLog({
       batchId: activeBatchForLog.id,
@@ -85,6 +97,10 @@ export default function FermentTimelineScreen() {
 
 
   const handleMoveToPantry = (batchId: string) => {
+    if (!canCreate) {
+      setIsPaywallOpen(true);
+      return;
+    }
     Alert.alert(
       'Koniec fermentacji! 🫙',
       'Czy smak jest idealny i chcesz przenieść ten słoik do spiżarni lub lodówki?',
@@ -379,6 +395,11 @@ export default function FermentTimelineScreen() {
           </View>
         </SafeAreaView>
       </Modal>
+
+      <PaywallModal
+        visible={isPaywallOpen}
+        onClose={() => setIsPaywallOpen(false)}
+      />
     </SafeAreaView>
   );
 }
