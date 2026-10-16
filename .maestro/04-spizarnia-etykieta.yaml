@@ -1,0 +1,12 @@
+appId: com.apps4brew.sloik
+name: 04 Zarządzanie spiżarnią, podgląd etykiety QR i zużycie słoika
+---
+- launchApp
+- tapOn: "Spiżarnia"
+- assertVisible: "Moja Spiżarnia 🫙"
+- assertVisible: "Drukuj etykietę QR 🏷️"
+- tapOn: "Drukuj etykietę QR 🏷️"
+- assertVisible: "Etykieta Kuchenna"
+- assertVisible: "Format: 80x50 mm (Standardowa etykieta boczna)"
+- tapOn: "Zamknij"
+- takeScreenshot: 04-spizarnia

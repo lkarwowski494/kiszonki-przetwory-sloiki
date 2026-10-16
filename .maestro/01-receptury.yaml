@@ -1,0 +1,12 @@
+appId: com.apps4brew.sloik
+name: 01 Przeglądanie 24 Mistrzowskich Receptur Świata
+---
+- launchApp
+- assertVisible: "Słoik (Jarwise) 🫙"
+- assertVisible: "Ogórki małosolne chrupiące"
+- tapOn: "Ogórki małosolne chrupiące"
+- assertVisible: "Sekret Chrupkości:"
+- assertVisible: "Kąpiel lodowa przed kiszeniem nasyca komórki ogórka wodą."
+- tapOn: "Azja"
+- assertVisible: "Baechu-kimchi"
+- takeScreenshot: 01-receptury

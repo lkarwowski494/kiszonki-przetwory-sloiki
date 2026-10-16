@@ -1,0 +1,11 @@
+appId: com.apps4brew.sloik
+name: 03 Oś czasu fermentacji, odgazowanie i przeniesienie do spiżarni
+---
+- launchApp
+- tapOn: "Fermentacja"
+- assertVisible: "Aktywne Fermentacje 🫧"
+- assertVisible: "Odgazuj słoik (Burp) 💨"
+- tapOn: "Odgazuj słoik (Burp) 💨"
+- assertVisible: "Słoik odgazowany! 🫧"
+- tapOn: "OK"
+- takeScreenshot: 03-fermentacja

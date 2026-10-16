@@ -1,0 +1,15 @@
+appId: com.apps4brew.sloik
+name: 05 Diagnoza problemu w Słoikowym Ratowniku (Kahm Yeast)
+---
+- launchApp
+- tapOn: "Ratownik"
+- assertVisible: "Słoikowy Ratownik 🩺"
+- assertVisible: "Jaki problem zauważyłeś w swoim słoiku?"
+- tapOn: "Nalot lub plamy na powierzchni zalewy"
+- assertVisible: "Jak wygląda ten nalot na powierzchni?"
+- tapOn: "Cienka, matowa, biała/kremowa błonka, płaska, jak pyłek lub koronka"
+- assertVisible: "BEZPIECZNE DO JEDZENIA ✅"
+- assertVisible: "Drożdże kożuchujące (Kahm Yeast) — BEZPIECZNE"
+- tapOn: "Sprawdź inny słoik / Zdiagnozuj ponownie ↺"
+- assertVisible: "Jaki problem zauważyłeś w swoim słoiku?"
+- takeScreenshot: 05-ratownik

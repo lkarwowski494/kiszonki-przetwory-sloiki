@@ -11,7 +11,10 @@
     "test:fast": "jest --onlyChanged",
     "test:domain": "npm run build && jest dist/__tests__",
     "typecheck": "tsc --noEmit",
-    "verify": "npm run typecheck && npm test"
+    "check:matrix": "node scripts/test-matrix.mjs --check",
+    "matrix:write": "node scripts/test-matrix.mjs --write",
+    "check:maestro": "node scripts/check-maestro.mjs",
+    "verify": "npm run typecheck && npm test && npm run check:matrix && npm run check:maestro"
   },
   "dependencies": {
     "expo": "~57.0.26",

@@ -1,0 +1,13 @@
+appId: com.apps4brew.sloik
+name: 06 Stoper Pasteryzacji w kuchni i test zassania wieczka
+---
+- launchApp
+- tapOn: "⏱️"
+- assertVisible: "Stoper Pasteryzacji"
+- assertVisible: "Wybierz czas dla pojemności słoika:"
+- tapOn: "Słoik 500ml (15 min)"
+- assertVisible: "15:00"
+- tapOn: "Wystartuj stoper ▶️"
+- assertVisible: "Zatrzymaj ⏸️"
+- tapOn: "Zamknij"
+- takeScreenshot: 06-pasteryzator

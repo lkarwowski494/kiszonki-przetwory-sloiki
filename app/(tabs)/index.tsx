@@ -24,7 +24,10 @@ const CATEGORIES: { label: string; value: RecipeCategory | 'all' }[] = [
   { label: 'Napoje & Octy', value: 'drinks_vinegars' },
 ];
 
+import { useRouter } from 'expo-router';
+
 export default function RecipesScreen() {
+  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<RecipeCategory | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRecipe, setSelectedRecipe] = useState<MasterRecipe | null>(null);
@@ -44,7 +47,25 @@ export default function RecipesScreen() {
       <ScrollView contentContainerStyle={styles.container}>
         {/* Nagłówek */}
         <View style={styles.header}>
-          <Text style={theme.typography.heroTitle}>Słoik (Jarwise) 🫙</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text style={theme.typography.heroTitle}>Słoik (Jarwise) 🫙</Text>
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <TouchableOpacity
+                onPress={() => router.push('/pasteurizer')}
+                style={styles.iconButton}
+                accessibilityLabel="Stoper Pasteryzacji"
+              >
+                <Text style={{ fontSize: 20 }}>⏱️</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => router.push('/settings')}
+                style={styles.iconButton}
+                accessibilityLabel="Ustawienia i Kopia"
+              >
+                <Text style={{ fontSize: 20 }}>⚙️</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
           <Text style={styles.tagline}>
             Od chrupiących ogórków babci po kimchi i pikle ze świata.
           </Text>
@@ -162,6 +183,16 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: theme.spacing.md,
+  },
+  iconButton: {
+    minWidth: theme.touchTarget.minWidth,
+    minHeight: theme.touchTarget.minHeight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.bgCard,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.borderRadius.sm,
   },
   tagline: {
     fontSize: 14,

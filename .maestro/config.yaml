@@ -1,0 +1,11 @@
+# Scenariusze E2E Maestro dla aplikacji Słoik (Jarwise)
+# Apps4Brew Studio — Warstwa 8 Jakości (Symulator iOS)
+appId: com.apps4brew.sloik
+executionOrder:
+  flows:
+    - 01-receptury.yaml
+    - 02-kreator-solanki.yaml
+    - 03-fermentacja-timeline.yaml
+    - 04-spizarnia-etykieta.yaml
+    - 05-ratownik-doktor.yaml
+    - 06-pasteryzator-timer.yaml
