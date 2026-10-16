@@ -92,6 +92,7 @@ export class LocalDatabaseStore {
   private experimentSeries: ExperimentSeries[] = [];
   private customRecipes: MasterRecipe[] = [];
   private pantryIngredients: PantryIngredientRecord[] = [];
+  private settings: Map<string, string> = new Map();
   private initialized = false;
 
   public init(): void {
@@ -679,6 +680,37 @@ export class LocalDatabaseStore {
     }
   }
 
+  public getSetting(key: string): string | null {
+    if (this.settings.has(key)) {
+      return this.settings.get(key) || null;
+    }
+    try {
+      if (this.db && typeof this.db.getFirstSync === 'function') {
+        const row = this.db.getFirstSync(
+          'SELECT value FROM app_settings WHERE key = ?',
+          [key]
+        );
+        if (row && typeof row.value === 'string') {
+          this.settings.set(key, row.value);
+          return row.value;
+        }
+      }
+    } catch {}
+    return null;
+  }
+
+  public setSetting(key: string, value: string): void {
+    this.settings.set(key, value);
+    try {
+      if (this.db && typeof this.db.runSync === 'function') {
+        this.db.runSync(
+          'INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)',
+          [key, value]
+        );
+      }
+    } catch {}
+  }
+
   public clearAllForTesting(): void {
     this.batches = [];
     this.pantryItems = [];
@@ -686,6 +718,7 @@ export class LocalDatabaseStore {
     this.experimentSeries = [];
     this.customRecipes = [];
     this.pantryIngredients = [];
+    this.settings.clear();
     this.initialized = false;
   }
 }

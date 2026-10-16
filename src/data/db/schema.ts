@@ -108,6 +108,11 @@ export const SQLITE_INIT_QUERIES = [
     unit TEXT NOT NULL,
     cost_per_unit REAL NOT NULL DEFAULT 0.0,
     updated_at INTEGER NOT NULL
+  );`,
+
+  `CREATE TABLE IF NOT EXISTS app_settings (
+    key TEXT PRIMARY KEY NOT NULL,
+    value TEXT NOT NULL
   );`
 ];
 

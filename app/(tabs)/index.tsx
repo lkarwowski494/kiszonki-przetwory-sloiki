@@ -13,6 +13,7 @@ import { dbStore } from '../../src/data/db/database';
 import { MasterRecipe, RecipeCategory } from '../../src/core/types';
 import { theme } from '../../src/ui/theme';
 import { KitchenCard } from '../../src/ui/components/KitchenCard';
+import { KitchenButton } from '../../src/ui/components/KitchenButton';
 import { Badge } from '../../src/ui/components/Badge';
 
 
@@ -88,6 +89,22 @@ export default function RecipesScreen() {
           </Text>
         </View>
 
+        {/* 1-Tap Szybki Start Banner */}
+        <TouchableOpacity
+          activeOpacity={0.85}
+          onPress={() => router.push('/(tabs)/kreator')}
+          style={styles.quickStartBanner}
+          accessibilityLabel="Szybki Start 1-Tap w Kreatorze Solanki"
+        >
+          <View style={{ flex: 1 }}>
+            <Text style={styles.quickStartTitle}>⚡ Szybki Start 1-Tap: Nowy Słoik</Text>
+            <Text style={styles.quickStartSub}>
+              Waga kuchenna na blat i idealna solanka gotowa w 20 sekund!
+            </Text>
+          </View>
+          <Text style={styles.quickStartArrow}>🥒 ➔</Text>
+        </TouchableOpacity>
+
         {/* Wyszukiwarka */}
         <View style={styles.searchContainer}>
           <Text style={{ fontSize: 16, marginRight: 8 }}>🔍</Text>
@@ -149,10 +166,10 @@ export default function RecipesScreen() {
 
               <View style={styles.paramRow}>
                 <Text style={styles.paramText}>
-                  ⚖️ Sól: <strong>{recipe.defaultSalinityPercent > 0 ? `${recipe.defaultSalinityPercent}%` : 'Bez soli'}</strong>
+                  ⚖️ Sól: <Text style={{ fontWeight: '700', color: theme.colors.pickleGreen }}>{recipe.defaultSalinityPercent > 0 ? `${recipe.defaultSalinityPercent}%` : 'Bez soli'}</Text>
                 </Text>
                 <Text style={styles.paramText}>
-                  ⏳ Czas: <strong>{recipe.fermentationDays > 0 ? `${recipe.fermentationDays} dni` : 'Pasteryzacja'}</strong>
+                  ⏳ Czas: <Text style={{ fontWeight: '700', color: theme.colors.pickleGreen }}>{recipe.fermentationDays > 0 ? `${recipe.fermentationDays} dni` : 'Pasteryzacja'}</Text>
                 </Text>
               </View>
 
@@ -179,6 +196,14 @@ export default function RecipesScreen() {
                       {idx + 1}. {step}
                     </Text>
                   ))}
+
+                  <View style={{ marginTop: 14 }}>
+                    <KitchenButton
+                      title="Przelicz na wagę w Kreatorze ⚖️ ➔"
+                      variant="primary"
+                      onPress={() => router.push('/(tabs)/kreator')}
+                    />
+                  </View>
                 </View>
               )}
             </KitchenCard>
@@ -320,5 +345,36 @@ const styles = StyleSheet.create({
     color: theme.colors.textPrimary,
     lineHeight: 19,
     marginVertical: 3,
+  },
+  quickStartBanner: {
+    backgroundColor: '#E8F5E9',
+    borderColor: '#A5D6A7',
+    borderWidth: 1.5,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: theme.spacing.md,
+    shadowColor: theme.colors.pickleGreen,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  quickStartTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: theme.colors.pickleGreen,
+  },
+  quickStartSub: {
+    fontSize: 12,
+    color: theme.colors.textSecondary,
+    marginTop: 2,
+  },
+  quickStartArrow: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: theme.colors.pickleGreen,
+    marginLeft: 8,
   },
 });

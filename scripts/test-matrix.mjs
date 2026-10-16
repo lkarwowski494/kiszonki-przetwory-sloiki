@@ -114,6 +114,8 @@ const coreExports = [
   { id: 'formatProduceWeight', file: 'src/core/unit-converter.ts' },
   { id: 'buildBackup', file: 'src/lib/backup.ts' },
   { id: 'exportPantryToCsv', file: 'src/lib/backup.ts' },
+  { id: 'appAccessService', file: 'src/core/access/app-access.ts' },
+  { id: 'APPS4BREW_PLANS', file: 'src/core/access/app-access.ts' },
 ];
 
 

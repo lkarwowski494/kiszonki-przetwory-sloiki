@@ -65,11 +65,20 @@ Aplikacja mobilna na systemy iOS i watchOS dla pasjonatów domowych przetworów:
      - *Czosnek zzieleniał lub zrobił się niebieski?* $\to$ Naturalna reakcja enzymów w kwaśnym środowisku, w 100% jadalny.
      - *Ogórki zmiękły lub są puste w środku?* $\to$ Wyjaśnienie przyczyny (pektynaza, twardość wody) i wskazówki na przyszłość.
      - *Puchata, kolorowa pleśń ponad taflą?* $\to$ Bezwzględna zasada: wyrzuć całą zawartość słoika dla bezpieczeństwa.
-8. **⚙️ Ustawienia, Kopia Zapasowa (Zero Data Loss) & Pro `[STATUS: ✅ Wdrożone]`:**
-   - Bezpieczny eksport i import bazy w JSON za pomocą natywnego menu udostępniania (`expo-sharing`, `expo-file-system`, schowek).
-   - Etyczny model monetyzacji: darmowy, funkcjonalny rdzeń + opcjonalny pakiet Pro (3,99 zł/mies., 19,99 zł/rok lub 59,99 zł Lifetime).
-9. **⌚ Asystent Apple Watch & Hands-Free Kitchen `[STATUS: ⏳ Moduł w planach v1.1]`:**
-   - Dedykowana aplikacja na watchOS z dużymi elementami dotykowymi i obsługą cyfrowej koronki (Digital Crown).
+8. **⚙️ Ustawienia, Kopia Zapasowa (Zero Data Loss) & Model „Cheaper than Espresso” `[STATUS: ✅ Wdrożone]`:**
+   - Bezpieczny eksport i import bazy w JSON oraz rotacja 10 automatycznych kopii zapasowych (`autoBackup`).
+   - **Model monetyzacji „Taniej niż espresso”:**
+     - **$0.99 USD / miesiąc** (~4,49 zł)
+     - **$4.99 USD / rok** (~22,99 zł) z 7-dniowym bezpłatnym okresem próbnym (oferta główna)
+     - **$14.99 USD Lifetime** (~69,99 zł) jednorazowo na zawsze
+   - **ZERO podziału na funkcje Free i Pro:** W okresie próbnym (7 dni lub pierwsze 3 pełne partie) użytkownik ma dostęp do 100% możliwości aplikacji bez żadnych sztucznych blokad.
+   - **Gwarancja Historii Read-Only:** Po wygaśnięciu okresu próbnego archiwalne słoiki, notatki degustacyjne, receptury i spiżarnia pozostają **zawsze w 100% dostępne w trybie do odczytu (Read-Only)**. Blokowane jest wyłącznie tworzenie nowych nastawów, co chroni reputację aplikacji i oceny 4.9★ w App Store.
+9. **⚡ Szybki Start 1-Tap & Progressive Disclosure (Kitchen-Proof UX) `[STATUS: ✅ Wdrożone]`:**
+   - Czas do obliczenia solanki poniżej 20 sekund: wybierasz gotowy preset (np. *Ogórki małosolne 48h*, *Ogórki na zimę*, *Kapusta*, *Kimchi*), kładziesz warzywa na wagę i używasz wielkich stepperów kuchennych ($\ge 52\,\text{pt}$ wg Zasady Brudnego Kciuka).
+   - Natychmiastowa karta kuchenna podaje dokładne gramy soli, łyżki kuchenne, wodę i zalecane zioła.
+   - Zaawansowane parametry rzemieślnicze (chlorek wapnia $CaCl_2$, taniny dębowe, kinetyka $Q_{10}$, pasteryzacja USDA AI-539) schowane są w eleganckim, zwijanym akordeonie.
+10. **⌚ Asystent Apple Watch & Hands-Free Kitchen `[STATUS: ⏳ Moduł w planach v1.1]`:**
+    - Dedykowana aplikacja na watchOS z dużymi elementami dotykowymi i obsługą cyfrowej koronki (Digital Crown).
 
 ---
 

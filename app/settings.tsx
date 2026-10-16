@@ -19,11 +19,17 @@ import { ModalHeader } from '../src/ui/components/ModalHeader';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import * as Clipboard from 'expo-clipboard';
+import { Badge } from '../src/ui/components/Badge';
+import { useAppAccess } from '../src/core/access/app-access';
+import { PaywallModal } from '../src/ui/components/PaywallModal';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const [importJsonText, setImportJsonText] = useState('');
   const [showImportBox, setShowImportBox] = useState(false);
+  const [isPaywallOpen, setIsPaywallOpen] = useState(false);
+
+  const { status, isSubscribed, isTrialActive, isTrialExpired, daysLeftInTrial, setDebugState } = useAppAccess();
 
   const batches = dbStore.getAllBatches();
   const activeFerments = dbStore.getActiveFerments();
@@ -113,6 +119,72 @@ export default function SettingsScreen() {
           </View>
         </KitchenCard>
 
+        {/* MODEL MONETYZACJI & DOSTĘP APPS4BREW */}
+        <KitchenCard variant={isSubscribed ? 'highlight' : 'elevated'} style={styles.sectionCard}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+            <Text style={styles.sectionTitle}>💎 Model „Taniej niż espresso”</Text>
+            <Badge
+              label={
+                isSubscribed
+                  ? 'PEŁNY DOSTĘP (PRO)'
+                  : isTrialActive
+                  ? `TRIAL (${daysLeftInTrial} DNI)`
+                  : 'TRYB READ-ONLY'
+              }
+              variant={isSubscribed ? 'green' : isTrialActive ? 'amber' : 'red'}
+            />
+          </View>
+
+          <Text style={styles.sectionDesc}>
+            {isSubscribed
+              ? 'Posiadasz nielimitowany dostęp do tworzenia partii, etykiet PDF, radaru i laboratorium eksperymentów.'
+              : isTrialActive
+              ? `W okresie próbnym (pozostało ${daysLeftInTrial} dni) masz dostęp do 100% możliwości aplikacji. Twoja historia jest zawsze czytelna!`
+              : 'Twój okres próbny dobiegł końca. Wszystkie archiwalne słoiki i spiżarnia są w 100% bezpieczne w trybie Read-Only. Odblokuj tworzenie nowych partii taniej niż kawa espresso.'}
+          </Text>
+
+          {!isSubscribed && (
+            <KitchenButton
+              title="Zobacz plany ($0.99 / $4.99 / $14.99) ✨"
+              onPress={() => setIsPaywallOpen(true)}
+              style={{ marginVertical: 8 }}
+            />
+          )}
+
+          {/* Tester stanów (Developer / Offline QA) */}
+          <View style={{ marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderTopColor: theme.colors.border }}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.colors.textSecondary, marginBottom: 6 }}>
+              🧪 Tester stanów dostępu (Offline QA):
+            </Text>
+            <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
+              <TouchableOpacity
+                onPress={() => setDebugState('trial_active')}
+                style={[styles.debugChip, isTrialActive && styles.debugChipActive]}
+              >
+                <Text style={styles.debugChipText}>Trial Aktywny</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setDebugState('trial_expired')}
+                style={[styles.debugChip, isTrialExpired && styles.debugChipActive]}
+              >
+                <Text style={styles.debugChipText}>Trial Wygasł</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setDebugState('subscribed')}
+                style={[styles.debugChip, isSubscribed && styles.debugChipActive]}
+              >
+                <Text style={styles.debugChipText}>Subskrypcja</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setDebugState('reset')}
+                style={styles.debugChip}
+              >
+                <Text style={styles.debugChipText}>Reset</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </KitchenCard>
+
         {/* KOPIA ZAPASOWA (ZERO DATA LOSS) */}
         <KitchenCard variant="elevated" style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>💾 Kopia Zapasowa (Zero Data Loss)</Text>
@@ -198,24 +270,46 @@ export default function SettingsScreen() {
         <KitchenCard variant="default" style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>ℹ️ O Aplikacji</Text>
           <Text style={styles.aboutText}>
-            <strong>Słoik (Jarwise)</strong> — Wersja 0.1.0 (Build 2026.10)
+            <Text style={{ fontWeight: '700' }}>Słoik (Jarwise)</Text> — Wersja 0.1.0 (Build 2026.10)
           </Text>
           <Text style={styles.aboutText}>
-            Ekosystem: <strong>Apps4Brew Studio</strong> (Napar, Piekarz, Organizer, Słoik)
+            Ekosystem: <Text style={{ fontWeight: '700' }}>Apps4Brew Studio</Text> (Napar, Piekarz, Organizer, Słoik)
           </Text>
           <Text style={styles.aboutText}>
-            Architektura: <strong>100% Offline-First SQLite WAL</strong>
+            Architektura: <Text style={{ fontWeight: '700' }}>100% Offline-First SQLite WAL</Text>
           </Text>
           <Text style={styles.aboutText}>
-            Prywatność: <strong>Data Not Collected</strong> (Zero SDKs, zero telemetry)
+            Prywatność: <Text style={{ fontWeight: '700' }}>Data Not Collected</Text> (Zero SDKs, zero telemetry)
           </Text>
         </KitchenCard>
       </ScrollView>
+
+      <PaywallModal
+        visible={isPaywallOpen}
+        onClose={() => setIsPaywallOpen(false)}
+      />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  debugChip: {
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: theme.colors.bgSecondary,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  debugChipActive: {
+    backgroundColor: theme.colors.pickleGreen,
+    borderColor: theme.colors.pickleGreen,
+  },
+  debugChipText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: theme.colors.textPrimary,
+  },
   safeArea: {
     flex: 1,
     backgroundColor: theme.colors.bg,

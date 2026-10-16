@@ -61,7 +61,7 @@ export function generateJarLabel(config: LabelConfig): PrintableLabel {
   
   <line x1="20" y1="75" x2="280" y2="75" stroke="#D1CCC2" stroke-width="1" />
   
-  <text x="20" y="105" font-family="Georgia, serif" font-size="11" fill="#2B2823">Nastawiono: <strong>${escapeXml(config.preparedDate)}</strong></text>
+  <text x="20" y="105" font-family="Georgia, serif" font-size="11" fill="#2B2823">Nastawiono: <tspan font-weight="bold">${escapeXml(config.preparedDate)}</tspan></text>
   ${
     config.bestBeforeDate
       ? `<text x="20" y="125" font-family="Georgia, serif" font-size="10" fill="#6B655B">Najlepiej spożyć przed: ${escapeXml(config.bestBeforeDate)}</text>`

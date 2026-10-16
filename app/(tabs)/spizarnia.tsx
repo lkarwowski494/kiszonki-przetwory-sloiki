@@ -30,8 +30,12 @@ import { KitchenButton } from '../../src/ui/components/KitchenButton';
 import { Badge } from '../../src/ui/components/Badge';
 import { ModalHeader } from '../../src/ui/components/ModalHeader';
 import { QrScannerModal } from '../../src/ui/components/QrScannerModal';
+import { useAppAccess } from '../../src/core/access/app-access';
+import { PaywallModal } from '../../src/ui/components/PaywallModal';
 
 export default function PantryScreen() {
+  const { canCreate } = useAppAccess();
+  const [isPaywallOpen, setIsPaywallOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'jars' | 'warehouse'>('jars');
   const [items, setItems] = useState<PantryItemRecord[]>([]);
   const [ingredients, setIngredients] = useState<PantryIngredientRecord[]>([]);
@@ -151,6 +155,10 @@ export default function PantryScreen() {
   };
 
   const handleSaveNewIngredient = () => {
+    if (!canCreate) {
+      setIsPaywallOpen(true);
+      return;
+    }
     if (!newIngName.trim()) {
       Alert.alert('Brak nazwy', 'Podaj nazwę surowca.');
       return;
@@ -322,7 +330,13 @@ export default function PantryScreen() {
                 Stan soli, szkła, przypraw i octów
               </Text>
               <TouchableOpacity
-                onPress={() => setIsAddingIngredient(!isAddingIngredient)}
+                onPress={() => {
+                  if (!isAddingIngredient && !canCreate) {
+                    setIsPaywallOpen(true);
+                    return;
+                  }
+                  setIsAddingIngredient(!isAddingIngredient);
+                }}
                 style={styles.addIngHeaderBtn}
               >
                 <Text style={{ fontSize: 13, fontWeight: '700', color: theme.colors.pickleGreen }}>
@@ -537,6 +551,14 @@ export default function PantryScreen() {
         visible={isScannerOpen}
         onClose={() => setIsScannerOpen(false)}
         onScanBatch={handleScanBatch}
+      />
+
+      {/* Paywall przy próbie tworzenia po wygaśnięciu trialu */}
+      <PaywallModal
+        visible={isPaywallOpen}
+        onClose={() => setIsPaywallOpen(false)}
+        reasonTitle="Okres próbny wygasł 📦"
+        reasonSubtitle="Twój dotychczasowy magazyn i spiżarnia są w 100% bezpieczne w trybie Read-Only. Odblokuj dodawanie nowych surowców i słoików subskrybując taniej niż kawa espresso ($0.99 / $4.99)!"
       />
     </SafeAreaView>
   );

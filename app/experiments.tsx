@@ -29,9 +29,13 @@ import { KitchenCard } from '../src/ui/components/KitchenCard';
 import { KitchenButton } from '../src/ui/components/KitchenButton';
 import { Badge } from '../src/ui/components/Badge';
 import { ModalHeader } from '../src/ui/components/ModalHeader';
+import { useAppAccess } from '../src/core/access/app-access';
+import { PaywallModal } from '../src/ui/components/PaywallModal';
 
 export default function ExperimentsScreen() {
   const router = useRouter();
+  const { canCreate } = useAppAccess();
+  const [isPaywallOpen, setIsPaywallOpen] = useState(false);
 
   const [seriesList, setSeriesList] = useState<ExperimentSeries[]>([]);
   const [selectedSeries, setSelectedSeries] = useState<ExperimentSeries | null>(null);
@@ -84,6 +88,10 @@ export default function ExperimentsScreen() {
   };
 
   const handleCreateExperiment = () => {
+    if (!canCreate) {
+      setIsPaywallOpen(true);
+      return;
+    }
     if (!title.trim()) {
       Alert.alert('Brak tytułu', 'Wpisz nazwę serii eksperymentalnej.');
       return;
@@ -224,6 +232,10 @@ export default function ExperimentsScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
+            if (!canCreate) {
+              setIsPaywallOpen(true);
+              return;
+            }
             setTitle(`Eksperyment ${new Date().toLocaleDateString('pl-PL')}`);
             setViewMode('create');
           }}
@@ -249,7 +261,13 @@ export default function ExperimentsScreen() {
                 <Text style={styles.emptyText}>Brak aktywnych eksperymentów.</Text>
                 <KitchenButton
                   title="Stwórz pierwszy Split-Batch"
-                  onPress={() => setViewMode('create')}
+                  onPress={() => {
+                    if (!canCreate) {
+                      setIsPaywallOpen(true);
+                      return;
+                    }
+                    setViewMode('create');
+                  }}
                   variant="primary"
                 />
               </KitchenCard>
@@ -667,6 +685,13 @@ export default function ExperimentsScreen() {
           </ScrollView>
         </SafeAreaView>
       </Modal>
+
+      <PaywallModal
+        visible={isPaywallOpen}
+        onClose={() => setIsPaywallOpen(false)}
+        reasonTitle="Okres próbny wygasł 🔬"
+        reasonSubtitle="Twoje dotychczasowe serie eksperymentalne i oceny degustacyjne są zawsze dostępne (Read-Only). Odblokuj tworzenie nowych split-batchy subskrybując taniej niż kawa espresso ($0.99 / $4.99)!"
+      />
     </SafeAreaView>
   );
 }
