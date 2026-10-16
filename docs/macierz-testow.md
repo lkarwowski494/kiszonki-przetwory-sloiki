@@ -5,7 +5,7 @@
 | Kategoria | Element / Identyfikator | Źródło | Pokrycie testami | Status |
 | :--- | :--- | :--- | :--- | :---: |
 | **EKRAN** | `/fermentacja` | `app/(tabs)/fermentacja.tsx` | `.maestro/03-fermentacja-timeline.yaml` | ✅ Pokryty |
-| **EKRAN** | `/` | `app/(tabs)/index.tsx` | `.maestro/01-receptury.yaml`<br>`src/core/__tests__/brine-calculator.test.ts`<br>`src/core/__tests__/doctor-engine.test.ts`<br>`src/core/__tests__/fermentation-timeline.test.ts`<br>`src/core/__tests__/invariants.test.ts`<br>`src/core/__tests__/label-generator.test.ts`<br>`src/core/__tests__/recipes-data.test.ts`<br>`src/core/__tests__/safety-guard.test.ts`<br>`src/data/__tests__/database.test.ts`<br>`src/ui/__tests__/interaction-guards.test.ts` | ✅ Pokryty |
+| **EKRAN** | `/` | `app/(tabs)/index.tsx` | `.maestro/01-receptury.yaml`<br>`src/core/__tests__/audio-accessibility.test.ts`<br>`src/core/__tests__/brine-calculator.test.ts`<br>`src/core/__tests__/doctor-engine.test.ts`<br>`src/core/__tests__/fermentation-timeline.test.ts`<br>`src/core/__tests__/invariants.test.ts`<br>`src/core/__tests__/label-generator.test.ts`<br>`src/core/__tests__/recipes-data.test.ts`<br>`src/core/__tests__/safety-guard.test.ts`<br>`src/data/__tests__/database.test.ts`<br>`src/ui/__tests__/interaction-guards.test.ts` | ✅ Pokryty |
 | **EKRAN** | `/kreator` | `app/(tabs)/kreator.tsx` | `.maestro/02-kreator-solanki.yaml` | ✅ Pokryty |
 | **EKRAN** | `/ratownik` | `app/(tabs)/ratownik.tsx` | `.maestro/05-ratownik-doktor.yaml` | ✅ Pokryty |
 | **EKRAN** | `/spizarnia` | `app/(tabs)/spizarnia.tsx` | `.maestro/04-spizarnia-etykieta.yaml` | ✅ Pokryty |
@@ -22,8 +22,11 @@
 | **LOGIKA** | `getRecipeById` | `src/core/recipes/recipes-data.ts` | `src/core/__tests__/fermentation-timeline.test.ts`<br>`src/core/__tests__/recipes-data.test.ts` | ✅ Pokryty |
 | **LOGIKA** | `getRecipesByCategory` | `src/core/recipes/recipes-data.ts` | `src/core/__tests__/recipes-data.test.ts` | ✅ Pokryty |
 | **LOGIKA** | `LocalDatabaseStore` | `src/data/db/database.ts` | `src/data/__tests__/database.test.ts` | ✅ Pokryty |
+| **LOGIKA** | `announcePasteurizationComplete` | `src/core/announce.ts` | `src/core/__tests__/audio-accessibility.test.ts` | ✅ Pokryty |
+| **LOGIKA** | `confirmAction` | `src/core/confirm.ts` | `src/core/__tests__/audio-accessibility.test.ts` | ✅ Pokryty |
+| **LOGIKA** | `notifyTimerFinished` | `src/core/timer-audio.ts` | `src/core/__tests__/audio-accessibility.test.ts` | ✅ Pokryty |
 
-### Podsumowanie pokrycia macierzy: **18 / 18 (100.0%)**
+### Podsumowanie pokrycia macierzy: **21 / 21 (100.0%)**
 
 - **EKRANY:** 100% tras pokryte testami E2E Maestro lub testami integracyjnymi
 - **LOGIKA:** 100% funkcji silnika przetwórczego, kalkulatorów i bazy pokryte testami jednostkowymi

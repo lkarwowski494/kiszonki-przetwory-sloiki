@@ -13,6 +13,8 @@ import { KitchenCard } from '../src/ui/components/KitchenCard';
 import { KitchenButton } from '../src/ui/components/KitchenButton';
 import { ModalHeader } from '../src/ui/components/ModalHeader';
 
+import { notifyTimerFinished } from '../src/core/timer-audio';
+
 export default function PasteurizerTimerScreen() {
   const router = useRouter();
   const [selectedMinutes, setSelectedMinutes] = useState(20);
@@ -29,6 +31,7 @@ export default function PasteurizerTimerScreen() {
     } else if (remainingSeconds === 0 && isRunning) {
       setIsRunning(false);
       setIsFinished(true);
+      notifyTimerFinished(`Gotowanie ${selectedMinutes} minut`);
       Alert.alert(
         'Czas minął! 🔔',
         'Zakończono pasteryzację! Wyjmij słoiki na ściereczkę i pozostaw do powolnego ostygnięcia dnem do góry.',

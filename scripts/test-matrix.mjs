@@ -95,6 +95,9 @@ const coreExports = [
   { id: 'getRecipeById', file: 'src/core/recipes/recipes-data.ts' },
   { id: 'getRecipesByCategory', file: 'src/core/recipes/recipes-data.ts' },
   { id: 'LocalDatabaseStore', file: 'src/data/db/database.ts' },
+  { id: 'announcePasteurizationComplete', file: 'src/core/announce.ts' },
+  { id: 'confirmAction', file: 'src/core/confirm.ts' },
+  { id: 'notifyTimerFinished', file: 'src/core/timer-audio.ts' },
 ];
 
 for (const exp of coreExports) {
