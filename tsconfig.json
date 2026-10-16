@@ -3,6 +3,7 @@
     "target": "ES2022",
     "module": "CommonJS",
     "lib": ["ES2022", "DOM"],
+    "jsx": "react-native",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -14,7 +15,7 @@
       "./node_modules/@types",
       "../noble-pasteur/node_modules/@types"
     ],
-    "types": ["jest", "node"],
+    "types": ["jest", "node", "react"],
     "paths": {
       "@/*": ["src/*"]
     }
