@@ -1,52 +1,40 @@
+// ============================================================================
+// Słoik (Jarwise) — KitchenCard (Powered by @apps4craft/ui CraftCard)
+// Dark ceramic card container with tactile depth and artisanal borders.
+// ============================================================================
+
 import React from 'react';
-import { View, StyleSheet, ViewStyle } from 'react-native';
+import { StyleSheet, ViewStyle } from 'react-native';
+import { CraftCard } from '@apps4craft/ui';
 import { theme } from '../theme';
 
 interface KitchenCardProps {
   children: React.ReactNode;
   style?: ViewStyle;
   variant?: 'default' | 'elevated' | 'highlight';
+  headerTitle?: string;
+  onPress?: () => void;
 }
 
-export const KitchenCard: React.FC<KitchenCardProps> = ({ children, style, variant = 'default' }) => {
-  const getVariantStyle = () => {
-    switch (variant) {
-      case 'highlight':
-        return styles.highlight;
-      case 'elevated':
-        return styles.elevated;
-      default:
-        return styles.default;
-    }
-  };
+export const KitchenCard: React.FC<KitchenCardProps> = ({
+  children,
+  style,
+  variant = 'default',
+  headerTitle,
+  onPress,
+}) => {
+  const accentBorder = variant === 'highlight' ? theme.colors.pickleGreen : undefined;
+  const elevatedStyle: ViewStyle =
+    variant === 'elevated' ? { backgroundColor: theme.colors.bgCardElevated } : {};
 
-  return <View style={[styles.base, getVariantStyle(), style]}>{children}</View>;
+  return (
+    <CraftCard
+      headerTitle={headerTitle}
+      accentBorder={accentBorder}
+      onPress={onPress}
+      style={StyleSheet.flatten([elevatedStyle, style])}
+    >
+      {children}
+    </CraftCard>
+  );
 };
-
-const styles = StyleSheet.create({
-  base: {
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.md,
-    marginVertical: theme.spacing.xs,
-  },
-  default: {
-    backgroundColor: theme.colors.bgCard,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  elevated: {
-    backgroundColor: theme.colors.bgCardElevated,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  highlight: {
-    backgroundColor: theme.colors.pickleGreenMuted,
-    borderWidth: 1,
-    borderColor: theme.colors.pickleGreenLight,
-  },
-});

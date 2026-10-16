@@ -1,96 +1,94 @@
 // ============================================================================
 // Słoik (Jarwise) — Theme & Design Tokens
-// Rzemieślniczy, ciepły design kuchenny (Apps4Brew Studio)
+// Apps4Craft Studio — Ciemna estetyka ceramiczna (Basalt Ceramic Dark)
 // Zgodny z WCAG AAA, Dynamic Type i Apple Human Interface Guidelines
 // ============================================================================
 
+import { sharedCraftTokens, getCraftTheme } from '@apps4craft/ui';
+
+const sloikTheme = getCraftTheme('sloik');
+
 export const theme = {
   colors: {
-    // Tła kuchenne (jasny pergamin / ciemna ceramika)
-    bg: '#F7F5F0',
-    bgCard: '#FFFFFF',
-    bgCardElevated: '#FFFFFF',
-    bgSecondary: '#EDE9DF',
-    border: '#DDD7CB',
-    borderFocus: '#4A853D',
+    // Tła kuchenne bazaltowe i ceramika
+    bg: sharedCraftTokens.colors.bgBasalt, // #121214
+    bgCard: sharedCraftTokens.colors.bgCard, // #1C1C1F
+    bgCardElevated: sharedCraftTokens.colors.bgCardSecondary, // #242428
+    bgSecondary: '#18181A',
+    border: sharedCraftTokens.colors.border, // #2E2E34
+    borderLight: sharedCraftTokens.colors.borderLight, // #3E3E46
+    borderFocus: sloikTheme.accent, // #5B8A61
 
-    // Kolory natury przetwórczej
-    pickleGreen: '#2D5A27',
-    pickleGreenLight: '#4A853D',
-    pickleGreenMuted: '#EBF5E9',
+    // Unikalne akcenty Słoika (Apps4Craft Dill Herb Green & Brine)
+    pickleGreen: sloikTheme.accent, // #5B8A61
+    pickleGreenLight: sloikTheme.accentLight, // #D9E8D2
+    pickleGreenMuted: sloikTheme.accentMuted, // rgba(91, 138, 97, 0.15)
 
-    amberBrine: '#D9822B',
-    amberBrineLight: '#F7D19E',
-    amberBrineMuted: '#FFF6EB',
+    amberBrine: sloikTheme.secondaryAccent, // #9E8747 Mustard Seed
+    amberBrineLight: '#E5C678',
+    amberBrineMuted: 'rgba(158, 135, 71, 0.15)',
 
-    berryRed: '#B83A38',
-    berryRedLight: '#E06D6B',
-    berryRedMuted: '#FDEEEF',
+    berryRed: sharedCraftTokens.colors.danger, // #D9534F
+    berryRedLight: '#FF7875',
+    berryRedMuted: sharedCraftTokens.colors.dangerMuted,
 
-    // Typografia i kontrasty (WCAG AAA)
-    textPrimary: '#1C1A17',
-    textSecondary: '#59544D',
-    textMuted: '#8C8477',
+    // Typografia szwajcarska i wysoki kontrast (WCAG AAA)
+    textPrimary: sharedCraftTokens.colors.textPrimary, // #F4EFEA
+    textSecondary: sharedCraftTokens.colors.textSecondary, // #A09C96
+    textMuted: sharedCraftTokens.colors.textMuted, // #686561
 
-    // Statusy partii i ostrzeżenia
-    statusFermenting: '#D9822B',
-    statusReady: '#2D5A27',
-    statusConsumed: '#8C8477',
-    danger: '#B83A38',
+    // Statusy partii i oznaczenia
+    statusFermenting: sloikTheme.secondaryAccent, // #9E8747
+    statusReady: sloikTheme.accent, // #5B8A61
+    statusConsumed: sharedCraftTokens.colors.textMuted,
+    danger: sharedCraftTokens.colors.danger,
   },
-  spacing: {
-    xs: 4,
-    sm: 8,
-    md: 16,
-    lg: 24,
-    xl: 32,
-  },
-  borderRadius: {
-    sm: 8,
-    md: 14,
-    lg: 20,
-    full: 999,
-  },
+  spacing: sharedCraftTokens.spacing,
+  borderRadius: sharedCraftTokens.borderRadius,
   touchTarget: {
-    minHeight: 48, // Wymóg Apps4Brew dla rąk kuchennych
-    minWidth: 48,
+    minHeight: sharedCraftTokens.touchTargetMin, // 48 pt
+    minWidth: sharedCraftTokens.touchTargetMin,
   },
+  hitSlop: sharedCraftTokens.hitSlopStandard,
   typography: {
     heroTitle: {
       fontSize: 28,
       fontWeight: '700' as const,
-      color: '#1C1A17',
+      color: sharedCraftTokens.colors.textPrimary,
     },
     screenTitle: {
       fontSize: 22,
       fontWeight: '700' as const,
-      color: '#1C1A17',
+      color: sharedCraftTokens.colors.textPrimary,
     },
     sectionTitle: {
       fontSize: 18,
       fontWeight: '600' as const,
-      color: '#1C1A17',
+      color: sharedCraftTokens.colors.textPrimary,
     },
     cardTitle: {
       fontSize: 16,
       fontWeight: '600' as const,
-      color: '#1C1A17',
+      color: sharedCraftTokens.colors.textPrimary,
     },
     body: {
       fontSize: 15,
       fontWeight: '400' as const,
-      color: '#1C1A17',
+      color: sharedCraftTokens.colors.textPrimary,
       lineHeight: 22,
     },
     caption: {
       fontSize: 13,
       fontWeight: '500' as const,
-      color: '#59544D',
+      color: sharedCraftTokens.colors.textSecondary,
     },
     badge: {
       fontSize: 11,
       fontWeight: '700' as const,
       textTransform: 'uppercase' as const,
     },
+    displayHero: sharedCraftTokens.typography.displayHero,
+    displayLarge: sharedCraftTokens.typography.displayLarge,
+    monoNumber: sharedCraftTokens.typography.monoNumber,
   },
 };

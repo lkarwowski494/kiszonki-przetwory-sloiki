@@ -1,14 +1,12 @@
+// ============================================================================
+// Słoik (Jarwise) — KitchenButton (Powered by @apps4craft/ui CraftButton)
+// Tactile, ergonomic button designed for kitchen workflow (min 52pt targets).
+// ============================================================================
+
 import React from 'react';
-import {
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  ActivityIndicator,
-  ViewStyle,
-  TextStyle,
-} from 'react-native';
+import { ViewStyle, TextStyle } from 'react-native';
+import { CraftButton, CraftButtonVariant } from '@apps4craft/ui';
 import { theme } from '../theme';
-import * as Haptics from 'expo-haptics';
 
 interface KitchenButtonProps {
   title: string;
@@ -31,114 +29,17 @@ export const KitchenButton: React.FC<KitchenButtonProps> = ({
   textStyle,
   icon,
 }) => {
-  const handlePress = () => {
-    try {
-      if (variant === 'danger') {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
-      } else if (variant === 'primary') {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
-      } else {
-        Haptics.selectionAsync().catch(() => {});
-      }
-    } catch {
-      // no-op in headless / web
-    }
-    onPress();
-  };
-  const getContainerStyle = () => {
-    switch (variant) {
-      case 'secondary':
-        return styles.secondaryContainer;
-      case 'danger':
-        return styles.dangerContainer;
-      case 'ghost':
-        return styles.ghostContainer;
-      default:
-        return styles.primaryContainer;
-    }
-  };
-
-  const getTextStyle = () => {
-    switch (variant) {
-      case 'secondary':
-        return styles.secondaryText;
-      case 'danger':
-        return styles.dangerText;
-      case 'ghost':
-        return styles.ghostText;
-      default:
-        return styles.primaryText;
-    }
-  };
-
   return (
-    <TouchableOpacity
-      onPress={handlePress}
-      disabled={disabled || loading}
-      activeOpacity={0.7}
-      style={[
-        styles.baseContainer,
-        getContainerStyle(),
-        disabled && styles.disabledContainer,
-        style,
-      ]}
-      accessibilityRole="button"
-      accessibilityState={{ disabled: disabled || loading }}
-    >
-      {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? '#FFF' : theme.colors.pickleGreen} />
-      ) : (
-        <>
-          {icon}
-          <Text style={[styles.baseText, getTextStyle(), textStyle]}>{title}</Text>
-        </>
-      )}
-    </TouchableOpacity>
+    <CraftButton
+      label={title}
+      onPress={onPress}
+      variant={variant as CraftButtonVariant}
+      accentColor={theme.colors.pickleGreen}
+      disabled={disabled}
+      loading={loading}
+      style={style}
+      labelStyle={textStyle}
+      icon={icon}
+    />
   );
 };
-
-const styles = StyleSheet.create({
-  baseContainer: {
-    minHeight: theme.touchTarget.minHeight,
-    minWidth: theme.touchTarget.minWidth,
-    borderRadius: theme.borderRadius.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-  },
-  primaryContainer: {
-    backgroundColor: theme.colors.pickleGreen,
-  },
-  secondaryContainer: {
-    backgroundColor: theme.colors.bgSecondary,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  dangerContainer: {
-    backgroundColor: theme.colors.berryRed,
-  },
-  ghostContainer: {
-    backgroundColor: 'transparent',
-  },
-  disabledContainer: {
-    opacity: 0.5,
-  },
-  baseText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  primaryText: {
-    color: '#FFFFFF',
-  },
-  secondaryText: {
-    color: theme.colors.textPrimary,
-  },
-  dangerText: {
-    color: '#FFFFFF',
-  },
-  ghostText: {
-    color: theme.colors.pickleGreen,
-  },
-});

@@ -72,6 +72,55 @@ export interface PantryIngredientRecord {
   updatedAt: number;
 }
 
+export interface CustomEquipmentRecord {
+  id: string;
+  name: string;
+  jarVolumeMl: number;
+  sealType: 'weck_clips' | 'twist_off' | 'water_airlock' | 'silicone_vent' | 'stoneware';
+  tareWeightGrams: number;
+  notes?: string;
+  createdAt: number;
+}
+
+export const DEFAULT_CUSTOM_EQUIPMENT: CustomEquipmentRecord[] = [
+  {
+    id: 'eq_weck_1000',
+    name: 'Słoik Weck 1000 ml (Klamry & Guma)',
+    jarVolumeMl: 1000,
+    sealType: 'weck_clips',
+    tareWeightGrams: 420,
+    notes: 'Hermetyczny, naturalne rozszczelnienie przy nadciśnieniu CO2',
+    createdAt: 1700000000000,
+  },
+  {
+    id: 'eq_twist_900',
+    name: 'Słoik Twist-off 900 ml',
+    jarVolumeMl: 900,
+    sealType: 'twist_off',
+    tareWeightGrams: 360,
+    notes: 'Standardowy słoik wekowy, wymaga ręcznego odgazowania (burping)',
+    createdAt: 1700000000000,
+  },
+  {
+    id: 'eq_stoneware_3000',
+    name: 'Garniec Kamionkowy 3000 ml (Kołnierz wodny)',
+    jarVolumeMl: 3000,
+    sealType: 'stoneware',
+    tareWeightGrams: 1850,
+    notes: 'Beztlenowa kiszonka bezobsługowa, stała temperatura ceramiki',
+    createdAt: 1700000000000,
+  },
+  {
+    id: 'eq_airlock_2000',
+    name: 'Słój z Rurką Fermentacyjną 2000 ml',
+    jarVolumeMl: 2000,
+    sealType: 'water_airlock',
+    tareWeightGrams: 750,
+    notes: 'Rurka z wodą wypuszcza CO2 i blokuje dostęp tlenu oraz zarodników pleśni',
+    createdAt: 1700000000000,
+  },
+];
+
 export interface DatabaseBackupPayload {
   version: number;
   exportedAt: number;
@@ -81,6 +130,7 @@ export interface DatabaseBackupPayload {
   experimentSeries?: ExperimentSeries[];
   customRecipes?: MasterRecipe[];
   pantryIngredients?: PantryIngredientRecord[];
+  customEquipment?: CustomEquipmentRecord[];
 }
 
 
@@ -92,6 +142,7 @@ export class LocalDatabaseStore {
   private experimentSeries: ExperimentSeries[] = [];
   private customRecipes: MasterRecipe[] = [];
   private pantryIngredients: PantryIngredientRecord[] = [];
+  private customEquipment: CustomEquipmentRecord[] = [];
   private settings: Map<string, string> = new Map();
   private initialized = false;
   private clearedForTesting = false;
@@ -276,6 +327,30 @@ export class LocalDatabaseStore {
             }
           }
 
+          // 8. Wczytaj sprzęt i słoiki (Custom Equipment)
+          try {
+            const eqRows = (this.db.getAllSync('SELECT * FROM custom_equipment ORDER BY created_at ASC') || []) as any[];
+            if (eqRows.length > 0) {
+              this.customEquipment = eqRows.map((r) => ({
+                id: String(r.id),
+                name: String(r.name),
+                jarVolumeMl: Number(r.jar_volume_ml),
+                sealType: r.seal_type,
+                tareWeightGrams: Number(r.tare_weight_grams || 0),
+                notes: r.notes || undefined,
+                createdAt: Number(r.created_at),
+              }));
+            } else {
+              this.customEquipment = [...DEFAULT_CUSTOM_EQUIPMENT];
+              for (const eq of DEFAULT_CUSTOM_EQUIPMENT) {
+                this.db.runSync(
+                  `INSERT OR REPLACE INTO custom_equipment (id, name, jar_volume_ml, seal_type, tare_weight_grams, notes, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                  [eq.id, eq.name, eq.jarVolumeMl, eq.sealType, eq.tareWeightGrams, eq.notes ?? null, eq.createdAt]
+                );
+              }
+            }
+          } catch {}
+
           loadedFromDb = true;
         }
       } catch {
@@ -284,6 +359,9 @@ export class LocalDatabaseStore {
     }
 
     if (!loadedFromDb) {
+      if (this.customEquipment.length === 0) {
+        this.customEquipment = [...DEFAULT_CUSTOM_EQUIPMENT];
+      }
       // Przykładowa partia początkowa — dla demonstracji domowej spiżarni
       const now = Date.now();
       const demoBatchId = 'batch_demo_01';
@@ -1207,6 +1285,76 @@ export class LocalDatabaseStore {
     } catch {}
   }
 
+  // --- Niestandardowy Sprzęt i Słoiki (Custom Equipment) ---
+  public getCustomEquipment(): CustomEquipmentRecord[] {
+    this.ensureInitialized();
+    return [...this.customEquipment];
+  }
+
+  public addCustomEquipment(
+    record: Omit<CustomEquipmentRecord, 'id' | 'createdAt'> & { id?: string }
+  ): CustomEquipmentRecord {
+    this.ensureInitialized();
+    const id = record.id || `eq_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const createdAt = Date.now();
+    const newEq: CustomEquipmentRecord = {
+      ...record,
+      id,
+      createdAt,
+    };
+    this.customEquipment.unshift(newEq);
+    try {
+      if (this.db && typeof this.db.runSync === 'function') {
+        this.db.runSync(
+          `INSERT OR REPLACE INTO custom_equipment (
+            id, name, jar_volume_ml, seal_type, tare_weight_grams, notes, created_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          [
+            newEq.id,
+            newEq.name,
+            newEq.jarVolumeMl,
+            newEq.sealType,
+            newEq.tareWeightGrams,
+            newEq.notes ?? null,
+            newEq.createdAt,
+          ]
+        );
+      }
+    } catch {}
+    return newEq;
+  }
+
+  public deleteCustomEquipment(id: string): boolean {
+    this.ensureInitialized();
+    const idx = this.customEquipment.findIndex((e) => e.id === id);
+    if (idx === -1) return false;
+    this.customEquipment.splice(idx, 1);
+    try {
+      if (this.db && typeof this.db.runSync === 'function') {
+        this.db.runSync(`DELETE FROM custom_equipment WHERE id = ?`, [id]);
+      }
+    } catch {}
+    return true;
+  }
+
+  // --- Profil Rytuału Onboardingu (Faza 3) ---
+  public getOnboardingProfile(): 'classic_pickles' | 'world_ferments' | 'canning_pantry' | null {
+    const val = this.getSetting('craft_onboarding_profile');
+    if (val === 'classic_pickles' || val === 'world_ferments' || val === 'canning_pantry') {
+      return val;
+    }
+    return null;
+  }
+
+  public setOnboardingProfile(profile: 'classic_pickles' | 'world_ferments' | 'canning_pantry'): void {
+    this.setSetting('craft_onboarding_profile', profile);
+    this.setSetting('craft_onboarding_completed', 'true');
+  }
+
+  public isOnboardingCompleted(): boolean {
+    return this.getSetting('craft_onboarding_completed') === 'true';
+  }
+
   public clearAllForTesting(): void {
     this.batches = [];
     this.pantryItems = [];
@@ -1214,13 +1362,14 @@ export class LocalDatabaseStore {
     this.experimentSeries = [];
     this.customRecipes = [];
     this.pantryIngredients = [];
+    this.customEquipment = [];
     this.settings.clear();
     this.initialized = false;
     this.clearedForTesting = true;
     try {
       if (this.db && typeof this.db.execSync === 'function') {
         this.db.execSync(
-          'DELETE FROM batches; DELETE FROM pantry_items; DELETE FROM fermentation_logs; DELETE FROM custom_recipes; DELETE FROM experiment_series; DELETE FROM experiment_variants; DELETE FROM pantry_ingredients; DELETE FROM app_settings;'
+          'DELETE FROM batches; DELETE FROM pantry_items; DELETE FROM fermentation_logs; DELETE FROM custom_recipes; DELETE FROM experiment_series; DELETE FROM experiment_variants; DELETE FROM pantry_ingredients; DELETE FROM custom_equipment; DELETE FROM app_settings;'
         );
       }
     } catch {}

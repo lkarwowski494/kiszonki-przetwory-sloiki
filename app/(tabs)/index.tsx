@@ -1,3 +1,9 @@
+// ============================================================================
+// Słoik (Jarwise) — Rytuał (Główny Warsztat & Active Focus)
+// Apps4Craft Studio — Czyste Rzemiosło, Ergonomia Blatu Kuchennego.
+// 1-Tap waga, Święte Liczby, Zegar kuchenny, Sprzęt rzemieślnika.
+// ============================================================================
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -7,65 +13,269 @@ import {
   TextInput,
   TouchableOpacity,
   SafeAreaView,
+  Alert,
 } from 'react-native';
-import { MASTER_RECIPES } from '../../src/core/recipes/recipes-data';
-import { dbStore } from '../../src/data/db/database';
-import { MasterRecipe, RecipeCategory } from '../../src/core/types';
+import { useRouter } from 'expo-router';
+import { calculateBrine } from '../../src/core/brine/brine-calculator';
+import { evaluatePasteurizationSafety } from '../../src/core/safety/safety-guard';
+import { scheduleFermentationAlerts } from '../../src/core/notifications/kitchen-notifications';
+import { calculateFermentationTimeline } from '../../src/core/timeline/fermentation-timeline';
+import { dbStore, CustomEquipmentRecord } from '../../src/data/db/database';
 import { theme } from '../../src/ui/theme';
 import { KitchenCard } from '../../src/ui/components/KitchenCard';
 import { KitchenButton } from '../../src/ui/components/KitchenButton';
 import { Badge } from '../../src/ui/components/Badge';
+import { SacredNumbersBar } from '../../src/ui/components/SacredNumbersBar';
+import { ActiveFocusTimer } from '../../src/ui/components/ActiveFocusTimer';
+import { CraftOnboardingModal, CraftProfileId } from '../../src/ui/components/CraftOnboardingModal';
+import { CustomEquipmentModal } from '../../src/ui/components/CustomEquipmentModal';
+import { CustomRecipeModal } from '../../src/ui/components/CustomRecipeModal';
+import { useAppAccess } from '../../src/core/access/app-access';
+import { PaywallModal } from '../../src/ui/components/PaywallModal';
 import { t, useLang } from '../../src/lib/i18n';
+import {
+  useUnitSystem,
+  formatProduceWeight,
+  formatSaltWeight,
+  formatBrineVolume,
+} from '../../src/core/unit-converter';
 
+interface RitualPreset {
+  id: string;
+  name: string;
+  profile: CraftProfileId | 'all';
+  salinity: number;
+  isDrySalting: boolean;
+  waterRatio: number;
+  herbs: string;
+  defaultProduceGrams: number;
+}
 
-const CATEGORIES: { label: string; value: RecipeCategory | 'all' }[] = [
-  { label: 'Wszystkie', value: 'all' },
-  { label: 'Polska', value: 'poland_central_europe' },
-  { label: 'Azja', value: 'east_asia' },
-  { label: 'Bliski Wschód / Indie', value: 'mideast_maghreb_india' },
-  { label: 'Ameryki', value: 'americas_mediterranean' },
-  { label: 'Owoce & Dżemy', value: 'sweet_preserves' },
-  { label: 'Napoje & Octy', value: 'drinks_vinegars' },
+const RITUAL_PRESETS: RitualPreset[] = [
+  // Klasyka Domowa
+  {
+    id: 'malosolne',
+    name: '🥒 Ogórki małosolne (48h)',
+    profile: 'classic_pickles',
+    salinity: 2.0,
+    isDrySalting: false,
+    waterRatio: 0.8,
+    herbs: 'Czosnek (2 ząbki), baldach kopru, kawałek chrzanu, liść dębu',
+    defaultProduceGrams: 1000,
+  },
+  {
+    id: 'ogorki_zima',
+    name: '🥒 Ogórki kiszone na zimę',
+    profile: 'classic_pickles',
+    salinity: 2.5,
+    isDrySalting: false,
+    waterRatio: 0.8,
+    herbs: 'Czosnek (3 ząbki), chrzan, koper, gorczyca, ziele angielskie',
+    defaultProduceGrams: 1500,
+  },
+  {
+    id: 'kapusta',
+    name: '🥬 Kiszona kapusta z kminkiem',
+    profile: 'classic_pickles',
+    salinity: 2.0,
+    isDrySalting: true,
+    waterRatio: 0,
+    herbs: 'Kminek całe ziarno, starta marchew (opcjonalnie)',
+    defaultProduceGrams: 2000,
+  },
+  {
+    id: 'buraki',
+    name: '🟣 Zakwas z buraków',
+    profile: 'classic_pickles',
+    salinity: 2.0,
+    isDrySalting: false,
+    waterRatio: 1.0,
+    herbs: 'Czosnek, liść laurowy, ziele angielskie, skórka chleba żytniego',
+    defaultProduceGrams: 1000,
+  },
+
+  // Fermenty Świata
+  {
+    id: 'kimchi',
+    name: '🌶️ Baechu-Kimchi',
+    profile: 'world_ferments',
+    salinity: 2.5,
+    isDrySalting: true,
+    waterRatio: 0,
+    herbs: 'Gochugaru, imbir, czosnek, rzodkiew mu, dymka',
+    defaultProduceGrams: 1500,
+  },
+  {
+    id: 'tursu',
+    name: '🧄 Tursu (Bliskowschodnie Pikle)',
+    profile: 'world_ferments',
+    salinity: 3.0,
+    isDrySalting: false,
+    waterRatio: 0.85,
+    herbs: 'Kolendra w ziarnach, czosnek, ocet winny 1 łyżka, chili',
+    defaultProduceGrams: 1200,
+  },
+  {
+    id: 'jalapeno',
+    name: '🔥 Fermentowane Jalapeño & Habanero',
+    profile: 'world_ferments',
+    salinity: 3.5,
+    isDrySalting: false,
+    waterRatio: 0.9,
+    herbs: 'Ziele angielskie, czosnek, oregano meksykańskie',
+    defaultProduceGrams: 600,
+  },
+
+  // Spiżarnia & Weki
+  {
+    id: 'dzem_truskawka',
+    name: '🍓 Konfitura truskawkowa z pektyną',
+    profile: 'canning_pantry',
+    salinity: 0.0,
+    isDrySalting: true,
+    waterRatio: 0,
+    herbs: 'Cukier trzcinowy 300g, sok z cytryny, pektyna jabłkowa',
+    defaultProduceGrams: 1000,
+  },
+  {
+    id: 'przecier_pomidor',
+    name: '🍅 Passata pomidorowa na zimę',
+    profile: 'canning_pantry',
+    salinity: 1.0,
+    isDrySalting: true,
+    waterRatio: 0,
+    herbs: 'Sól kamienna, świeża bazylia, oliwa z oliwek na wierzch',
+    defaultProduceGrams: 2500,
+  },
 ];
 
-import { useRouter } from 'expo-router';
-
-export default function RecipesScreen() {
+export default function RitualScreen() {
   const router = useRouter();
+  const { canCreate } = useAppAccess();
   useLang();
-  const [selectedCategory, setSelectedCategory] = useState<RecipeCategory | 'all'>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedRecipe, setSelectedRecipe] = useState<MasterRecipe | null>(null);
-  const [customRecipes, setCustomRecipes] = useState<MasterRecipe[]>([]);
+  const unitSystem = useUnitSystem();
+
+  // Onboarding profile
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+  const [activeProfile, setActiveProfile] = useState<CraftProfileId>(
+    dbStore.getOnboardingProfile() || 'classic_pickles'
+  );
+
+  // Modale
+  const [isPaywallOpen, setIsPaywallOpen] = useState(false);
+  const [isFocusTimerOpen, setIsFocusTimerOpen] = useState(false);
+  const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
+  const [isCustomRecipeModalOpen, setIsCustomRecipeModalOpen] = useState(false);
+
+  // Stan wybranego nastawu
+  const [selectedPresetId, setSelectedPresetId] = useState<string>('malosolne');
+  const [produceWeightNum, setProduceWeightNum] = useState<number>(1000);
+  const [equipmentList, setEquipmentList] = useState<CustomEquipmentRecord[]>([]);
+  const [selectedEquipmentId, setSelectedEquipmentId] = useState<string>('eq_weck_1000');
+
+  // Zaawansowane opcje
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
+  const [customTitle, setCustomTitle] = useState('');
+  const [customSalinityPct, setCustomSalinityPct] = useState<number>(2.0);
+  const [isDrySaltingCustom, setIsDrySaltingCustom] = useState<boolean>(false);
 
   useEffect(() => {
-    setCustomRecipes(dbStore.getCustomRecipes());
+    // Sprawdź onboarding
+    if (!dbStore.isOnboardingCompleted()) {
+      setIsOnboardingOpen(true);
+    }
+    const profile = dbStore.getOnboardingProfile();
+    if (profile) setActiveProfile(profile);
+
+    const eq = dbStore.getCustomEquipment();
+    setEquipmentList(eq);
+    if (eq.length > 0) setSelectedEquipmentId(eq[0].id);
   }, []);
 
-  const allRecipes = [...customRecipes, ...MASTER_RECIPES];
+  const currentPreset =
+    RITUAL_PRESETS.find((p) => p.id === selectedPresetId) || RITUAL_PRESETS[0];
 
-  const filteredRecipes = allRecipes.filter((r) => {
-    const matchesCategory =
-      selectedCategory === 'all' || r.category === selectedCategory;
-    const matchesSearch =
-      r.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.culture.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.subtitle.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+  // Filtruj presety według aktywnego profilu (lub pokaż wszystkie jeśli brak dopasowania)
+  const visiblePresets = RITUAL_PRESETS.filter(
+    (p) => p.profile === activeProfile || p.profile === 'all'
+  );
+  const displayPresets = visiblePresets.length > 0 ? visiblePresets : RITUAL_PRESETS;
+
+  // Obliczenia solanki
+  const activeSalinity = isAdvancedOpen ? customSalinityPct : currentPreset.salinity;
+  const isDrySalting = isAdvancedOpen ? isDrySaltingCustom : currentPreset.isDrySalting;
+  const waterRatio = isDrySalting ? 0 : currentPreset.waterRatio;
+
+  const brineCalculation = calculateBrine({
+    method: isDrySalting ? 'dry_salting' : 'brine_submersion',
+    targetSalinityPercent: activeSalinity,
+    produceWeightGrams: produceWeightNum,
+    waterWeightGrams: isDrySalting ? undefined : Math.round(produceWeightNum * waterRatio),
   });
+
+  const selectedEquipment =
+    equipmentList.find((e) => e.id === selectedEquipmentId) || equipmentList[0];
+
+  // Szybkie dodawanie wagi
+  const handleAddWeight = (deltaGrams: number) => {
+    setProduceWeightNum((prev) => Math.max(100, prev + deltaGrams));
+  };
+
+  // Rozpoczęcie nastawu i zapis do bazy
+  const handleSaveBatch = () => {
+    if (!canCreate) {
+      setIsPaywallOpen(true);
+      return;
+    }
+
+    const title = customTitle.trim() || currentPreset.name.replace(/^[^\s]+\s*/, '');
+    const recipeId = isAdvancedOpen ? 'CUSTOM' : `REC_${currentPreset.id.toUpperCase()}`;
+
+    const newBatch = dbStore.addBatch({
+      recipeId,
+      recipeTitle: title,
+      culture: activeProfile === 'world_ferments' ? 'Azja / Świat' : 'Polska',
+      method: isDrySalting ? 'dry_salting' : 'lacto_fermentation',
+      produceWeightGrams: produceWeightNum,
+      waterWeightGrams: brineCalculation.waterWeightGrams,
+      saltWeightGrams: brineCalculation.saltWeightGrams,
+      salinityPercent: activeSalinity,
+      targetFermentationDays: isDrySalting ? 14 : 4,
+      notes: `Sprzęt: ${selectedEquipment?.name || 'Słoik 1000 ml'}`,
+    });
+
+    scheduleFermentationAlerts({
+      batchId: newBatch.id,
+      recipeTitle: title,
+      targetDays: newBatch.targetFermentationDays,
+    }).catch(() => {});
+
+    Alert.alert(
+      t('Partia zapisana! 🫙'),
+      t('Nastawiono "{title}". Słoik trafił na Twój blat w Dojrzewalni.', { title }),
+      [
+        { text: t('Świetnie!'), style: 'default' },
+        {
+          text: t('Przejdź do Dojrzewalni →'),
+          onPress: () => router.push('/(tabs)/dojrzewalnia'),
+        },
+      ]
+    );
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
-        {/* Nagłówek */}
+        {/* Nagłówek Rytuału */}
         <View style={styles.header}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View style={styles.titleRow}>
             <Text style={theme.typography.heroTitle}>{t('Słoik (Jarwise) 🫙')}</Text>
-            <View style={{ flexDirection: 'row', gap: 10 }}>
+            <View style={styles.headerButtons}>
               <TouchableOpacity
                 onPress={() => router.push('/experiments')}
                 style={styles.iconButton}
                 accessibilityLabel={t('Laboratorium Eksperymentów')}
+                hitSlop={theme.hitSlop}
               >
                 <Text style={{ fontSize: 20 }}>🔬</Text>
               </TouchableOpacity>
@@ -73,150 +283,263 @@ export default function RecipesScreen() {
                 onPress={() => router.push('/pasteurizer')}
                 style={styles.iconButton}
                 accessibilityLabel={t('Stoper Pasteryzacji')}
+                hitSlop={theme.hitSlop}
               >
                 <Text style={{ fontSize: 20 }}>⏱️</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => router.push('/settings')}
                 style={styles.iconButton}
-                accessibilityLabel={t('Ustawienia i Kopia')}
+                accessibilityLabel={t('Ustawienia i Warsztat')}
+                hitSlop={theme.hitSlop}
               >
                 <Text style={{ fontSize: 20 }}>⚙️</Text>
               </TouchableOpacity>
             </View>
           </View>
-
           <Text style={styles.tagline}>
-            {t('Od chrupiących ogórków babci po kimchi i pikle ze świata.')}
+            {t('Rytuał przygotowania, precyzja soli i aktywny zegar blatu kuchennego.')}
           </Text>
         </View>
 
-        {/* 1-Tap Szybki Start Banner */}
+        {/* ============================================================== */}
+        {/* ŚWIĘTE LICZBY FERMENTACJI (SACRED NUMBERS BAR)                 */}
+        {/* ============================================================== */}
+        <SacredNumbersBar
+          produceWeightGrams={produceWeightNum}
+          waterWeightGrams={brineCalculation.waterWeightGrams}
+          saltWeightGrams={brineCalculation.saltWeightGrams}
+          salinityPercent={activeSalinity}
+          isDrySalting={isDrySalting}
+        />
+
+        {/* PRZYCISK TRYBU AKTYWNEGO SKUPIENIA (ACTIVE FOCUS TIMER) */}
         <TouchableOpacity
+          style={styles.focusTimerLaunchBtn}
+          onPress={() => setIsFocusTimerOpen(!isFocusTimerOpen)}
           activeOpacity={0.85}
-          onPress={() => router.push('/(tabs)/kreator')}
-          style={styles.quickStartBanner}
-          accessibilityLabel={t('Szybki Start 1-Tap w Kreatorze Solanki')}
         >
-          <View style={{ flex: 1 }}>
-            <Text style={styles.quickStartTitle}>{t('⚡ Szybki Start 1-Tap: Nowy Słoik')}</Text>
-            <Text style={styles.quickStartSub}>
-              {t('Waga kuchenna na blat i idealna solanka gotowa w 20 sekund!')}
-            </Text>
-          </View>
-          <Text style={styles.quickStartArrow}>🥒 ➔</Text>
+          <Text style={styles.focusTimerLaunchText}>
+            ⏱️ {isFocusTimerOpen ? t('Ukryj Zegar Kuchenny') : t('Tryb Skupienia (Zegar Kuchenny)')}
+          </Text>
         </TouchableOpacity>
 
-        {/* Wyszukiwarka */}
-        <View style={styles.searchContainer}>
-          <Text style={{ fontSize: 16, marginRight: 8 }}>🔍</Text>
-          <TextInput
-            style={styles.searchInput}
-            placeholder={t('Szukaj ogórków, kimchi, dżemu, octu...')}
-            placeholderTextColor={theme.colors.textMuted}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
+        {isFocusTimerOpen && (
+          <ActiveFocusTimer
+            title={currentPreset.name}
+            defaultSeconds={900}
+            onClose={() => setIsFocusTimerOpen(false)}
           />
-        </View>
+        )}
 
-        {/* Filtr kategorii */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
-          {CATEGORIES.map((cat) => (
-            <TouchableOpacity
-              key={cat.value}
-              onPress={() => setSelectedCategory(cat.value)}
-              style={[
-                styles.categoryChip,
-                selectedCategory === cat.value && styles.categoryChipActive,
-              ]}
-            >
-              <Text
+        {/* ============================================================== */}
+        {/* SZYBKI WYBÓR NASTAWU (PRESETY FILTROWANE PROFILEM)              */}
+        {/* ============================================================== */}
+        <Text style={styles.sectionTitle}>{t('Wybierz Nastaw Rytuału')}</Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.presetsScroll}
+        >
+          {displayPresets.map((preset) => {
+            const isSelected = selectedPresetId === preset.id;
+            return (
+              <TouchableOpacity
+                key={preset.id}
                 style={[
-                  styles.categoryChipText,
-                  selectedCategory === cat.value && styles.categoryChipTextActive,
+                  styles.presetChip,
+                  isSelected && styles.presetChipSelected,
                 ]}
+                onPress={() => {
+                  setSelectedPresetId(preset.id);
+                  setProduceWeightNum(preset.defaultProduceGrams);
+                }}
+                activeOpacity={0.8}
               >
-                {t(cat.label)}
-              </Text>
-            </TouchableOpacity>
-          ))}
+                <Text
+                  style={[
+                    styles.presetChipText,
+                    isSelected && styles.presetChipTextSelected,
+                  ]}
+                >
+                  {preset.name}
+                </Text>
+                <Text
+                  style={[
+                    styles.presetChipSalinity,
+                    isSelected && styles.presetChipSalinitySelected,
+                  ]}
+                >
+                  {preset.isDrySalting ? t('Solenie na sucho') : `${preset.salinity}% solanka`}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </ScrollView>
 
-        {/* Licznik receptur */}
-        <Text style={styles.countText}>
-          {t('Znaleziono receptur: {count} z 24', { count: filteredRecipes.length })}
-        </Text>
-
-        {/* Lista Receptur */}
-        {filteredRecipes.map((recipe) => (
-          <TouchableOpacity
-            key={recipe.id}
-            activeOpacity={0.8}
-            onPress={() => setSelectedRecipe(selectedRecipe?.id === recipe.id ? null : recipe)}
-          >
-            <KitchenCard
-              style={styles.recipeCard}
-              variant={selectedRecipe?.id === recipe.id ? 'highlight' : 'elevated'}
+        {/* ============================================================== */}
+        {/* KUCHENNA WAGA 1-TAP (PRODUCE WEIGHT BUTTONS)                    */}
+        {/* ============================================================== */}
+        <KitchenCard style={styles.weightCard}>
+          <View style={styles.weightHeaderRow}>
+            <Text style={styles.cardHeaderTitle}>{t('Waga Surowca na Szalce')}</Text>
+            <TouchableOpacity
+              onPress={() => setProduceWeightNum(1000)}
+              hitSlop={theme.hitSlop}
             >
-              <View style={styles.cardHeader}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.recipeTitle}>{recipe.title}</Text>
-                  <Text style={styles.recipeSubtitle}>{recipe.subtitle}</Text>
-                </View>
-                <Badge label={recipe.culture} variant="green" />
-              </View>
+              <Text style={styles.resetWeightText}>{t('Zresetuj 1 kg')}</Text>
+            </TouchableOpacity>
+          </View>
 
-              <View style={styles.paramRow}>
-                <Text style={styles.paramText}>
-                  {t('Sól:')}{' '}
-                  <Text style={{ fontWeight: '700', color: theme.colors.pickleGreen }}>
-                    {recipe.defaultSalinityPercent > 0 ? `${recipe.defaultSalinityPercent}%` : t('Bez soli')}
+          <View style={styles.weightDisplayRow}>
+            <TextInput
+              style={styles.weightInput}
+              keyboardType="numeric"
+              value={String(produceWeightNum)}
+              onChangeText={(v) => setProduceWeightNum(parseInt(v, 10) || 0)}
+            />
+            <Text style={styles.weightUnitText}>
+              {unitSystem === 'imperial' ? 'oz' : 'g'}
+            </Text>
+          </View>
+
+          <View style={styles.quickWeightButtons}>
+            <TouchableOpacity
+              style={styles.weightDeltaBtn}
+              onPress={() => handleAddWeight(100)}
+              hitSlop={theme.hitSlop}
+            >
+              <Text style={styles.weightDeltaText}>+100 g</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.weightDeltaBtn}
+              onPress={() => handleAddWeight(250)}
+              hitSlop={theme.hitSlop}
+            >
+              <Text style={styles.weightDeltaText}>+250 g</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.weightDeltaBtn}
+              onPress={() => handleAddWeight(500)}
+              hitSlop={theme.hitSlop}
+            >
+              <Text style={styles.weightDeltaText}>+500 g</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.weightDeltaBtn}
+              onPress={() => handleAddWeight(1000)}
+              hitSlop={theme.hitSlop}
+            >
+              <Text style={styles.weightDeltaText}>+1 kg</Text>
+            </TouchableOpacity>
+          </View>
+        </KitchenCard>
+
+        {/* ============================================================== */}
+        {/* SPRZĘT I SŁOIKI RZEMIEŚLNIKA                                    */}
+        {/* ============================================================== */}
+        <KitchenCard style={styles.equipmentCard}>
+          <View style={styles.weightHeaderRow}>
+            <Text style={styles.cardHeaderTitle}>{t('Słoik / Naczynie')}</Text>
+            <TouchableOpacity
+              onPress={() => setIsEquipmentModalOpen(true)}
+              hitSlop={theme.hitSlop}
+            >
+              <Text style={styles.resetWeightText}>⚙️ {t('Warsztat sprzętu')}</Text>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 8 }}>
+            {equipmentList.map((eq) => {
+              const isSelected = selectedEquipmentId === eq.id;
+              return (
+                <TouchableOpacity
+                  key={eq.id}
+                  style={[
+                    styles.eqChip,
+                    isSelected && styles.eqChipSelected,
+                  ]}
+                  onPress={() => setSelectedEquipmentId(eq.id)}
+                  hitSlop={theme.hitSlop}
+                >
+                  <Text style={[styles.eqChipText, isSelected && styles.eqChipTextSelected]}>
+                    {eq.name}
                   </Text>
-                </Text>
-                <Text style={styles.paramText}>
-                  {t('Czas:')}{' '}
-                  <Text style={{ fontWeight: '700', color: theme.colors.pickleGreen }}>
-                    {recipe.fermentationDays > 0 ? `${recipe.fermentationDays} ${t('dni')}` : t('Pasteryzacja')}
+                  <Text style={styles.eqChipSub}>
+                    {eq.jarVolumeMl} ml · {eq.sealType}
                   </Text>
-                </Text>
-              </View>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </KitchenCard>
 
-              {/* Rozwinięcie szczegółów receptury */}
-              {selectedRecipe?.id === recipe.id && (
-                <View style={styles.expandedDetails}>
-                  <Text style={styles.detailSectionTitle}>{t('🥬 Składniki na słoik 1L:')}</Text>
-                  {recipe.ingredients.map((ing, idx) => (
-                    <Text key={idx} style={styles.ingredientItem}>
-                      • {ing.name}: {ing.amount} {ing.unit}
-                    </Text>
-                  ))}
+        {/* Wskazówki Rzemieślnika */}
+        <View style={styles.herbsTipBox}>
+          <Text style={styles.herbsTipTitle}>🌿 {t('Sugerowane zioła i przyprawy:')}</Text>
+          <Text style={styles.herbsTipText}>{currentPreset.herbs}</Text>
+        </View>
 
-                  <Text style={styles.detailSectionTitle}>{t('✨ Sekret Chrupkości:')}</Text>
-                  {recipe.crispnessSecrets.map((secret, idx) => (
-                    <Text key={idx} style={styles.secretText}>
-                      💡 {secret}
-                    </Text>
-                  ))}
+        {/* ============================================================== */}
+        {/* GŁÓWNY PRZYCISK: ROZPOCZNIJ NASTAW I ZAPISZ SŁOIK             */}
+        {/* ============================================================== */}
+        <TouchableOpacity
+          style={styles.mainStartButton}
+          onPress={handleSaveBatch}
+          activeOpacity={0.85}
+          accessibilityLabel={t('Rozpocznij nastaw i zapisz słoik 🫙')}
+        >
+          <Text style={styles.mainStartButtonText}>
+            {t('Rozpocznij nastaw i zapisz słoik 🫙')}
+          </Text>
+        </TouchableOpacity>
 
-                  <Text style={styles.detailSectionTitle}>{t('📝 Przygotowanie krok po kroku:')}</Text>
-                  {recipe.steps.map((step, idx) => (
-                    <Text key={idx} style={styles.stepText}>
-                      {idx + 1}. {step}
-                    </Text>
-                  ))}
+        {/* PRZYCISK: WŁASNA PROCEDURA KROK PO KROKU */}
+        <TouchableOpacity
+          style={styles.customProcedureButton}
+          onPress={() => setIsCustomRecipeModalOpen(true)}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.customProcedureText}>
+            📝 {t('Zdefiniuj własną procedurę krok po kroku')}
+          </Text>
+        </TouchableOpacity>
 
-                  <View style={{ marginTop: 14 }}>
-                    <KitchenButton
-                      title={t('Przelicz na wagę w Kreatorze ⚖️ ➔')}
-                      variant="primary"
-                      onPress={() => router.push('/(tabs)/kreator')}
-                    />
-                  </View>
-                </View>
-              )}
-            </KitchenCard>
-          </TouchableOpacity>
-        ))}
+        {/* MODAL ONBOARDINGU (PIERWSZE URUCHOMIENIE LUB ZMIANA) */}
+        <CraftOnboardingModal
+          visible={isOnboardingOpen}
+          canDismiss={dbStore.isOnboardingCompleted()}
+          onClose={() => setIsOnboardingOpen(false)}
+          onComplete={(profile) => {
+            setActiveProfile(profile);
+            setIsOnboardingOpen(false);
+          }}
+        />
+
+        {/* MODAL SPRZĘTU */}
+        <CustomEquipmentModal
+          visible={isEquipmentModalOpen}
+          onClose={() => setIsEquipmentModalOpen(false)}
+          onUpdated={() => {
+            const eq = dbStore.getCustomEquipment();
+            setEquipmentList(eq);
+          }}
+        />
+
+        {/* MODAL WŁASNEJ PROCEDURY */}
+        <CustomRecipeModal
+          visible={isCustomRecipeModalOpen}
+          onClose={() => setIsCustomRecipeModalOpen(false)}
+          onSaved={() => {
+            Alert.alert(t('Gotowe!'), t('Receptura została zapisana w Wiedzy.'));
+          }}
+        />
+
+        {/* PAYWALL */}
+        <PaywallModal
+          visible={isPaywallOpen}
+          onClose={() => setIsPaywallOpen(false)}
+        />
       </ScrollView>
     </SafeAreaView>
   );
@@ -229,160 +552,226 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: theme.spacing.md,
-    paddingBottom: 80,
+    paddingBottom: 40,
   },
   header: {
-    marginBottom: theme.spacing.md,
+    marginBottom: 12,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    gap: 10,
   },
   iconButton: {
-    minWidth: theme.touchTarget.minWidth,
-    minHeight: theme.touchTarget.minHeight,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: theme.colors.bgCard,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: theme.borderRadius.sm,
-  },
-  tagline: {
-    fontSize: 14,
-    color: theme.colors.textSecondary,
-    marginTop: 4,
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    minHeight: 44,
+    minWidth: 44,
     backgroundColor: theme.colors.bgCard,
     borderWidth: 1,
     borderColor: theme.colors.border,
     borderRadius: theme.borderRadius.md,
-    paddingHorizontal: theme.spacing.md,
-    height: 48,
-    marginBottom: theme.spacing.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  searchInput: {
-    flex: 1,
-    fontSize: 15,
+  tagline: {
+    fontSize: 13,
+    color: theme.colors.textSecondary,
+    marginTop: 4,
+    lineHeight: 18,
+  },
+  focusTimerLaunchBtn: {
+    backgroundColor: theme.colors.bgCardElevated,
+    borderWidth: 1,
+    borderColor: theme.colors.amberBrine,
+    borderRadius: theme.borderRadius.md,
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 8,
+  },
+  focusTimerLaunchText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: theme.colors.amberBrine,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: theme.colors.textPrimary,
+    marginTop: 14,
+    marginBottom: 8,
+  },
+  presetsScroll: {
+    gap: 10,
+    paddingBottom: 6,
+  },
+  presetChip: {
+    backgroundColor: theme.colors.bgCard,
+    borderWidth: 1.5,
+    borderColor: theme.colors.border,
+    borderRadius: theme.borderRadius.md,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    minWidth: 160,
+  },
+  presetChipSelected: {
+    borderColor: theme.colors.pickleGreen,
+    backgroundColor: theme.colors.pickleGreenMuted,
+  },
+  presetChipText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: theme.colors.textPrimary,
+    marginBottom: 2,
+  },
+  presetChipTextSelected: {
+    color: theme.colors.pickleGreenLight,
+  },
+  presetChipSalinity: {
+    fontSize: 12,
+    color: theme.colors.textSecondary,
+  },
+  presetChipSalinitySelected: {
+    color: theme.colors.pickleGreenLight,
+    fontWeight: '600',
+  },
+  weightCard: {
+    backgroundColor: theme.colors.bgCard,
+    padding: 16,
+    marginTop: 14,
+  },
+  weightHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  cardHeaderTitle: {
+    fontSize: 14,
+    fontWeight: '700',
     color: theme.colors.textPrimary,
   },
-  categoryScroll: {
-    marginVertical: theme.spacing.xs,
+  resetWeightText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: theme.colors.pickleGreen,
   },
-  categoryChip: {
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: 8,
-    backgroundColor: theme.colors.bgSecondary,
-    borderRadius: theme.borderRadius.full,
-    marginRight: 8,
+  weightDisplayRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'center',
+    marginVertical: 10,
+  },
+  weightInput: {
+    fontSize: 48,
+    fontWeight: '800',
+    color: theme.colors.textPrimary,
+    fontVariant: ['tabular-nums'],
+    textAlign: 'center',
+    minWidth: 140,
+  },
+  weightUnitText: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: theme.colors.textSecondary,
+    marginLeft: 6,
+  },
+  quickWeightButtons: {
+    flexDirection: 'row',
+    gap: 8,
+    justifyContent: 'center',
+    marginTop: 6,
+  },
+  weightDeltaBtn: {
+    flex: 1,
+    minHeight: 40,
+    backgroundColor: theme.colors.bgCardElevated,
     borderWidth: 1,
     borderColor: theme.colors.border,
+    borderRadius: theme.borderRadius.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  categoryChipActive: {
-    backgroundColor: theme.colors.pickleGreen,
-    borderColor: theme.colors.pickleGreen,
-  },
-  categoryChipText: {
+  weightDeltaText: {
     fontSize: 13,
     fontWeight: '600',
     color: theme.colors.textSecondary,
   },
-  categoryChipTextActive: {
-    color: '#FFFFFF',
+  equipmentCard: {
+    backgroundColor: theme.colors.bgCard,
+    padding: 14,
+    marginTop: 12,
   },
-  countText: {
-    fontSize: 12,
-    color: theme.colors.textMuted,
-    marginVertical: theme.spacing.sm,
+  eqChip: {
+    backgroundColor: theme.colors.bgCardElevated,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.borderRadius.sm,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginRight: 8,
   },
-  recipeCard: {
-    marginBottom: theme.spacing.sm,
+  eqChipSelected: {
+    borderColor: theme.colors.pickleGreen,
+    backgroundColor: theme.colors.pickleGreenMuted,
   },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 6,
-  },
-  recipeTitle: {
-    fontSize: 17,
+  eqChipText: {
+    fontSize: 13,
     fontWeight: '700',
     color: theme.colors.textPrimary,
   },
-  recipeSubtitle: {
-    fontSize: 13,
-    color: theme.colors.textSecondary,
+  eqChipTextSelected: {
+    color: theme.colors.pickleGreenLight,
+  },
+  eqChipSub: {
+    fontSize: 11,
+    color: theme.colors.textMuted,
     marginTop: 2,
   },
-  paramRow: {
-    flexDirection: 'row',
-    gap: 16,
-    marginTop: 6,
+  herbsTipBox: {
+    backgroundColor: theme.colors.bgCard,
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    padding: 12,
+    marginVertical: 12,
   },
-  paramText: {
-    fontSize: 13,
-    color: theme.colors.textSecondary,
-  },
-  expandedDetails: {
-    marginTop: theme.spacing.md,
-    paddingTop: theme.spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.border,
-  },
-  detailSectionTitle: {
-    fontSize: 14,
+  herbsTipTitle: {
+    fontSize: 12,
     fontWeight: '700',
     color: theme.colors.pickleGreen,
-    marginTop: 10,
     marginBottom: 4,
   },
-  ingredientItem: {
+  herbsTipText: {
     fontSize: 13,
-    color: theme.colors.textPrimary,
-    lineHeight: 19,
-    paddingLeft: 4,
-  },
-  secretText: {
-    fontSize: 13,
-    color: theme.colors.amberBrine,
-    fontStyle: 'italic',
-    lineHeight: 18,
-    marginVertical: 2,
-  },
-  stepText: {
-    fontSize: 13,
-    color: theme.colors.textPrimary,
-    lineHeight: 19,
-    marginVertical: 3,
-  },
-  quickStartBanner: {
-    backgroundColor: '#E8F5E9',
-    borderColor: '#A5D6A7',
-    borderWidth: 1.5,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: theme.spacing.md,
-    shadowColor: theme.colors.pickleGreen,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  quickStartTitle: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: theme.colors.pickleGreen,
-  },
-  quickStartSub: {
-    fontSize: 12,
     color: theme.colors.textSecondary,
-    marginTop: 2,
+    lineHeight: 18,
   },
-  quickStartArrow: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: theme.colors.pickleGreen,
-    marginLeft: 8,
+  mainStartButton: {
+    backgroundColor: theme.colors.pickleGreen,
+    minHeight: 54,
+    borderRadius: theme.borderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 6,
+  },
+  mainStartButtonText: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: 0.3,
+  },
+  customProcedureButton: {
+    minHeight: 46,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+  customProcedureText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.colors.textSecondary,
   },
 });

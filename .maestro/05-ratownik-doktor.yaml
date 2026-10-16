@@ -2,8 +2,8 @@ appId: com.apps4brew.sloik
 name: 05 Diagnoza problemu w Słoikowym Ratowniku (Kahm Yeast)
 ---
 - launchApp
-- tapOn: "Ratownik"
-- assertVisible: "Słoikowy Ratownik 🩺"
+- tapOn: "Wiedza"
+- tapOn: "Słoikowy Ratownik"
 - assertVisible: "Jaki problem zauważyłeś w swoim słoiku?"
 - tapOn: "Nalot lub plamy na powierzchni zalewy"
 - assertVisible: "Jak wygląda ten nalot na powierzchni?"

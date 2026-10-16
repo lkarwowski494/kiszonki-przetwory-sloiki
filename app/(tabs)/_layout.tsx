@@ -18,53 +18,35 @@ export default function TabsLayout() {
         tabBarActiveTintColor: theme.colors.pickleGreen,
         tabBarInactiveTintColor: theme.colors.textMuted,
         tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '600',
+          fontSize: 12,
+          fontWeight: '700',
         },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Receptury',
+          title: 'Rytuał',
+          tabBarIcon: ({ focused }) => (
+            <Text style={{ fontSize: 20 }}>{focused ? '⚖️' : '⏱️'}</Text>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="dojrzewalnia"
+        options={{
+          title: 'Dojrzewalnia',
+          tabBarIcon: ({ focused }) => (
+            <Text style={{ fontSize: 20 }}>{focused ? '🫙' : '🫧'}</Text>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="wiedza"
+        options={{
+          title: 'Wiedza',
           tabBarIcon: ({ focused }) => (
             <Text style={{ fontSize: 20 }}>{focused ? '📖' : '📕'}</Text>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="kreator"
-        options={{
-          title: 'Kreator',
-          tabBarIcon: ({ focused }) => (
-            <Text style={{ fontSize: 20 }}>{focused ? '🥒' : '🧮'}</Text>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="fermentacja"
-        options={{
-          title: 'Fermentacja',
-          tabBarIcon: ({ focused }) => (
-            <Text style={{ fontSize: 20 }}>{focused ? '🫧' : '⏳'}</Text>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="spizarnia"
-        options={{
-          title: 'Spiżarnia',
-          tabBarIcon: ({ focused }) => (
-            <Text style={{ fontSize: 20 }}>{focused ? '🫙' : '📦'}</Text>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="ratownik"
-        options={{
-          title: 'Ratownik',
-          tabBarIcon: ({ focused }) => (
-            <Text style={{ fontSize: 20 }}>{focused ? '🩺' : '💡'}</Text>
           ),
         }}
       />

@@ -55,11 +55,9 @@ for (const f of appFiles) {
   const testHits = [];
   for (const m of maestroCode) {
     if (
-      (route === '/' && (m.content.includes('Receptur') || m.content.includes('01'))) ||
-      (route === '/kreator' && m.content.includes('Kreator')) ||
-      (route === '/fermentacja' && m.content.includes('Fermentacja')) ||
-      (route === '/spizarnia' && m.content.includes('Spiżarnia')) ||
-      (route === '/ratownik' && m.content.includes('Ratownik')) ||
+      (route === '/' && (m.content.includes('Rytuał') || m.content.includes('02') || m.content.includes('01') || m.content.includes('Receptur'))) ||
+      (route === '/dojrzewalnia' && (m.content.includes('Dojrzewalnia') || m.content.includes('03') || m.content.includes('04') || m.content.includes('Fermentacja') || m.content.includes('Spiżarnia'))) ||
+      (route === '/wiedza' && (m.content.includes('Wiedza') || m.content.includes('01') || m.content.includes('05') || m.content.includes('Ratownik') || m.content.includes('Receptur'))) ||
       (route === '/pasteurizer' && m.content.includes('Pasteryzacj')) ||
       (route === '/settings' && (m.content.includes('Ustawienia') || m.content.includes('01'))) ||
       (route === '/experiments' && (m.content.includes('Eksperyment') || m.content.includes('07'))) ||

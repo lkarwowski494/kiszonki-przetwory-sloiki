@@ -1,8 +1,9 @@
 appId: com.apps4brew.sloik
-name: 01 Przeglądanie 24 Mistrzowskich Receptur Świata
+name: 01 Przeglądanie 24 Mistrzowskich Receptur Świata w module Wiedza
 ---
 - launchApp
 - assertVisible: "Słoik (Jarwise) 🫙"
+- tapOn: "Wiedza"
 - assertVisible: "Ogórki małosolne chrupiące"
 - tapOn: "Ogórki małosolne chrupiące"
 - assertVisible: "Sekret Chrupkości:"

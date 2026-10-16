@@ -1,10 +1,9 @@
 appId: com.apps4brew.sloik
-name: 02 Obliczenie solanki w Kreatorze i nastawienie partii
+name: 02 Obliczenie solanki w Rytuale i nastawienie partii
 ---
 - launchApp
-- tapOn: "Kreator"
-- assertVisible: "Kalkulator Solanki 🥒"
-- assertVisible: "SOLI KAMIENNEJ LUB MORSKIEJ"
+- assertVisible: "Słoik (Jarwise) 🫙"
+- assertVisible: "Święte Liczby Fermentacji"
 - tapOn: "Rozpocznij nastaw i zapisz słoik 🫙"
 - assertVisible: "Partia zapisana! 🫙"
 - tapOn: "Świetnie!"

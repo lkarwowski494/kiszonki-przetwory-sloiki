@@ -2,7 +2,8 @@ appId: com.apps4brew.sloik
 name: 04 Zarządzanie spiżarnią, podgląd etykiety QR i zużycie słoika
 ---
 - launchApp
-- tapOn: "Spiżarnia"
+- tapOn: "Dojrzewalnia"
+- tapOn: "W Spiżarni"
 - assertVisible: "Moja Spiżarnia 🫙"
 - assertVisible: "Drukuj etykietę QR 🏷️"
 - tapOn: "Drukuj etykietę QR 🏷️"

@@ -1,8 +1,8 @@
 appId: com.apps4brew.sloik
-name: 03 Oś czasu fermentacji, odgazowanie i przeniesienie do spiżarni
+name: 03 Oś czasu fermentacji, odgazowanie i przeniesienie w Dojrzewalni
 ---
 - launchApp
-- tapOn: "Fermentacja"
+- tapOn: "Dojrzewalnia"
 - assertVisible: "Aktywne Fermentacje 🫧"
 - assertVisible: "Odgazuj słoik (Burp) 💨"
 - tapOn: "Odgazuj słoik (Burp) 💨"

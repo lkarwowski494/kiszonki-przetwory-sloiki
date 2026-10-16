@@ -113,6 +113,16 @@ export const SQLITE_INIT_QUERIES = [
   `CREATE TABLE IF NOT EXISTS app_settings (
     key TEXT PRIMARY KEY NOT NULL,
     value TEXT NOT NULL
+  );`,
+
+  `CREATE TABLE IF NOT EXISTS custom_equipment (
+    id TEXT PRIMARY KEY NOT NULL,
+    name TEXT NOT NULL,
+    jar_volume_ml INTEGER NOT NULL,
+    seal_type TEXT NOT NULL,
+    tare_weight_grams REAL NOT NULL DEFAULT 0.0,
+    notes TEXT,
+    created_at INTEGER NOT NULL
   );`
 ];
 
