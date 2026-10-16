@@ -29,43 +29,40 @@ Aplikacja mobilna na systemy iOS i watchOS dla pasjonatów domowych przetworów:
 
 ## 📱 Moduły i Ekrany
 
-1. **🥒 Asystent Nastawiania Słoików & Kalkulator Solanek (Pickle & Brine Wizard):**
+1. **🥒 Asystent Nastawiania Słoików & Kalkulator Solanek (Pickle & Brine Wizard) `[STATUS: ✅ Wdrożone]`:**
    - Wpisujesz ile masz warzyw (np. 1,8 kg ogórków) i jakie masz naczynia — aplikacja w ułamku sekundy podaje: idealną wagę soli kamiennej lub morskiej, ilość wody oraz proporcje dodatków (czosnek, chrzan, koper).
    - Tryby pracy: zalewa klasyczna (ogórki, papryka), solenie na sucho (kapusta, kimchi) oraz solanki zrównoważone (*equilibrium brine*).
    - Doradca chrupkości: zaleca dodatek liści bogatych w taniny (dąb, wiśnia, chrzan) lub szczyptę chlorku wapnia ($CaCl_2$).
-2. **🫧 Żywy Kalendarz Fermentacji (Active Ferment Timeline):**
-   - Dynamiczna oś czasu dla każdego nastawionego słoika na blacie kuchennym.
+2. **🫧 Żywy Kalendarz Fermentacji & Dziennik Sensoryczny (Active Ferment Timeline & Log) `[STATUS: ✅ Oś czasu wdrożona / ⏳ Dziennik w toku]`:**
+   - Dynamiczna oś czasu dla każdego nastawionego słoika na blacie kuchennym z uwzględnieniem kinetyki Arrheniusa ($Q_{10}=2.0$).
    - Prowadzi przez fazy życia kiszonki: początkowe mętnienie, burzliwe bąbelkowanie, aż po stabilizację kwasową.
    - Inteligentne przypomnienia o odgazowaniu (*burping*), aby uniknąć ciśnienia w słoikach Twist-Off.
-   - Powiadomienia sensoryczne: *„Dzień 3: spróbuj widelczykiem — czy to Twój wymarzony małosolny? Jeśli tak, schowaj do lodówki!”*.
-3. **⏱️ Spokojna Pasteryzacja (Safe Canning Assistant):**
+   - Dziennik sensoryczny z oceną chrupkości (1–5), aromatu i testem pH lakmusowym.
+3. **⏱️ Spokojna Pasteryzacja ze Stoperem Audio (Safe Canning Assistant) `[STATUS: ✅ Logika i stoper wdrożone / ⏳ Audio alert w toku]`:**
    - Prosty przewodnik i stoper pasteryzacji: garnek z wodą, piekarnik lub tyndalizacja (3x24h).
    - Przelicza czas w zależności od pojemności słoika (od 200 ml do 1 litra).
-   - Live Activity na zablokowanym ekranie i powiadomienie dźwiękowe po zakończeniu.
-   - Test wieczka: przypomnienie po ostygnięciu o sprawdzeniu, czy wieczko kliknęło i zassało próżnię.
-   - Strażnik bezpieczeństwa: automatycznie ostrzega, gdy warzywa bez octu wymagają specjalnej obróbki ciśnieniowej.
-4. **🫙 Moja Spiżarnia & Etykiety z Kodem QR (Pantry & Jar Passport):**
-   - Przejrzysty rejestr zapasów: wiesz dokładnie ile słoików ogórków, dżemu czy kimchi czeka w Twojej szafce lub piwnicy.
-   - Generator etykiet do druku (PDF) w eleganckim, rustykalnym stylu z nazwą przetworu, rocznikiem i kodem QR.
-   - Błyskawiczne skanowanie aparatem iPhone'a: nakieruj kamerę na słoik, aby zobaczyć dokładną datę zrobienia i notatki.
+   - Strażnik bezpieczeństwa USDA AI-539: blokada kąpieli wodnej dla pH $\ge 4.60$ (bariera jadu kiełbasianego).
+   - Test wieczka: instrukcja sprawdzenia zassania próżni Twist-Off / Weck.
+   - Dźwiękowy dzwonek kuchenny (`expo-av`) i powiadomienie głosowe VoiceOver po upływie czasu.
+4. **🫙 Moja Spiżarnia, Etykiety Wektorowe & Skaner QR (Pantry, PDF Labels & Scanner) `[STATUS: ✅ Inwentarz i etykiety SVG wdrożone / ⏳ Skaner aparatem i arkusz A4 w toku]`:**
+   - Przejrzysty rejestr zapasów: wiesz dokładnie ile słoików ogórków, dżemu czy kimchi czeka w piwnicy, szafce lub lodówce.
+   - Generator etykiet do druku (PDF) w eleganckim stylu (kółko 55 mm i prostokąt 80x50 mm) z kodem `sloik://batch/<id>`.
+   - Błyskawiczne skanowanie aparatem (`expo-camera`): nakieruj obiektyw na wieczko słoika, by otworzyć paszport partii.
    - Wygodne ubywanie zapasów: jedno stuknięcie „Otwarty / Zjedzony” aktualizuje stan spiżarni.
-5. **🍓 Owoce, Cukier i Powidła (Jams, Chutneys & Sweet Preserves):**
-   - Koniec z przesłodzonymi, mdłymi dżemami.
-   - Prosty kalkulator balansu owoce-cukier-pektyna: zachowaj świeży, naturalny smak malin, truskawek czy porzeczek.
-   - Tradycyjne powidła śliwkowe bez mieszania: wskazówki jak smażyć powoli owoce bez ryzyka przypalenia garnka.
-6. **🩺 Słoikowy Ratownik (Jar Doctor / Troubleshooting):**
+5. **🔔 Powiadomienia Lokalne Offline (Kitchen Push Notifications) `[STATUS: ⏳ W trakcie wdrażania]`:**
+   - Lokalne powiadomienia iOS/Android (`expo-notifications`) bez serwera i bez kosztów (0 PLN).
+   - Przypomnienie o codziennym odgazowaniu (burp) w fazie burzliwej (dni 1–3) i alert optymalnego smaku małosolnych.
+6. **🩺 Słoikowy Ratownik (Jar Doctor / Troubleshooting) `[STATUS: ✅ Wdrożone]`:**
    - Wizualne drzewo decyzyjne z natychmiastową odpowiedzią na kuchenne wątpliwości:
      - *Biały nalot na powierzchni?* $\to$ Spokojnie, to bezpieczny kożuch drożdżowy (*Kahm yeast*). Zbierz łyżką, kiszonka jest zdrowa!
-     - *Czosnek zzieleniał lub zrobił się niebieski?* $\to$ To naturalna reakcja enzymów w kwaśnym środowisku, w 100% jadalny.
-     - *Ogórki zmiękły lub są puste w środku?* $\to$ Wyjaśnienie przyczyny (temperatura, woda) i rada jak zapobiec temu za rok.
+     - *Czosnek zzieleniał lub zrobił się niebieski?* $\to$ Naturalna reakcja enzymów w kwaśnym środowisku, w 100% jadalny.
+     - *Ogórki zmiękły lub są puste w środku?* $\to$ Wyjaśnienie przyczyny (pektynaza, twardość wody) i wskazówki na przyszłość.
      - *Puchata, kolorowa pleśń ponad taflą?* $\to$ Bezwzględna zasada: wyrzuć całą zawartość słoika dla bezpieczeństwa.
-7. **⌚ Asystent Apple Watch & Hands-Free Kitchen:**
+7. **⚙️ Ustawienia, Kopia Zapasowa (Zero Data Loss) & Pro `[STATUS: ✅ Wdrożone]`:**
+   - Bezpieczny eksport i import bazy w JSON za pomocą natywnego menu udostępniania (`expo-sharing`, `expo-file-system`, schowek).
+   - Etyczny model monetyzacji: darmowy, funkcjonalny rdzeń + opcjonalny pakiet Pro (3,99 zł/mies., 19,99 zł/rok lub 59,99 zł Lifetime).
+8. **⌚ Asystent Apple Watch & Hands-Free Kitchen `[STATUS: ⏳ Moduł w planach v1.1]`:**
    - Dedykowana aplikacja na watchOS z dużymi elementami dotykowymi i obsługą cyfrowej koronki (Digital Crown).
-   - Odliczanie czasu pasteryzacji, przeglądanie kroków przepisu bez sięgania mokrymi lub tłustymi rękami po telefon.
-   - Skróty głosowe Siri: *„Hej Siri, ile soli na 2 kg ogórków w Słoiku?”*.
-8. **⚙️ Ustawienia, Kopia Zapasowa i Pro:**
-   - Bezpieczny eksport i import bazy w JSON (pełna własność Twoich receptur).
-   - Etyczny model monetyzacji: darmowy, funkcjonalny rdzeń + opcjonalny pakiet Pro (3,99 zł/mies., 19,99 zł/rok lub 59,99 zł Lifetime z Chmurą Rodzinną).
 
 ---
 
