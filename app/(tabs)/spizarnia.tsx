@@ -11,16 +11,20 @@ import {
 } from 'react-native';
 import { dbStore, PantryItemRecord } from '../../src/data/db/database';
 import { generateJarLabel, PrintableLabel } from '../../src/core/pantry/label-generator';
+import { exportLabelSheetAsPdf } from '../../src/core/pantry/pdf-sheet-generator';
 import { theme } from '../../src/ui/theme';
 import { KitchenCard } from '../../src/ui/components/KitchenCard';
 import { KitchenButton } from '../../src/ui/components/KitchenButton';
 import { Badge } from '../../src/ui/components/Badge';
 import { ModalHeader } from '../../src/ui/components/ModalHeader';
+import { QrScannerModal } from '../../src/ui/components/QrScannerModal';
 
 export default function PantryScreen() {
   const [items, setItems] = useState<PantryItemRecord[]>([]);
   const [locationFilter, setLocationFilter] = useState<'all' | 'cellar' | 'pantry_cupboard' | 'fridge'>('all');
   const [activeLabel, setActiveLabel] = useState<PrintableLabel | null>(null);
+  const [selectedItem, setSelectedItem] = useState<PantryItemRecord | null>(null);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   const reloadPantry = () => {
     const filter = locationFilter === 'all' ? undefined : locationFilter;
@@ -49,6 +53,7 @@ export default function PantryScreen() {
   };
 
   const handleShowLabel = (item: PantryItemRecord) => {
+    setSelectedItem(item);
     const label = generateJarLabel({
       batchId: item.batchId,
       recipeTitle: item.label,
@@ -60,11 +65,55 @@ export default function PantryScreen() {
     setActiveLabel(label);
   };
 
+  const handleScanBatch = (batchId: string) => {
+    setIsScannerOpen(false);
+    const found = items.find((i) => i.batchId === batchId || i.id === batchId);
+    if (found) {
+      Alert.alert(
+        'Rozpoznano słoik! 🫙',
+        `Przetwór: ${found.label}\nPartia: ${found.batchId}\nLokalizacja: ${found.location}\nIlość: ${found.quantity} szt.`,
+        [{ text: 'Pokaż etykietę', onPress: () => handleShowLabel(found) }, { text: 'OK' }]
+      );
+    } else {
+      Alert.alert('Zeskanowano kod QR', `Paszport słoika: ${batchId}`);
+    }
+  };
+
+  const handleExportPdf = async () => {
+    if (!selectedItem) return;
+    try {
+      await exportLabelSheetAsPdf({
+        labelConfig: {
+          batchId: selectedItem.batchId,
+          recipeTitle: selectedItem.label,
+          preparedDate: new Date(selectedItem.sealedAt).toLocaleDateString(),
+          bestBeforeDate: new Date(selectedItem.bestBefore).toLocaleDateString(),
+          salinityOrSugarInfo: 'Tradycyjny wyrób rzemieślniczy',
+          format: 'side_rectangle_80x50mm',
+        },
+        count: 8,
+        paperFormat: 'A4',
+      });
+      setActiveLabel(null);
+    } catch {
+      Alert.alert('Błąd eksportu', 'Nie udało się wygenerować arkusza PDF.');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.header}>
-          <Text style={theme.typography.heroTitle}>Moja Spiżarnia 🫙</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text style={theme.typography.heroTitle}>Moja Spiżarnia 🫙</Text>
+            <TouchableOpacity
+              onPress={() => setIsScannerOpen(true)}
+              style={styles.scanButton}
+              accessibilityLabel="Skanuj słoik aparatem"
+            >
+              <Text style={{ fontSize: 13, fontWeight: '700', color: theme.colors.pickleGreen }}>📷 Skanuj</Text>
+            </TouchableOpacity>
+          </View>
           <Text style={styles.tagline}>
             Twoja duma i zapasy na zimę. Zawsze wiesz, co czeka na półkach.
           </Text>
@@ -169,16 +218,20 @@ export default function PantryScreen() {
 
               <KitchenButton
                 title="Drukuj / Eksportuj arkusz PDF 🖨️"
-                onPress={() => {
-                  Alert.alert('Drukarka AirPrint', 'Wysłano arkusz etykiet do drukarki domowej.');
-                  setActiveLabel(null);
-                }}
+                onPress={handleExportPdf}
                 style={{ marginTop: 20 }}
               />
             </View>
           </View>
         </SafeAreaView>
       </Modal>
+
+      {/* Skaner Kodów QR */}
+      <QrScannerModal
+        visible={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        onScanBatch={handleScanBatch}
+      />
     </SafeAreaView>
   );
 }
@@ -194,6 +247,14 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: theme.spacing.md,
+  },
+  scanButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: theme.colors.bgSecondary,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
   },
   tagline: {
     fontSize: 14,

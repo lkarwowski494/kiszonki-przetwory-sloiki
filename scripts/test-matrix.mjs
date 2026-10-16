@@ -98,6 +98,9 @@ const coreExports = [
   { id: 'announcePasteurizationComplete', file: 'src/core/announce.ts' },
   { id: 'confirmAction', file: 'src/core/confirm.ts' },
   { id: 'notifyTimerFinished', file: 'src/core/timer-audio.ts' },
+  { id: 'scheduleFermentationAlerts', file: 'src/core/notifications/kitchen-notifications.ts' },
+  { id: 'generateA4SheetHtml', file: 'src/core/pantry/pdf-sheet-generator.ts' },
+  { id: 'exportLabelSheetAsPdf', file: 'src/core/pantry/pdf-sheet-generator.ts' },
 ];
 
 for (const exp of coreExports) {

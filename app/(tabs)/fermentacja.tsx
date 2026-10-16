@@ -8,16 +8,22 @@ import {
   SafeAreaView,
   Alert,
 } from 'react-native';
-import { dbStore, BatchRecord } from '../../src/data/db/database';
+import { dbStore, BatchRecord, FermentationLogRecord } from '../../src/data/db/database';
 import { getRecipeById } from '../../src/core/recipes/recipes-data';
 import { calculateFermentationTimeline } from '../../src/core/timeline/fermentation-timeline';
 import { theme } from '../../src/ui/theme';
 import { KitchenCard } from '../../src/ui/components/KitchenCard';
 import { KitchenButton } from '../../src/ui/components/KitchenButton';
 import { Badge } from '../../src/ui/components/Badge';
+import { ModalHeader } from '../../src/ui/components/ModalHeader';
+import { Modal, TextInput } from 'react-native';
 
 export default function FermentTimelineScreen() {
   const [activeBatches, setActiveBatches] = useState<BatchRecord[]>([]);
+  const [activeBatchForLog, setActiveBatchForLog] = useState<BatchRecord | null>(null);
+  const [logNote, setLogNote] = useState('');
+  const [logPh, setLogPh] = useState('3.8');
+  const [crispnessStars, setCrispnessStars] = useState(5);
 
   const reloadData = () => {
     setActiveBatches(dbStore.getActiveFerments());
@@ -36,6 +42,23 @@ export default function FermentTimelineScreen() {
       tasted: false,
     });
     Alert.alert('Słoik odgazowany! 🫧', 'Ciśnienie gazu CO₂ zostało bezpiecznie uwolnione.');
+    reloadData();
+  };
+
+  const handleSaveLog = () => {
+    if (!activeBatchForLog) return;
+    const ph = parseFloat(logPh) || undefined;
+    dbStore.addFermentationLog({
+      batchId: activeBatchForLog.id,
+      dayNumber: 3,
+      sensoryNote: `Chrupkość: ${'★'.repeat(crispnessStars)}${'☆'.repeat(5 - crispnessStars)} — ${logNote || 'Degustacja w normie'}`,
+      phReading: ph,
+      burped: false,
+      tasted: true,
+    });
+    Alert.alert('Zapisano wpis sensoryczny! 📝', 'Notatka i ocena chrupkości zostały zarchiwizowane w paszporcie partii.');
+    setActiveBatchForLog(null);
+    setLogNote('');
     reloadData();
   };
 
@@ -138,19 +161,41 @@ export default function FermentTimelineScreen() {
                   ))}
                 </View>
 
+                {/* Wpisy sensoryczne z dziennika */}
+                {(() => {
+                  const logs = dbStore.getLogsForBatch(batch.id);
+                  if (logs.length === 0) return null;
+                  return (
+                    <View style={styles.logsBox}>
+                      <Text style={styles.logsHeader}>📝 Ostatnie wpisy z dziennika:</Text>
+                      {logs.slice(-2).map((l, idx) => (
+                        <Text key={idx} style={styles.logText}>
+                          • Dzień {l.dayNumber}: {l.sensoryNote} {l.phReading ? `(pH: ${l.phReading})` : ''}
+                        </Text>
+                      ))}
+                    </View>
+                  );
+                })()}
+
                 {/* Przyciski Akcji Kuchennych */}
                 <View style={styles.actionsRow}>
                   <KitchenButton
-                    title="Odgazuj słoik (Burp) 💨"
+                    title="Odgazuj 💨"
                     variant="secondary"
                     onPress={() => handleBurp(batch.id)}
-                    style={{ flex: 1, marginRight: 6 }}
+                    style={{ flex: 1, marginRight: 4 }}
                   />
                   <KitchenButton
-                    title="Do lodówki / piwnicy ❄️"
+                    title="Dziennik 📝"
+                    variant="ghost"
+                    onPress={() => setActiveBatchForLog(batch)}
+                    style={{ flex: 1, marginHorizontal: 4 }}
+                  />
+                  <KitchenButton
+                    title="Spiżarka ❄️"
                     variant="primary"
                     onPress={() => handleMoveToPantry(batch.id)}
-                    style={{ flex: 1, marginLeft: 6 }}
+                    style={{ flex: 1, marginLeft: 4 }}
                   />
                 </View>
               </KitchenCard>
@@ -158,6 +203,66 @@ export default function FermentTimelineScreen() {
           })
         )}
       </ScrollView>
+
+      {/* Modal Wpisu do Dziennika Fermentacji */}
+      <Modal visible={Boolean(activeBatchForLog)} animationType="slide" transparent>
+        <SafeAreaView style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <ModalHeader
+              title="Wpis w Dzienniku"
+              onClose={() => setActiveBatchForLog(null)}
+              closeLabel="Anuluj"
+            />
+            <ScrollView style={styles.modalBody}>
+              <Text style={styles.modalSubtitle}>
+                Partia: {activeBatchForLog?.recipeTitle}
+              </Text>
+
+              <Text style={styles.fieldLabel}>Ocena chrupkości / smaku:</Text>
+              <View style={styles.starRow}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <TouchableOpacity
+                    key={star}
+                    onPress={() => setCrispnessStars(star)}
+                    style={styles.starButton}
+                  >
+                    <Text style={{ fontSize: 28, color: star <= crispnessStars ? '#E89838' : '#D1C9BE' }}>
+                      ★
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={styles.fieldLabel}>Pomiar pH (np. papierek lakmusowy / pehametr):</Text>
+              <TextInput
+                style={styles.textInput}
+                value={logPh}
+                onChangeText={setLogPh}
+                keyboardType="numeric"
+                placeholder="np. 3.8"
+                placeholderTextColor={theme.colors.textMuted}
+              />
+
+              <Text style={styles.fieldLabel}>Notatki sensoryczne (chrupkość, bąbelki, aromat):</Text>
+              <TextInput
+                style={[styles.textInput, { height: 80 }]}
+                value={logNote}
+                onChangeText={setLogNote}
+                multiline
+                numberOfLines={3}
+                placeholder="np. Przyjemny czosnkowy aromat, mocny trzask, zalewa mętna..."
+                placeholderTextColor={theme.colors.textMuted}
+              />
+
+              <KitchenButton
+                title="Zapisz wpis w paszporcie 🫙"
+                onPress={handleSaveLog}
+                style={{ marginTop: 20, marginBottom: 30 }}
+              />
+            </ScrollView>
+          </View>
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -249,5 +354,67 @@ const styles = StyleSheet.create({
   actionsRow: {
     flexDirection: 'row',
     marginTop: 8,
+  },
+  logsBox: {
+    backgroundColor: '#F3EFE6',
+    borderRadius: theme.borderRadius.sm,
+    padding: theme.spacing.sm,
+    marginBottom: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: theme.colors.pickleGreen,
+  },
+  logsHeader: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: theme.colors.textPrimary,
+    marginBottom: 4,
+  },
+  logText: {
+    fontSize: 12,
+    color: theme.colors.textSecondary,
+    marginBottom: 2,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: theme.colors.bg,
+    borderTopLeftRadius: theme.borderRadius.lg,
+    borderTopRightRadius: theme.borderRadius.lg,
+    maxHeight: '85%',
+  },
+  modalBody: {
+    padding: theme.spacing.md,
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: theme.colors.textSecondary,
+    marginBottom: 16,
+  },
+  fieldLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: theme.colors.textPrimary,
+    marginTop: 12,
+    marginBottom: 6,
+  },
+  starRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 8,
+  },
+  starButton: {
+    padding: 4,
+  },
+  textInput: {
+    backgroundColor: theme.colors.bgCard,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.borderRadius.sm,
+    padding: theme.spacing.sm,
+    fontSize: 15,
+    color: theme.colors.textPrimary,
   },
 });

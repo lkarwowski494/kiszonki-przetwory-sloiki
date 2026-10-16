@@ -11,6 +11,9 @@ import {
 } from 'react-native';
 import { calculateBrine } from '../../src/core/brine/brine-calculator';
 import { evaluatePasteurizationSafety } from '../../src/core/safety/safety-guard';
+import { scheduleFermentationAlerts } from '../../src/core/notifications/kitchen-notifications';
+import { calculateFermentationTimeline } from '../../src/core/timeline/fermentation-timeline';
+import { MASTER_RECIPES } from '../../src/core/recipes/recipes-data';
 import { dbStore } from '../../src/data/db/database';
 import { theme } from '../../src/ui/theme';
 import { KitchenCard } from '../../src/ui/components/KitchenCard';
@@ -56,9 +59,12 @@ export default function WizardScreen() {
       notes: `Nastawiono: ${produceNum}g surowca, ${brineResult.saltGrams}g soli.`,
     });
 
+    const timeline = calculateFermentationTimeline(MASTER_RECIPES[0], Date.now(), 21);
+    scheduleFermentationAlerts(newBatch.id, timeline).catch(() => {});
+
     Alert.alert(
       'Partia zapisana! 🫙',
-      `Nastawiono partię "${newBatch.recipeTitle}". Słoik dodano do aktywnego kalendarza fermentacji.`,
+      `Nastawiono partię "${newBatch.recipeTitle}". Słoik dodano do aktywnego kalendarza fermentacji i zaplanowano przypomnienia o odgazowaniu.`,
       [{ text: 'Świetnie!' }]
     );
   };

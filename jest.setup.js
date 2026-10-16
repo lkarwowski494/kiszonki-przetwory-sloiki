@@ -43,3 +43,41 @@ jest.mock('expo-av', () => ({
     },
   },
 }));
+
+jest.mock('expo-notifications', () => ({
+  scheduleNotificationAsync: jest.fn().mockResolvedValue('notif-id-123'),
+  cancelScheduledNotificationAsync: jest.fn().mockResolvedValue(undefined),
+  requestPermissionsAsync: jest.fn().mockResolvedValue({ status: 'granted' }),
+  getPermissionsAsync: jest.fn().mockResolvedValue({ status: 'granted' }),
+  setNotificationHandler: jest.fn(),
+}));
+
+jest.mock('expo-print', () => ({
+  printAsync: jest.fn().mockResolvedValue(undefined),
+  printToFileAsync: jest.fn().mockResolvedValue({ uri: 'file:///tmp/label-sheet.pdf' }),
+}));
+
+jest.mock('expo-camera', () => {
+  const React = require('react');
+  return {
+    CameraView: (props) => React.createElement('CameraView', props),
+    useCameraPermissions: () => [{ granted: true }, jest.fn().mockResolvedValue({ granted: true })],
+  };
+});
+
+jest.mock('expo-file-system', () => ({
+  documentDirectory: 'file:///documents/',
+  writeAsStringAsync: jest.fn().mockResolvedValue(undefined),
+  readAsStringAsync: jest.fn().mockResolvedValue('{}'),
+  EncodingType: { UTF8: 'utf8' },
+}));
+
+jest.mock('expo-sharing', () => ({
+  isAvailableAsync: jest.fn().mockResolvedValue(true),
+  shareAsync: jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock('expo-clipboard', () => ({
+  setStringAsync: jest.fn().mockResolvedValue(true),
+  getStringAsync: jest.fn().mockResolvedValue(''),
+}));

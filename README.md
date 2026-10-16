@@ -33,23 +33,23 @@ Aplikacja mobilna na systemy iOS i watchOS dla pasjonatów domowych przetworów:
    - Wpisujesz ile masz warzyw (np. 1,8 kg ogórków) i jakie masz naczynia — aplikacja w ułamku sekundy podaje: idealną wagę soli kamiennej lub morskiej, ilość wody oraz proporcje dodatków (czosnek, chrzan, koper).
    - Tryby pracy: zalewa klasyczna (ogórki, papryka), solenie na sucho (kapusta, kimchi) oraz solanki zrównoważone (*equilibrium brine*).
    - Doradca chrupkości: zaleca dodatek liści bogatych w taniny (dąb, wiśnia, chrzan) lub szczyptę chlorku wapnia ($CaCl_2$).
-2. **🫧 Żywy Kalendarz Fermentacji & Dziennik Sensoryczny (Active Ferment Timeline & Log) `[STATUS: ✅ Oś czasu wdrożona / ⏳ Dziennik w toku]`:**
+2. **🫧 Żywy Kalendarz Fermentacji & Dziennik Sensoryczny (Active Ferment Timeline & Log) `[STATUS: ✅ Wdrożone]`:**
    - Dynamiczna oś czasu dla każdego nastawionego słoika na blacie kuchennym z uwzględnieniem kinetyki Arrheniusa ($Q_{10}=2.0$).
    - Prowadzi przez fazy życia kiszonki: początkowe mętnienie, burzliwe bąbelkowanie, aż po stabilizację kwasową.
    - Inteligentne przypomnienia o odgazowaniu (*burping*), aby uniknąć ciśnienia w słoikach Twist-Off.
-   - Dziennik sensoryczny z oceną chrupkości (1–5), aromatu i testem pH lakmusowym.
-3. **⏱️ Spokojna Pasteryzacja ze Stoperem Audio (Safe Canning Assistant) `[STATUS: ✅ Logika i stoper wdrożone / ⏳ Audio alert w toku]`:**
+   - Dziennik sensoryczny z oceną chrupkości (1–5 gwiazdek), aromatu i testem pH lakmusowym.
+3. **⏱️ Spokojna Pasteryzacja ze Stoperem Audio (Safe Canning Assistant) `[STATUS: ✅ Wdrożone]`:**
    - Prosty przewodnik i stoper pasteryzacji: garnek z wodą, piekarnik lub tyndalizacja (3x24h).
    - Przelicza czas w zależności od pojemności słoika (od 200 ml do 1 litra).
    - Strażnik bezpieczeństwa USDA AI-539: blokada kąpieli wodnej dla pH $\ge 4.60$ (bariera jadu kiełbasianego).
    - Test wieczka: instrukcja sprawdzenia zassania próżni Twist-Off / Weck.
-   - Dźwiękowy dzwonek kuchenny (`expo-av`) i powiadomienie głosowe VoiceOver po upływie czasu.
-4. **🫙 Moja Spiżarnia, Etykiety Wektorowe & Skaner QR (Pantry, PDF Labels & Scanner) `[STATUS: ✅ Inwentarz i etykiety SVG wdrożone / ⏳ Skaner aparatem i arkusz A4 w toku]`:**
+   - Dźwiękowy dzwonek kuchenny (`expo-av`) i powiadomienie głosowe VoiceOver (`announce.ts`) po upływie czasu.
+4. **🫙 Moja Spiżarnia, Etykiety Wektorowe & Skaner QR (Pantry, PDF Labels & Scanner) `[STATUS: ✅ Wdrożone]`:**
    - Przejrzysty rejestr zapasów: wiesz dokładnie ile słoików ogórków, dżemu czy kimchi czeka w piwnicy, szafce lub lodówce.
-   - Generator etykiet do druku (PDF) w eleganckim stylu (kółko 55 mm i prostokąt 80x50 mm) z kodem `sloik://batch/<id>`.
-   - Błyskawiczne skanowanie aparatem (`expo-camera`): nakieruj obiektyw na wieczko słoika, by otworzyć paszport partii.
+   - Generator arkuszy etykiet do druku (PDF A4) w eleganckim stylu (kółko 55 mm i prostokąt 80x50 mm) z kodem `sloik://batch/<id>`.
+   - Błyskawiczne skanowanie aparatem (`expo-camera`): nakieruj obiektyw na wieczko słoika, by natychmiast otworzyć paszport partii.
    - Wygodne ubywanie zapasów: jedno stuknięcie „Otwarty / Zjedzony” aktualizuje stan spiżarni.
-5. **🔔 Powiadomienia Lokalne Offline (Kitchen Push Notifications) `[STATUS: ⏳ W trakcie wdrażania]`:**
+5. **🔔 Powiadomienia Lokalne Offline (Kitchen Push Notifications) `[STATUS: ✅ Wdrożone]`:**
    - Lokalne powiadomienia iOS/Android (`expo-notifications`) bez serwera i bez kosztów (0 PLN).
    - Przypomnienie o codziennym odgazowaniu (burp) w fazie burzliwej (dni 1–3) i alert optymalnego smaku małosolnych.
 6. **🩺 Słoikowy Ratownik (Jar Doctor / Troubleshooting) `[STATUS: ✅ Wdrożone]`:**
