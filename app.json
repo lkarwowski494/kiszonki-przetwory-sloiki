@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Słoik",
+    "slug": "sloik",
+    "version": "0.1.0",
+    "scheme": "sloik",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#F7F5F0"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.apps4brew.sloik",
+      "infoPlist": {
+        "UIBackgroundModes": ["audio"],
+        "NSCameraUsageDescription": "Aparat jest używany do szybkiego skanowania kodów QR na etykietach słoików w Twojej spiżarni."
+      }
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-sqlite",
+        {
+          "enableFTS": true
+        }
+      ]
+    ]
+  }
+}
