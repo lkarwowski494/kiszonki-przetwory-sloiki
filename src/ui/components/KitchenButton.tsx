@@ -8,6 +8,7 @@ import {
   TextStyle,
 } from 'react-native';
 import { theme } from '../theme';
+import * as Haptics from 'expo-haptics';
 
 interface KitchenButtonProps {
   title: string;
@@ -30,6 +31,20 @@ export const KitchenButton: React.FC<KitchenButtonProps> = ({
   textStyle,
   icon,
 }) => {
+  const handlePress = () => {
+    try {
+      if (variant === 'danger') {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
+      } else if (variant === 'primary') {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+      } else {
+        Haptics.selectionAsync().catch(() => {});
+      }
+    } catch {
+      // no-op in headless / web
+    }
+    onPress();
+  };
   const getContainerStyle = () => {
     switch (variant) {
       case 'secondary':
@@ -58,7 +73,7 @@ export const KitchenButton: React.FC<KitchenButtonProps> = ({
 
   return (
     <TouchableOpacity
-      onPress={onPress}
+      onPress={handlePress}
       disabled={disabled || loading}
       activeOpacity={0.7}
       style={[
