@@ -2511,3 +2511,118 @@ Zautomatyzowane testy statyczne weryfikujące architekturę przed każdym commit
 * `close-button-guard.test.tsx`: Weryfikacja zasady projektowej studia — każde okno modalne posiada widoczny, spójny przycisk „Anuluj” po lewej stronie nagłówka (`headerLeft`).
 
 ---
+# Kiszonki BRD 0.1 â€” RozdziaĹ‚ 7.9: Laboratorium EksperymentĂłw Wielowariantowych i Panel Sensoryczny (Multi-Jar Split-Batch Lab & Sensory Showdown)
+
+---
+
+## 1. Koncepcja i Uzasadnienie Biznesowe (Problem & Solution)
+
+### 1.1. Problem Domowego PrzetwĂłrcy
+Domowe przetwĂłrstwo cierpi na syndrom **â€žulotnej pamiÄ™ci piwnicznejâ€ť**:
+1. Pasjonat nastawia w lipcu 10 sĹ‚oikĂłw ogĂłrkĂłw, do czÄ™Ĺ›ci dajÄ…c wiÄ™cej chrzanu, do czÄ™Ĺ›ci liĹ›cie dÄ™bu, do jednego szczyptÄ™ chili, a do innego 2.0% zamiast 2.5% soli.
+2. W listopadzie otwiera sĹ‚oik, ktĂłry okazuje siÄ™ absolutnym kulinarnym arcydzieĹ‚em (perfekcyjny trzask, idealna kwasowoĹ›Ä‡, gĹ‚Ä™boki aromat).
+3. **Pytanie bez odpowiedzi:** *KtĂłry to byĹ‚ sĹ‚oik? Ile dokĹ‚adnie gramĂłw soli i czosnku tam trafiĹ‚o? Jaka to byĹ‚a woda?*
+4. W efekcie za rok przetwĂłrca zaczyna od zera, powtarzajÄ…c bĹ‚Ä™dy i nie potrafiÄ…c ustabilizowaÄ‡ swojego idealnego smaku.
+
+### 1.2. RozwiÄ…zanie Apps4Brew: Multi-Jar Split-Batch Lab
+Funkcja **Laboratorium EksperymentĂłw (F-07)** wprowadza metodologiÄ™ naukowÄ… i laboratoryjnÄ… precyzjÄ™ pod strzechy:
+- Pozwala podzieliÄ‡ jeden zbiĂłr/nastaw surowca (np. 5 kg ogĂłrkĂłw czy 3 gĹ‚Ăłwki kapusty) na seriÄ™ **$N$ sĹ‚oikĂłw ($N \ge 2$, do 8 sĹ‚oikĂłw w serii)** z precyzyjnie zdefiniowanÄ… macierzÄ… rĂłĹĽnic (*delta variables*).
+- KaĹĽdy sĹ‚oik w serii otrzymuje natychmiast wĹ‚asny, unikalny kod paszportu partii (`sloik://exp/<seriesId>/<variantLetter>`), wydrukowany na etykiecie QR.
+- W dowolnym momencie po 2 tygodniach, 3 miesiÄ…cach lub roku uĹĽytkownik kieruje aparat telefonu na sĹ‚oik i widzi dokĹ‚adnÄ… specyfikacjÄ™ laboratoryjnÄ…: gramatury z dokĹ‚adnoĹ›ciÄ… do 0.1 g, stÄ™ĹĽenie solanki i technologiÄ™.
+- Po dojrzeniu nastawu uĹĽytkownik uruchamia **Panel Ĺšlepej Degustacji (Sensory Cupping Mode)**, porĂłwnuje warianty obok siebie, wyĹ‚ania zwyciÄ™zcÄ™ i jednym dotkniÄ™ciem **awansuje go do staĹ‚ego Przepisu Mistrzowskiego** z moĹĽliwoĹ›ciÄ… skalowania na dowolnÄ… masÄ™ surowca w kolejnych latach!
+
+---
+
+## 2. Architektura Osi Badawczych (Experimental Dimensions)
+
+Aplikacja udostÄ™pnia 5 predefiniowanych matryc eksperymentalnych oraz tryb peĹ‚nej dowolnoĹ›ci (*Freeform Lab*):
+
+| OĹ› Badawcza | Kontrolowana Baza | Zmienna Testowa (Delta) | Typowe Warianty ($N=3$ do $5$) |
+|---|---|---|---|
+| **OĹ› ChrupkoĹ›ci i Tanin** | StaĹ‚a masa warzyw, staĹ‚a sĂłl 2.2% | ĹąrĂłdĹ‚o tanin / inhibitorĂłw pektynazy | **A:** Grupa kontrolna (brak liĹ›ci)<br>**B:** LiĹ›cie dÄ™bu szypuĹ‚kowego (2 szt.)<br>**C:** LiĹ›cie czarnej porzeczki (3 szt.)<br>**D:** KorzeĹ„ chrzanu z liĹ›ciem chrzanu<br>**E:** Chlorek wapnia $CaCl_2$ (0.08% masy caĹ‚kowitej) |
+| **OĹ› Zasolenia (RD-01)** | Ta sama baza warzyw i ziĂłĹ‚ | Procent soli w caĹ‚kowitej masie ukĹ‚adu | **A:** 1.8% (delikatne, maĹ‚osolne)<br>**B:** 2.2% (zĹ‚oty Ĺ›rodek chrupkoĹ›ci)<br>**C:** 2.5% (tradycyjne zimowe)<br>**D:** 2.8% (twarde, gĹ‚Ä™boko kwaszone do wiosny) |
+| **OĹ› PikantnoĹ›ci i Aromatu** | StaĹ‚a solanka 2.2% | Gramatura czosnku, chili, gorczycy | **A:** Tradycyjna (czosnek 20g/L, koper)<br>**B:** Ognista (czosnek 30g + papryczka bird's eye)<br>**C:** Korzenna (gorczyca, kolendra, ziele angielskie)<br>**D:** ZioĹ‚owa (estragon, czÄ…ber) |
+| **OĹ› Cukru i Kwasu (DĹĽemy/PowidĹ‚a)** | Owoce 1000g | Procent cukru i dodatek pektyny | **A:** 20% cukru + pektyna jabĹ‚kowa<br>**B:** 30% cukru bez dodatkĂłw<br>**C:** 0% cukru (wolne praĹĽenie 8h)<br>**D:** MiĂłd lipowy zamiast cukru |
+| **OĹ› StarterĂłw Mikrobiologicznych** | Ta sama kapusta 1000g | Mikroflora inicjalna | **A:** Fermentacja spontaniczna (dzika flora)<br>**B:** Starter z udanego zakwasu (back-slopping 50ml)<br>**C:** Serwatka z wiejskiego mleka (10ml) |
+
+---
+
+## 3. SzczegĂłĹ‚owe Wymagania Funkcjonalne (F-07.1 â€“ F-07.5)
+
+### F-07.1: Kreator Serii Eksperymentalnej (Split-Batch Wizard)
+1. **Definicja Bazy:** UĹĽytkownik wybiera surowiec (np. ogĂłrki gruntowe, kapusta, papryka) i wpisuje Ĺ‚Ä…cznÄ… dostÄ™pnÄ… masÄ™ (np. 3500 g).
+2. **WybĂłr Liczby SĹ‚oikĂłw ($N$):** Suwak lub selektor liczby sĹ‚oikĂłw od 2 do 8 (np. 5 sĹ‚oikĂłw po 700 g).
+3. **Matryca RĂłĹĽnic (Delta Editor):**
+   - Interaktywna tabela, w ktĂłrej uĹĽytkownik modyfikuje wybrane parametry dla kaĹĽdego sĹ‚oika (oznaczonych automatycznie literami **A, B, C, D, E...**).
+   - Aplikacja automatycznie przelicza proporcje wody i soli zgodnie z reguĹ‚Ä… caĹ‚kowitej masy $M_{\text{ukĹ‚ad}} = M_{\text{warzywa}} + M_{\text{woda}}$ (RD-01).
+4. **Zapis Serii w SQLite:**
+   - Rekord nadrzÄ™dny `ExperimentSeriesRecord` (`id`, `title`, `hypothesis`, `startedAt`, `status: active|tasted|promoted`).
+   - $N$ powiÄ…zanych rekordĂłw `BatchRecord` z kluczem obcym `seriesId` oraz unikalnym identyfikatorem wariantu (`variantLetter: 'A'|'B'|'C'|...`).
+
+### F-07.2: Inteligentne Etykiety Serii QR (Series Label Generation)
+1. Etykiety generowane sÄ… seryjnie na pojedynczym arkuszu A4 (`exportLabelSheetAsPdf`).
+2. KaĹĽda etykieta posiada wyraĹşny, elegancki nagĹ‚Ăłwek rustykalny:
+   - `SERIA: [Nazwa Serii]`
+   - `WARIANT [A / B / C...]`
+   - Kluczowa rĂłĹĽnica testowa wyboldowana (np. `SĂłl: 2.5% | Dodatek: LiĹ›Ä‡ DÄ™bu`).
+   - Kod QR kodujÄ…cy URI: `sloik://batch/<batchId>?exp=<seriesId>&var=<letter>`.
+3. Skaner aparatu w zakĹ‚adce SpiĹĽarnia po nakierowaniu na dowolny ze sĹ‚oikĂłw wyĹ›wietla:
+   - Paszport tego sĹ‚oika.
+   - OdnoĹ›nik: *â€žTen sĹ‚oik naleĹĽy do Serii Eksperymentalnej [Nazwa Serii] (Wariant 3 z 5). Dotknij, aby przejĹ›Ä‡ do Panelu PorĂłwnaniaâ€ť*.
+
+### F-07.3: Panel Ĺšlepej Degustacji (Blind Cupping Mode)
+Wzorem miÄ™dzynarodowych standardĂłw analizy sensorycznej (SCA dla kawy, BJCP dla piwa i ISO 11136 dla przetworĂłw):
+1. **Opcjonalny tryb Ĺ›lepej prĂłby:** Aplikacja ukrywa przed uĹĽytkownikiem specyfikacjÄ™ sĹ‚oikĂłw i wyĹ›wietla jedynie litery A, B, C...
+2. **Karta Oceny Sensorycznej (0â€“100 punktĂłw):**
+   - **ChrupkoĹ›Ä‡ i Tekstura (0â€“35 pkt):** ocena twardoĹ›ci, trzasku, struktury komĂłrkowej.
+   - **Balans Smakowy & KwasowoĹ›Ä‡ (0â€“35 pkt):** przyjemny, czysty kwas mlekowy, brak nadmiernej goryczy lub octowoĹ›ci.
+   - **Aromat & Bukiet (0â€“20 pkt):** nuty ziĂłĹ‚, czosnku, przypraw, brak nut gnilnych czy chemicznych.
+   - **WyglÄ…d i PĹ‚yn (0â€“10 pkt):** barwa skĂłrki, zmÄ™tnienie, perlistoĹ›Ä‡.
+3. **Pomiar Laboratoryjny:**
+   - Wpis rzeczywistego pH zmierzonego papierkiem lakmusowym / pehametrem.
+
+### F-07.4: Matryca PorĂłwnawcza Side-by-Side (Comparison Matrix)
+1. Zestawienie tabelaryczne wszystkich wariantĂłw na jednym ekranie:
+   - Kolumny: Wariant A | Wariant B | Wariant C | Wariant D | Wariant E...
+   - Wiersze: Parametry wyjĹ›ciowe (SĂłl %, Gramatury, Dodatki) $\to$ Wyniki pomiaru pH $\to$ Punkty sensoryczne $\to$ Ocena gwiazdkowa (1â€“5).
+2. Wykres radarowy (Radar Chart) nakĹ‚adajÄ…cy na siebie profile sensoryczne poszczegĂłlnych sĹ‚oikĂłw, wizualizujÄ…cy przewagÄ™ chrupkoĹ›ci lub aromatu.
+
+### F-07.5: Koronacja ZwyciÄ™zcy & Promocja do Receptur Autorskich
+1. UĹĽytkownik wybiera jeden lub wiÄ™cej sĹ‚oikĂłw jako **ZwyciÄ™zcÄ™ Konkursu** (np. *â€žWariant B wygrywa w kategorii Tradycyjny ChrupiÄ…cyâ€ť*, *â€žWariant D wygrywa w kategorii Pikantny z Chiliâ€ť*).
+2. Przycisk **â€žAwansuj do PrzepisĂłw Mistrzowskich đźŹ†â€ť**:
+   - Tworzy nowy rekord w tabeli przepisĂłw wĹ‚asnych uĹĽytkownika.
+   - Generuje unikalny przepis ze skalowalnymi proporcjami (np. 1 kg, 3 kg, 5 kg, 10 kg).
+   - Zapisuje notatkÄ™ historycznÄ…: *â€žReceptura wyĹ‚oniona w Ĺ›lepej degustacji serii [Nazwa] w dniu [Data] spoĹ›rĂłd 5 wariantĂłw testowych.â€ť*
+
+---
+
+## 4. Model Danych SQLite (DDL)
+
+```sql
+-- Seria Eksperymentalna (WielosĹ‚oikowe Laboratorium)
+CREATE TABLE IF NOT EXISTS experiment_series (
+    id TEXT PRIMARY KEY NOT NULL,
+    title TEXT NOT NULL,
+    hypothesis TEXT,
+    base_produce_name TEXT NOT NULL,
+    total_produce_grams REAL NOT NULL,
+    jar_count INTEGER NOT NULL,
+    created_at INTEGER NOT NULL,
+    status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'tasted', 'promoted'))
+);
+
+-- Rozszerzenie tabeli partii o przynaleĹĽnoĹ›Ä‡ do serii badawczej
+-- Kolumny w batches:
+-- series_id TEXT REFERENCES experiment_series(id) ON DELETE CASCADE,
+-- variant_letter TEXT, -- 'A', 'B', 'C', 'D', 'E'...
+-- variant_description TEXT, -- np. "2.2% soli + liĹ›Ä‡ dÄ™bu 2 szt."
+-- sensory_score INTEGER DEFAULT 0 -- wynik w punktach 0-100
+```
+
+---
+
+## 5. Metryki JakoĹ›ci i BezpieczeĹ„stwa (NFR & Invariants)
+
+1. **BezpieczeĹ„stwo USDA:** NiezaleĹĽnie od wariantu eksperymentalnego, kalkulator nie dopuszcza stÄ™ĹĽenia soli poniĹĽej bezpiecznego minimum dla kiszonek ($< 1.5\%$ caĹ‚kowitej masy ukĹ‚adu) bez wyraĹşnego ostrzeĹĽenia o ryzyku rozwoju drobnoustrojĂłw gnilnych.
+2. **IntegralnoĹ›Ä‡ Danych:** UsuniÄ™cie serii eksperymentalnej pyta uĹĽytkownika, czy zachowaÄ‡ powiÄ…zane partie w spiĹĽarni, czy usunÄ…Ä‡ caĹ‚Ä… seriÄ™ kaskadowo.
+3. **Zero Data Loss:** Wszystkie serie eksperymentalne i ich wyniki wchodzÄ… w skĹ‚ad schematu kopii zapasowej JSON (`DatabaseBackupPayload`).
