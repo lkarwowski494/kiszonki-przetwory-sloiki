@@ -16,6 +16,10 @@ import { KitchenCard } from '../src/ui/components/KitchenCard';
 import { KitchenButton } from '../src/ui/components/KitchenButton';
 import { ModalHeader } from '../src/ui/components/ModalHeader';
 
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
+import * as Clipboard from 'expo-clipboard';
+
 export default function SettingsScreen() {
   const router = useRouter();
   const [importJsonText, setImportJsonText] = useState('');
@@ -25,15 +29,44 @@ export default function SettingsScreen() {
   const activeFerments = dbStore.getActiveFerments();
   const pantryItems = dbStore.getPantryItems();
 
-  const handleExportJson = () => {
+  const handleExportJson = async () => {
     const jsonStr = dbStore.exportBackupJson();
+    try {
+      if (FileSystem.documentDirectory) {
+        const fileUri = `${FileSystem.documentDirectory}sloik_backup_${Date.now()}.json`;
+        await FileSystem.writeAsStringAsync(fileUri, jsonStr, {
+          encoding: FileSystem.EncodingType.UTF8,
+        });
+
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(fileUri, {
+            mimeType: 'application/json',
+            dialogTitle: 'Eksport kopii zapasowej Słoika',
+            UTI: 'public.json',
+          });
+          return;
+        }
+      }
+    } catch {
+      // Fallback do schowka
+    }
+
+    await Clipboard.setStringAsync(jsonStr);
     Alert.alert(
-      'Kopia Zapasowa JSON 📦',
-      `Wygenerowano kopię zapasową (${batches.length} partii, ${pantryItems.length} słoików). W produkcyjnej wersji plik zapisuje się w Documents/Backups.`,
-      [
-        { text: 'OK' },
-      ]
+      'Skopiowano do schowka! 📋',
+      `Kopia zapasowa (${batches.length} partii, ${pantryItems.length} słoików) została zapisana w schowku systemowym.`
     );
+  };
+
+  const handlePasteFromClipboard = async () => {
+    try {
+      const text = await Clipboard.getStringAsync();
+      if (text) {
+        setImportJsonText(text);
+      }
+    } catch {
+      // no-op
+    }
   };
 
   const handleImportJson = () => {
@@ -102,7 +135,12 @@ export default function SettingsScreen() {
 
           {showImportBox && (
             <View style={styles.importBox}>
-              <Text style={styles.importPrompt}>Wklej zawartość kopii zapasowej JSON:</Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                <Text style={styles.importPrompt}>Wklej kopię JSON:</Text>
+                <TouchableOpacity onPress={handlePasteFromClipboard} style={{ padding: 4 }}>
+                  <Text style={{ fontSize: 13, color: theme.colors.pickleGreen, fontWeight: '600' }}>Wklej ze schowka 📋</Text>
+                </TouchableOpacity>
+              </View>
               <TextInput
                 style={styles.importInput}
                 multiline
