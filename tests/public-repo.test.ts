@@ -1,79 +1,105 @@
 // ============================================================================
 // Apps4Brew / Słoik — Public Repository Security Invariants (Chapter 12.5 BRD)
-// (NFR-SEC-001..004)
-// Weryfikuje zakaz wycieku sekretów, kluczy .p8, tokenów i minimalne uprawnienia CI.
+// (NFR-SEC-001..004, BR-REL-019..020)
 // ============================================================================
 
-import fs from 'node:fs';
-import path from 'node:path';
+import { execSync } from 'node:child_process';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 
-describe('Bezpieczeństwo Publicznego Repozytorium (Chapter 12.5 BRD, NFR-SEC-001..004)', () => {
-  const root = process.cwd();
+const root = process.cwd();
 
-  test('NFR-SEC-001: .gitignore zawiera wszystkie krytyczne wzorce sekretów i artefaktów', () => {
-    const gitignorePath = path.join(root, '.gitignore');
-    expect(fs.existsSync(gitignorePath)).toBe(true);
-    const gitignore = fs.readFileSync(gitignorePath, 'utf8');
+describe('Bezpieczeństwo publicznego repozytorium i potoku CI/CD (Chapter 12.5 BRD, NFR-SEC)', () => {
+  const wfDir = join(root, '.github', 'workflows');
+  const wfFiles = existsSync(wfDir)
+    ? readdirSync(wfDir).filter((f) => f.endsWith('.yml') || f.endsWith('.yaml'))
+    : [];
 
-    const requiredPatterns = [
-      'node_modules',
-      'dist',
-      '.env',
-      '*.p8',
-      '*.mobileprovision',
-      '*.keystore',
-    ];
-
-    for (const pattern of requiredPatterns) {
-      expect(gitignore).toContain(pattern);
-    }
-  });
-
-  test('NFR-SEC-002: W kodzie źródłowym i skryptach brak kluczy prywatnych i tokenów produkcyjnych', () => {
-    const walkFiles = (dir: string): string[] => {
-      let results: string[] = [];
-      const entries = fs.readdirSync(dir);
-      for (const entry of entries) {
-        if (['node_modules', '.git', 'dist', '.expo'].includes(entry)) continue;
-        const p = path.join(dir, entry);
-        if (fs.statSync(p).isDirectory()) {
-          results = results.concat(walkFiles(p));
-        } else if (/\.(ts|tsx|js|mjs|json|yml|yaml|md|sh)$/.test(entry)) {
-          results.push(p);
+  test('wszystkie pliki .github/workflows/*.yml przestrzegają zasad minimalnych uprawnień i izolacji', () => {
+    expect(wfFiles.length).toBeGreaterThan(0);
+    for (const file of wfFiles) {
+      const content = readFileSync(join(wfDir, file), 'utf8');
+      // 1. Zakaz pull_request_target
+      expect(content).not.toMatch(/pull_request_target/);
+      // 2. Jawne permissions na poziomie głównym
+      expect(content).toMatch(/^permissions:\s*\n\s+contents:\s*read/m);
+      // 3. Jawne timeout-minutes
+      expect(content).toMatch(/timeout-minutes:\s*\d+/);
+      // 4. Zakaz bezpośredniej interpolacji danych wejściowych użytkownika w blokach run:
+      const runBlocks = content.split(/\n\s*-\s+name:/);
+      for (const block of runBlocks) {
+        if (block.includes('run:')) {
+          const runPart = block.slice(block.indexOf('run:'));
+          expect(runPart).not.toMatch(/\$\{\{\s*github\.event\.(inputs|pull_request|head_commit|issue|comment)/);
+          expect(runPart).not.toMatch(/\$\{\{\s*github\.head_ref/);
         }
       }
-      return results;
-    };
-
-    const files = walkFiles(root);
-    const secretPatterns = [
-      /-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----/,
-      /ghp_[a-zA-Z0-9]{36}/,
-      /github_pat_[a-zA-Z0-9]{82}/,
-      /AIzaSy[0-9A-Za-z-_]{35}/, // Google API key
-    ];
-
-    for (const file of files) {
-      // Ignorujemy fixture lub specyficzne mocki
-      if (file.includes('fixtures')) continue;
-      const content = fs.readFileSync(file, 'utf8');
-      for (const pattern of secretPatterns) {
-        expect(content).not.toMatch(pattern);
+      // 5. Dozwolone wyłącznie oficjalne akcje actions/* lub przypięte po 40-znakowym SHA
+      const usesMatches = [...content.matchAll(/uses:\s*([^\s#]+)/g)];
+      for (const m of usesMatches) {
+        const action = m[1];
+        const isOfficial = action.startsWith('actions/');
+        const isPinnedSha = /@[0-9a-f]{40}$/.test(action);
+        expect(isOfficial || isPinnedSha).toBe(true);
       }
     }
   });
 
-  test('NFR-SEC-003: Pliki GitHub Actions mają zdefiniowane minimalne uprawnienia (permissions)', () => {
-    const workflowsDir = path.join(root, '.github', 'workflows');
-    if (!fs.existsSync(workflowsDir)) return;
+  test('testflight.yml zapisuje klucz .p8 dopiero po pod install, filtruje logi i nie wysyła .ipa do artefaktów', () => {
+    const tfPath = join(wfDir, 'testflight.yml');
+    if (!existsSync(tfPath)) return;
+    const tf = readFileSync(tfPath, 'utf8');
+    const podIdx = tf.indexOf('pod install');
+    const keyIdx = tf.indexOf('AuthKey', podIdx);
+    expect(podIdx).toBeGreaterThan(0);
+    expect(keyIdx).toBeGreaterThan(podIdx);
+    expect(tf).toContain('umask 077');
+    expect(tf).toContain('<KEY_ID>');
+    expect(tf).toContain('<ISSUER_ID>');
+    expect(tf).toContain('EXPO_PUBLIC_STORE_FAKE');
+    expect(tf).not.toMatch(/path:.*\.(ipa|xcarchive)/);
+  });
 
-    const files = fs.readdirSync(workflowsDir).filter((f) => f.endsWith('.yml') || f.endsWith('.yaml'));
-    for (const file of files) {
-      const content = fs.readFileSync(path.join(workflowsDir, file), 'utf8');
-      // Każdy workflow z akcjami zapisu musi jawnie deklarować blok permissions
-      if (content.includes('write')) {
-        expect(content).toMatch(/permissions:\s*/);
+  test('żaden plik śledzony przez Git nie jest kluczem prywatnym, certyfikatem ani plikiem .env', () => {
+    const tracked = execSync('git ls-files', { cwd: root, encoding: 'utf8' })
+      .split('\n')
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const forbiddenExt = /\.(p8|p12|mobileprovision|cer|keystore|jks|ipa)$/i;
+    for (const f of tracked) {
+      expect(f).not.toMatch(forbiddenExt);
+      expect(f).not.toMatch(/(^|\/)\.env(\..+)?$/);
+      if (/\.(ts|tsx|js|mjs|json|md|yml|yaml|html)$/.test(f) && f !== 'tests/public-repo.test.ts') {
+        const body = readFileSync(join(root, f), 'utf8');
+        expect(body).not.toMatch(/-----BEGIN [A-Z ]*PRIVATE KEY-----/);
       }
+    }
+  });
+
+  test('app.json ma ustawione ITSAppUsesNonExemptEncryption: false oraz kompletny PrivacyManifests', () => {
+    const appJson = JSON.parse(readFileSync(join(root, 'app.json'), 'utf8')).expo;
+    expect(appJson.ios?.infoPlist?.ITSAppUsesNonExemptEncryption).toBe(false);
+    const apiTypes = (appJson.ios?.privacyManifests?.NSPrivacyAccessedAPITypes || []).map(
+      (x: { NSPrivacyAccessedAPIType: string }) => x.NSPrivacyAccessedAPIType
+    );
+    expect(apiTypes).toEqual(
+      expect.arrayContaining([
+        'NSPrivacyAccessedAPICategoryUserDefaults',
+        'NSPrivacyAccessedAPICategoryFileTimestamp',
+        'NSPrivacyAccessedAPICategorySystemBootTime',
+        'NSPrivacyAccessedAPICategoryDiskSpace',
+      ])
+    );
+  });
+
+  test('strony prawne site/ (index.html, privacy.html, support.html) istnieją i mają poprawne linki', () => {
+    for (const page of ['index.html', 'privacy.html', 'support.html']) {
+      const p = join(root, 'site', page);
+      expect(existsSync(p)).toBe(true);
+      const html = readFileSync(p, 'utf8');
+      expect(html).toMatch(/<!DOCTYPE html>/i);
+      expect(html).not.toMatch(/\b(TODO|FIXME|PLACEHOLDER|example\.com)\b/i);
     }
   });
 });

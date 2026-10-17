@@ -37,6 +37,15 @@ jobs:
             [ -n "${!v}" ] || { echo "::error::Brak wymaganego sekretu $v w Settings -> Secrets and variables -> Actions"; exit 1; };
           done
       - run: npm ci --legacy-peer-deps
+      - name: Guard against test/mock flags in release build (BR-REL-006)
+        run: |
+          for var in EXPO_PUBLIC_STORE_FAKE EXPO_PUBLIC_E2E EXPO_PUBLIC_MOCK_AUTH EXPO_PUBLIC_DEMO_MODE; do
+            val="${!var:-}"
+            if [ -n "$val" ] && [ "$val" != "0" ]; then
+              echo "::error::Flaga testowa $var=$val nie może być ustawiona w wydaniu produkcyjnym!"
+              exit 1
+            fi
+          done
       - name: Weryfikacja jakości (TypeScript + testy jednostkowe)
         run: npm run verify
       - name: Generowanie natywnego projektu iOS (expo prebuild)

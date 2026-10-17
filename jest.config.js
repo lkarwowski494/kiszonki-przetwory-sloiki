@@ -28,6 +28,7 @@ module.exports = {
     './dist/src/core/recipes/': { branches: 100, functions: 100, lines: 100, statements: 100 },
     './dist/src/core/experiments/': { branches: 100, functions: 100, lines: 100, statements: 100 },
     './dist/src/core/units/': { branches: 100, functions: 100, lines: 100, statements: 100 },
+    './dist/src/core/dates/': { branches: 100, functions: 100, lines: 100, statements: 100 },
     './dist/src/core/confirm.js': { branches: 100, functions: 100, lines: 100, statements: 100 },
     './dist/src/core/sensory-radar.js': { branches: 100, functions: 100, lines: 100, statements: 100 },
     './dist/src/core/announce.js': { branches: 100, functions: 100, lines: 100, statements: 100 },

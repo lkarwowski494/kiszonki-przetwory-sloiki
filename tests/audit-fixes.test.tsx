@@ -6,7 +6,8 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import { startTimerTimestamp, calculateRemainingTimerSec, pauseTimerTimestamp } from '../src/core/timer/background-timer';
-import { wInKeep, normalizeNumString } from '../src/core/units/unit-keep';
+import { wInKeep, normalizeNumString, formatValueForUnit } from '../src/core/units/unit-keep';
+import { localDateKey, parseLocalDateKey, addDaysLocal } from '../src/core/dates/local-date';
 import { escapeCsvCell } from '../src/lib/backup';
 import { ActiveFocusTimer } from '../src/ui/components/ActiveFocusTimer';
 import { SensoryRadarChart } from '../src/ui/components/SensoryRadarChart';
@@ -15,7 +16,7 @@ import { CustomEquipmentModal } from '../src/ui/components/CustomEquipmentModal'
 import { Missing } from '../src/ui/components/Missing';
 import { SearchField, normSearch } from '../src/ui/components/SearchField';
 import { dbStore, LocalDatabaseStore } from '../src/data/db/database';
-import { t, plDictionary } from '../src/lib/i18n';
+import { t, plDictionary, pluralPl, plural } from '../src/lib/i18n';
 
 describe('Testy Regresyjne Audytu BRD-QA-REL 1.0 (Runda 2 — Dogrywka Weryfikacyjna)', () => {
   // --------------------------------------------------------------------------
@@ -185,4 +186,70 @@ describe('Testy Regresyjne Audytu BRD-QA-REL 1.0 (Runda 2 — Dogrywka Weryfikac
     expect(t('Zalecana solanka')).toBeDefined();
     expect(t('Pasteryzacja')).toBeDefined();
   });
+
+  // --------------------------------------------------------------------------
+  // RD-ENG-01 & BR-TEST-005: 100 cykli edycji bez dryfu zaokrągleń (drift === 0)
+  // --------------------------------------------------------------------------
+  test('BR-TEST-005: wInKeep 100 cykli otwarcia i zatwierdzenia formularza w lb/oz gwarantuje zerowy dryf', () => {
+    // 61.23 kg wyświetlane jako 135.0 lb
+    const initialKg = 61.23;
+    let currentKg = initialKg;
+    for (let i = 0; i < 100; i++) {
+      const displayedLb = formatValueForUnit(currentKg, 'lb').toString();
+      currentKg = wInKeep(displayedLb, 'lb', currentKg);
+    }
+    expect(currentKg).toBe(initialKg);
+
+    // 500 g wyświetlane w uncjach (oz)
+    const initialG = 500;
+    let currentG = initialG;
+    for (let i = 0; i < 100; i++) {
+      const displayedOz = formatValueForUnit(currentG, 'oz').toString();
+      currentG = wInKeep(displayedOz, 'oz', currentG);
+    }
+    expect(currentG).toBe(initialG);
+  });
+
+  // --------------------------------------------------------------------------
+  // RD-ENG-09 & NFR-I18N-007: Polska odmiana liczebników z wektorami BRD
+  // --------------------------------------------------------------------------
+  test('RD-ENG-09: pluralPl poprawnie odmienia polskie liczebniki dla wektorów wzorcowych BRD', () => {
+    const jarForms: [string, string, string] = ['słoik', 'słoiki', 'słoików'];
+    const setForms: [string, string, string] = ['seria', 'serie', 'serii'];
+
+    // 1 -> one
+    expect(pluralPl(1, jarForms)).toBe('słoik');
+    expect(pluralPl(1, setForms)).toBe('seria');
+
+    // 2, 3, 4, 22, 104 -> few
+    for (const n of [2, 3, 4, 22, 104]) {
+      expect(pluralPl(n, jarForms)).toBe('słoiki');
+      expect(pluralPl(n, setForms)).toBe('serie');
+    }
+
+    // 0, 5, 11, 12, 14, 21, 25, 112 -> many
+    for (const n of [0, 5, 11, 12, 14, 21, 25, 112]) {
+      expect(pluralPl(n, jarForms)).toBe('słoików');
+      expect(pluralPl(n, setForms)).toBe('serii');
+    }
+
+    // Uniwersalna pluralizacja w PL i EN
+    expect(plural('pl', 3, jarForms)).toBe('słoiki');
+    expect(plural('en', 1, ['jar', 'jars'])).toBe('jar');
+    expect(plural('en', 5, ['jar', 'jars'])).toBe('jars');
+  });
+
+  // --------------------------------------------------------------------------
+  // RD-ENG-05 & BR-TEST-015: Odporność dat kalendarzowych na strefy czasowe i DST
+  // --------------------------------------------------------------------------
+  test('RD-ENG-05: localDateKey i addDaysLocal są w pełni odporne na DST', () => {
+    const d = new Date(2026, 3, 12, 12, 0);
+    expect(localDateKey(d)).toBe('2026-04-12');
+    expect(parseLocalDateKey('2026-04-12').getHours()).toBe(12);
+
+    // Przejście przez zmianę czasu letniego w Europie (29 marca 2026)
+    expect(addDaysLocal('2026-03-29', 1)).toBe('2026-03-30');
+    expect(addDaysLocal('2026-03-29', 7)).toBe('2026-04-05');
+  });
 });
+

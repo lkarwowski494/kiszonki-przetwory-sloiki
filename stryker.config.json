@@ -1,0 +1,27 @@
+{
+  "$schema": "https://raw.githubusercontent.com/stryker-mutator/stryker-js/master/packages/api/schema/stryker-core.json",
+  "mutate": [
+    "src/core/**/*.ts",
+    "!src/core/**/__tests__/**",
+    "!src/core/types.ts",
+    "!src/core/index.ts",
+    "!src/core/craft-suite-theme.ts",
+    "!src/core/experiments/types.ts",
+    "!src/core/timer-audio.ts",
+    "!src/core/notifications/**",
+    "!src/core/pantry/pdf-sheet-generator.ts",
+    "!src/core/access/**"
+  ],
+  "testRunner": "jest",
+  "jest": {
+    "configFile": "jest.mutation.config.js"
+  },
+  "reporters": ["progress", "clear-text", "html"],
+  "concurrency": 2,
+  "timeoutMS": 5000,
+  "thresholds": {
+    "high": 95,
+    "low": 90,
+    "break": 90
+  }
+}

@@ -70,3 +70,36 @@ export function t(pl: string, params?: Record<string, string | number>): string 
   }
   return text;
 }
+
+/**
+ * RD-ENG-09 / NFR-I18N-007: Polska odmiana liczebników
+ * forms: [mianownik l. pojedyncza, mianownik l. mnoga, dopełniacz l. mnoga]
+ * np. ['słoik', 'słoiki', 'słoików'] lub ['seria', 'serie', 'serii']
+ */
+export function pluralPl(count: number, forms: [string, string, string]): string {
+  const abs = Math.abs(Math.round(count));
+  if (abs === 1) return forms[0];
+  const n100 = abs % 100;
+  const n10 = abs % 10;
+  if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) {
+    return forms[1];
+  }
+  return forms[2];
+}
+
+/**
+ * Uniwersalna pluralizacja wspierająca PL i EN (NFR-I18N-007)
+ */
+export function plural(
+  language: Lang,
+  count: number,
+  forms: [string, string, string] | [string, string]
+): string {
+  if (language === 'pl') {
+    const plForms = forms.length === 3 ? forms : ([forms[0], forms[1], forms[1]] as [string, string, string]);
+    return pluralPl(count, plForms);
+  }
+  const abs = Math.abs(Math.round(count));
+  return abs === 1 ? forms[0] : (forms[1] ?? forms[0]);
+}
+
