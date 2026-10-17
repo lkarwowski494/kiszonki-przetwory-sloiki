@@ -176,7 +176,23 @@ const RITUAL_PRESETS: RitualPreset[] = [
   },
 ];
 
-const RECIPE_CATEGORIES: { label: string; value: RecipeCategory | 'all' }[] = [
+const CLASSIC_RECIPE_IDS = new Set([
+  'REC-01',
+  'REC-02',
+  'REC-03',
+  'REC-04',
+  'REC-05',
+  'REC-06',
+  'REC-07',
+  'REC-08',
+  'REC-09',
+  'REC-10',
+  'REC-11',
+  'REC-12',
+]);
+
+const RECIPE_CATEGORIES: { label: string; value: RecipeCategory | 'all' | 'classics' }[] = [
+  { label: '⭐ Klasyki', value: 'classics' },
   { label: 'Wszystkie', value: 'all' },
   { label: 'Polska', value: 'poland_central_europe' },
   { label: 'Azja', value: 'east_asia' },
@@ -200,7 +216,6 @@ export default function RitualScreen() {
 
   // Modale
   const [isPaywallOpen, setIsPaywallOpen] = useState(false);
-  const [isFocusTimerOpen, setIsFocusTimerOpen] = useState(false);
   const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
   const [isCustomRecipeModalOpen, setIsCustomRecipeModalOpen] = useState(false);
   const [isProcedureModalOpen, setIsProcedureModalOpen] = useState(false);
@@ -221,11 +236,11 @@ export default function RitualScreen() {
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [isTourOpen, setIsTourOpen] = useState(false);
 
-  // Tryb wyboru nastawu (Styl Dowolny / Receptury Mistrzów / Klasyczne Presety)
-  const [ritualMode, setRitualMode] = useState<'freeform' | 'recipes' | 'presets'>('freeform');
+  // Tryb wyboru nastawu (2 ścieżki: Styl Dowolny vs Gotowe Receptury z Klasykami)
+  const [ritualMode, setRitualMode] = useState<'freeform' | 'recipes'>('freeform');
   const [selectedProduce, setSelectedProduce] = useState<string[]>(['cucumber']);
   const [produceCategory, setProduceCategory] = useState<ProduceFilterCategory>('all');
-  const [recipeCategory, setRecipeCategory] = useState<RecipeCategory | 'all'>('all');
+  const [recipeCategory, setRecipeCategory] = useState<RecipeCategory | 'all' | 'classics'>('classics');
   const [recipeSearch, setRecipeSearch] = useState<string>('');
 
   const freeformSuggestion = composeFreeformRecipe(selectedProduce, produceWeightNum);
@@ -272,8 +287,15 @@ export default function RitualScreen() {
     );
   };
 
-  const filteredMasterRecipes = MASTER_RECIPES.filter((r) => {
-    const matchesCat = recipeCategory === 'all' || r.category === recipeCategory;
+  const allAvailableRecipes = [...dbStore.getCustomRecipes(), ...MASTER_RECIPES];
+
+  const filteredMasterRecipes = allAvailableRecipes.filter((r) => {
+    const matchesCat =
+      recipeCategory === 'all'
+        ? true
+        : recipeCategory === 'classics'
+        ? CLASSIC_RECIPE_IDS.has(r.id) || r.id.startsWith('CUSTOM')
+        : r.category === recipeCategory;
     const q = normSearch(recipeSearch);
     const matchesSearch =
       !q ||
@@ -284,10 +306,6 @@ export default function RitualScreen() {
   });
 
   useEffect(() => {
-    // Sprawdź onboarding
-    if (!dbStore.isOnboardingCompleted()) {
-      setIsOnboardingOpen(true);
-    }
     const profile = dbStore.getOnboardingProfile();
     if (profile) setActiveProfile(profile);
 
@@ -458,48 +476,20 @@ export default function RitualScreen() {
           </View>
         )}
 
-        {/* Nagłówek Rytuału */}
+        {/* Nagłówek Rytuału — Czysty prawy górny róg z przewodnikiem */}
         <View style={styles.header}>
           <View style={styles.titleRow}>
             <Text style={styles.headerTitleText} numberOfLines={1}>{t('Słoik (Jarwise) 🫙')}</Text>
-            <View style={styles.headerButtons}>
-              <TouchableOpacity
-                onPress={() => setIsTourOpen(true)}
-                style={styles.iconButton}
-                accessibilityLabel={t('Przewodnik po funkcjach aplikacji')}
-                accessibilityRole="button"
-                hitSlop={theme.hitSlop}
-              >
-                <Text style={styles.iconButtonEmoji}>🧭</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => router.push('/experiments')}
-                style={styles.iconButton}
-                accessibilityLabel={t('Laboratorium Eksperymentów')}
-                accessibilityRole="button"
-                hitSlop={theme.hitSlop}
-              >
-                <Text style={styles.iconButtonEmoji}>🔬</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => router.push('/pasteurizer')}
-                style={styles.iconButton}
-                accessibilityLabel={t('Stoper Pasteryzacji')}
-                accessibilityRole="button"
-                hitSlop={theme.hitSlop}
-              >
-                <Text style={styles.iconButtonEmoji}>⏱️</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => router.push('/settings')}
-                style={styles.iconButton}
-                accessibilityLabel={t('Ustawienia i Warsztat')}
-                accessibilityRole="button"
-                hitSlop={theme.hitSlop}
-              >
-                <Text style={styles.iconButtonEmoji}>⚙️</Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              onPress={() => setIsTourOpen(true)}
+              style={styles.tourHeaderBtn}
+              accessibilityLabel={t('Przewodnik po funkcjach aplikacji')}
+              accessibilityRole="button"
+              hitSlop={theme.hitSlop}
+            >
+              <Text style={styles.iconButtonEmoji}>🧭</Text>
+              <Text style={styles.tourHeaderBtnText}>{t('Jak działa aplikacja?')}</Text>
+            </TouchableOpacity>
           </View>
           <Text style={styles.tagline}>
             {t('Rytuał przygotowania, precyzja soli i aktywny zegar blatu kuchennego.')}
@@ -528,25 +518,6 @@ export default function RitualScreen() {
           </View>
         </TouchableOpacity>
 
-        {/* PRZEWODNIK PO FUNKCJACH APLIKACJI (INTERAKTYWNY TOUR) */}
-        <TouchableOpacity
-          style={styles.appTourBanner}
-          onPress={() => setIsTourOpen(true)}
-          activeOpacity={0.85}
-          accessibilityLabel={t('Przewodnik po funkcjach aplikacji')}
-        >
-          <View style={styles.appTourIconBox}>
-            <Text style={styles.appTourEmoji}>🧭</Text>
-          </View>
-          <View style={styles.appTourTextCol}>
-            <Text style={styles.appTourTitle}>{t('Przewodnik: Jak działa aplikacja?')}</Text>
-            <Text style={styles.appTourSub}>
-              {t('Poznaj 7 modułów: Rytuał, Styl Dowolny, Receptury, Dojrzewalnię, Doktora i zasady Offline.')}
-            </Text>
-          </View>
-          <Text style={styles.appTourArrow}>➔</Text>
-        </TouchableOpacity>
-
         {/* ============================================================== */}
         {/* KROK 1: WYBÓR WARZYW I PRZEPISU                                */}
         {/* ============================================================== */}
@@ -562,7 +533,7 @@ export default function RitualScreen() {
           </View>
         </View>
 
-        {/* PRZEŁĄCZNIK TRYBU */}
+        {/* PRZEŁĄCZNIK TRYBU (2 ŚCIEŻKI: STYL DOWOLNY vs RECEPTURY Z KLASYKAMI) */}
         <View style={styles.modeTabsRow}>
           <TouchableOpacity
             style={[styles.modeTabBtn, ritualMode === 'freeform' && styles.modeTabBtnActive]}
@@ -577,7 +548,7 @@ export default function RitualScreen() {
               ]}
               numberOfLines={1}
             >
-              {t('Styl Dowolny')}
+              {t('Styl Dowolny (Mam warzywa)')}
             </Text>
           </TouchableOpacity>
 
@@ -594,24 +565,7 @@ export default function RitualScreen() {
               ]}
               numberOfLines={1}
             >
-              {t('Receptury (155)')}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.modeTabBtn, ritualMode === 'presets' && styles.modeTabBtnActive]}
-            onPress={() => setRitualMode('presets')}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.modeTabEmoji}>🥒</Text>
-            <Text
-              style={[
-                styles.modeTabBtnText,
-                ritualMode === 'presets' && styles.modeTabBtnTextActive,
-              ]}
-              numberOfLines={1}
-            >
-              {t('Klasyki')}
+              {t('Gotowe Receptury (155)')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -764,7 +718,7 @@ export default function RitualScreen() {
           </View>
         )}
 
-        {/* TRYB 2: RECEPTURY MISTRZÓW */}
+        {/* TRYB 2: GOTOWE RECEPTURY (Z KLASYKAMI JAKO PIERWSZĄ KATEGORIĄ) */}
         {ritualMode === 'recipes' && (
           <View style={styles.recipesModeBox}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.recipeCatScroll}>
@@ -796,7 +750,7 @@ export default function RitualScreen() {
             />
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recipesScroll}>
-              {filteredMasterRecipes.slice(0, 15).map((recipe) => (
+              {filteredMasterRecipes.slice(0, 20).map((recipe) => (
                 <TouchableOpacity
                   key={recipe.id}
                   style={styles.recipeCard}
@@ -818,52 +772,6 @@ export default function RitualScreen() {
               ))}
             </ScrollView>
           </View>
-        )}
-
-        {/* TRYB 3: KLASYCZNE PRESETY */}
-        {ritualMode === 'presets' && (
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.presetsScroll}
-          >
-            {displayPresets.map((preset) => {
-              const isSelected = selectedPresetId === preset.id;
-              return (
-                <TouchableOpacity
-                  key={preset.id}
-                  style={[
-                    styles.presetChip,
-                    isSelected && styles.presetChipSelected,
-                  ]}
-                  onPress={() => {
-                    setSelectedPresetId(preset.id);
-                    setProduceWeightNum(preset.defaultProduceGrams);
-                    setIsAdvancedOpen(false);
-                    setCustomTitle('');
-                  }}
-                  activeOpacity={0.8}
-                >
-                  <Text
-                    style={[
-                      styles.presetChipText,
-                      isSelected && styles.presetChipTextSelected,
-                    ]}
-                  >
-                    {preset.name}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.presetChipSalinity,
-                      isSelected && styles.presetChipSalinitySelected,
-                    ]}
-                  >
-                    {preset.isDrySalting ? t('Solenie na sucho') : `${preset.salinity}% solanka`}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
         )}
 
         {/* KARTA AKTYWNEGO NASTAWU (SUMMARY CARD WYBRANEGO PRZEPISU) */}
@@ -1201,6 +1109,24 @@ const styles = StyleSheet.create({
     gap: 6,
     flexShrink: 0,
     alignItems: 'center',
+  },
+  tourHeaderBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    minHeight: 40,
+    backgroundColor: theme.colors.bgCardElevated,
+    borderWidth: 1,
+    borderColor: theme.colors.pickleGreen,
+    borderRadius: 20,
+    flexShrink: 0,
+  },
+  tourHeaderBtnText: {
+    color: theme.colors.textPrimary,
+    fontSize: 12,
+    fontWeight: '800',
   },
   iconButton: {
     width: 38,

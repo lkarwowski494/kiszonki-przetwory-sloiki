@@ -118,36 +118,20 @@ export default function WiedzaScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
-        {/* Nagłówek */}
+        {/* Nagłówek — czysta nawigacja (1 przycisk "Jak działa aplikacja?" w prawym górnym rogu) */}
         <View style={styles.header}>
           <View style={styles.titleRow}>
             <Text style={styles.headerTitleText} numberOfLines={1}>{t('Wiedza Rzemieślnicza 📖')}</Text>
-            <View style={styles.headerButtons}>
-              <TouchableOpacity
-                onPress={() => setIsTourOpen(true)}
-                style={styles.iconButton}
-                accessibilityLabel={t('Przewodnik po funkcjach aplikacji')}
-                hitSlop={theme.hitSlop}
-              >
-                <Text style={styles.iconButtonEmoji}>🧭</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => setIsGuideOpen(true)}
-                style={styles.iconButton}
-                accessibilityLabel={t('Złote Zasady Kiszenia')}
-                hitSlop={theme.hitSlop}
-              >
-                <Text style={styles.iconButtonEmoji}>📜</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => router.push('/settings')}
-                style={styles.iconButton}
-                accessibilityLabel={t('Ustawienia')}
-                hitSlop={theme.hitSlop}
-              >
-                <Text style={styles.iconButtonEmoji}>⚙️</Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              onPress={() => setIsTourOpen(true)}
+              style={styles.tourHeaderBtn}
+              accessibilityLabel={t('Przewodnik po funkcjach aplikacji')}
+              hitSlop={theme.hitSlop}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.tourHeaderBtnEmoji}>🧭</Text>
+              <Text style={styles.tourHeaderBtnText}>{t('Jak działa aplikacja?')}</Text>
+            </TouchableOpacity>
           </View>
           <Text style={styles.tagline}>
             {t('155 Receptur Świata oraz Doktor Mikrobiologiczny ratujący słoiki.')}
@@ -596,6 +580,26 @@ const styles = StyleSheet.create({
     gap: 6,
     flexShrink: 0,
     alignItems: 'center',
+  },
+  tourHeaderBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    backgroundColor: theme.colors.bgCard,
+    borderWidth: 1,
+    borderColor: theme.colors.amberBrine,
+    borderRadius: theme.borderRadius.md,
+    flexShrink: 0,
+  },
+  tourHeaderBtnEmoji: {
+    fontSize: 14,
+  },
+  tourHeaderBtnText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: theme.colors.amberBrine,
   },
   iconButton: {
     width: 38,

@@ -2,8 +2,10 @@ import React from 'react';
 import { Tabs } from 'expo-router';
 import { View, Text } from 'react-native';
 import { theme } from '../../src/ui/theme';
+import { t, useLang } from '../../src/lib/i18n';
 
 export default function TabsLayout() {
+  useLang();
   return (
     <Tabs
       screenOptions={{
@@ -27,10 +29,10 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Rytuał',
+          title: t('Rytuał'),
           tabBarIcon: ({ focused }) => (
             <View style={{ width: 28, height: 26, alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ fontSize: 20, lineHeight: 24, textAlign: 'center' }}>{focused ? '⚖️' : '⏱️'}</Text>
+              <Text style={{ fontSize: 20, lineHeight: 24, textAlign: 'center' }}>{focused ? '⚖️' : '🥒'}</Text>
             </View>
           ),
         }}
@@ -38,7 +40,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="dojrzewalnia"
         options={{
-          title: 'Dojrzewalnia',
+          title: t('Dojrzewalnia'),
           tabBarIcon: ({ focused }) => (
             <View style={{ width: 28, height: 26, alignItems: 'center', justifyContent: 'center' }}>
               <Text style={{ fontSize: 20, lineHeight: 24, textAlign: 'center' }}>{focused ? '🫙' : '🫧'}</Text>
@@ -49,10 +51,21 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="wiedza"
         options={{
-          title: 'Wiedza',
+          title: t('Doktor & Wiedza'),
           tabBarIcon: ({ focused }) => (
             <View style={{ width: 28, height: 26, alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ fontSize: 20, lineHeight: 24, textAlign: 'center' }}>{focused ? '📖' : '📕'}</Text>
+              <Text style={{ fontSize: 20, lineHeight: 24, textAlign: 'center' }}>{focused ? '🩺' : '📖'}</Text>
+            </View>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="ustawienia"
+        options={{
+          title: t('Ustawienia'),
+          tabBarIcon: ({ focused }) => (
+            <View style={{ width: 28, height: 26, alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ fontSize: 20, lineHeight: 24, textAlign: 'center' }}>{focused ? '⚙️' : '🛠️'}</Text>
             </View>
           ),
         }}
@@ -60,4 +73,3 @@ export default function TabsLayout() {
     </Tabs>
   );
 }
-

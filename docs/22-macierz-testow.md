@@ -6,6 +6,7 @@
 | :--- | :--- | :--- | :--- | :---: |
 | **EKRAN** | `/dojrzewalnia` | `app/(tabs)/dojrzewalnia.tsx` | `.maestro/03-fermentacja-timeline.yaml`<br>`.maestro/04-spizarnia-etykieta.yaml`<br>`.maestro/08-paszport-sloika.yaml`<br>`tests/screens.test.tsx` | ✅ Pokryty |
 | **EKRAN** | `/` | `app/(tabs)/index.tsx` | `.maestro/01-receptury.yaml`<br>`.maestro/02-kreator-solanki.yaml`<br>`.maestro/07-laboratorium-eksperymentow.yaml`<br>`src/core/__tests__/corpus-brine-topup.test.ts`<br>`src/core/__tests__/corpus-safety-usda.test.ts`<br>`src/core/__tests__/cost-calculator.test.ts`<br>`src/core/__tests__/freeform-composer.test.ts`<br>`src/core/__tests__/invariants.test.ts`<br>`src/core/__tests__/notifications-pdf.test.ts`<br>`src/lib/__tests__/backup.test.ts`<br>`tests/audit-fixes.test.tsx`<br>`tests/close-button-guard.test.tsx`<br>`tests/i18n-no-polish-in-en.test.tsx`<br>`tests/interaction-guards.test.ts`<br>`tests/maestro-runner.test.ts`<br>`tests/matrix-a11y.test.tsx`<br>`tests/public-repo.test.ts`<br>`tests/screens.test.tsx`<br>`tests/state-machine.prop.test.ts`<br>`tests/swipe-delete.test.tsx` | ✅ Pokryty |
+| **EKRAN** | `/ustawienia` | `app/(tabs)/ustawienia.tsx` | `tests/screens.test.tsx` | ✅ Pokryty |
 | **EKRAN** | `/wiedza` | `app/(tabs)/wiedza.tsx` | `.maestro/01-receptury.yaml`<br>`.maestro/05-ratownik-doktor.yaml`<br>`tests/screens.test.tsx` | ✅ Pokryty |
 | **EKRAN** | `/batch/[id]` | `app/batch/[id].tsx` | `.maestro/08-paszport-sloika.yaml` | ✅ Pokryty |
 | **EKRAN** | `/experiments` | `app/experiments.tsx` | `.maestro/07-laboratorium-eksperymentow.yaml`<br>`tests/screens.test.tsx` | ✅ Pokryty |
@@ -68,7 +69,7 @@
 | **WYMIAR** | `voiceover-swipe-delete` | `tests/swipe-delete.test.tsx` | `tests/swipe-delete.test.tsx` | ✅ Pokryty |
 | **WYMIAR** | `tabular-nums` | `src/ui/components/NumInput.tsx` | `tests/matrix-a11y.test.tsx` | ✅ Pokryty |
 
-### Podsumowanie pokrycia macierzy: **63 / 63 (100.0%)**
+### Podsumowanie pokrycia macierzy: **64 / 64 (100.0%)**
 
 - **EKRAN:** 100% tras pokryte testami E2E Maestro lub testami integracyjnymi
 - **UI:** 100% komponentów i wzorców dotykowych pokryte testami RNTL

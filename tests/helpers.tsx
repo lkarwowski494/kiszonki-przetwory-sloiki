@@ -15,6 +15,7 @@ import * as expoRouter from 'expo-router';
 import RitualScreen from '../app/(tabs)/index';
 import DojrzewalniaScreen from '../app/(tabs)/dojrzewalnia';
 import WiedzaScreen from '../app/(tabs)/wiedza';
+import UstawieniaTabScreen from '../app/(tabs)/ustawienia';
 import ExperimentsScreen from '../app/experiments';
 import SettingsScreen from '../app/settings';
 import PasteurizerScreen from '../app/pasteurizer';
@@ -27,6 +28,8 @@ export interface RenderAppOptions {
     | '/(tabs)/index'
     | '/(tabs)/dojrzewalnia'
     | '/(tabs)/wiedza'
+    | '/(tabs)/ustawienia'
+    | '/ustawienia'
     | '/experiments'
     | '/settings'
     | '/pasteurizer'
@@ -106,6 +109,8 @@ export async function renderApp(options: RenderAppOptions): Promise<RenderAppRes
     ElementToRender = <DojrzewalniaScreen />;
   } else if (route === '/(tabs)/wiedza') {
     ElementToRender = <WiedzaScreen />;
+  } else if (route === '/(tabs)/ustawienia' || route === '/ustawienia') {
+    ElementToRender = <UstawieniaTabScreen />;
   } else if (route === '/experiments') {
     ElementToRender = <ExperimentsScreen />;
   } else if (route === '/settings') {

@@ -4,11 +4,13 @@
 // Asystent kuchenny:
 // - Pasek postępu i miniatury wszystkich kroków na liście
 // - Aktualny krok wielką, czytelną czcionką (ergonomia mokrych dłoni blatu)
+// - AUTOMATYCZNY STOPER KROKU (jak przerwa między seriami): wykrywa czas w kroku
+//   i automatycznie rozpoczyna odliczanie po wejściu w krok (z obsługą tła)
 // - Przyciski: [Poprzedni krok] / [Krok zrobiony ✓] / [Zakończ i zapisz słoik 🫙]
 // - Trzyma włączony ekran (useKeepAwake)
 // ============================================================================
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Modal,
   View,
@@ -17,11 +19,17 @@ import {
   ScrollView,
   StyleSheet,
   SafeAreaView,
+  AppState,
 } from 'react-native';
 import { useKeepAwake } from 'expo-keep-awake';
 import { theme } from '../theme';
 import { t } from '../../lib/i18n';
 import { CloseIcon } from '@apps4craft/ui';
+import { notifyTimerFinished } from '../../core/timer-audio';
+import {
+  calculateRemainingTimerSec,
+  pauseTimerTimestamp,
+} from '../../core/timer/background-timer';
 
 export interface CraftProcedureModalProps {
   visible: boolean;
@@ -39,11 +47,42 @@ export interface CraftProcedureModalProps {
   onCompleteAndSave: () => void;
 }
 
+/**
+ * Wykrywa czas trwania czynności z tekstu kroku (w sekundach).
+ * Np. "10–15 minut" -> 600s, "15–30 minut" -> 900s, "20 min" -> 1200s.
+ */
+export function extractStepDurationSeconds(stepText: string): number | null {
+  if (!stepText) return null;
+  const lower = stepText.toLowerCase();
+
+  // Zakres minut np. "10–15 minut", "15-30 min"
+  const rangeMinMatch = lower.match(/(\d+)\s*[–-]\s*(\d+)\s*(?:minut|min|minutes)/);
+  if (rangeMinMatch) {
+    const mins = parseInt(rangeMinMatch[1], 10);
+    if (mins > 0 && mins <= 240) return mins * 60;
+  }
+
+  // Pojedyncze minuty np. "20 minut", "15 min"
+  const singleMinMatch = lower.match(/(\d+)\s*(?:minut|min|minutes)/);
+  if (singleMinMatch) {
+    const mins = parseInt(singleMinMatch[1], 10);
+    if (mins > 0 && mins <= 240) return mins * 60;
+  }
+
+  // Sekundy np. "30 sekund", "45 sek"
+  const secMatch = lower.match(/(\d+)\s*(?:sekund|sek|seconds|sec)/);
+  if (secMatch) {
+    const secs = parseInt(secMatch[1], 10);
+    if (secs > 0 && secs <= 3600) return secs;
+  }
+
+  return null;
+}
+
 export const CraftProcedureModal: React.FC<CraftProcedureModalProps> = ({
   visible,
   onClose,
   recipeTitle,
-  culture,
   produceWeightGrams,
   saltWeightGrams,
   waterWeightGrams,
@@ -58,6 +97,13 @@ export const CraftProcedureModal: React.FC<CraftProcedureModalProps> = ({
   useKeepAwake();
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
+
+  // Stan automatycznego stopera kroku (styl przerwy między seriami)
+  const [stepDurationSec, setStepDurationSec] = useState<number>(0);
+  const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
+  const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
+  const [isTimerFinished, setIsTimerFinished] = useState<boolean>(false);
+  const endAtMsRef = useRef<number | null>(null);
 
   // Domyślne profesjonalne kroki rzemieślnicze, jeśli przepis nie ma własnych
   const defaultSteps = isDrySalting
@@ -89,6 +135,125 @@ export const CraftProcedureModal: React.FC<CraftProcedureModalProps> = ({
   const totalSteps = resolvedSteps.length;
   const currentStep = resolvedSteps[currentStepIndex] || resolvedSteps[0];
   const isLastStep = currentStepIndex === totalSteps - 1;
+
+  // Reset do kroku 0 przy otwarciu modalu
+  useEffect(() => {
+    if (visible) {
+      setCurrentStepIndex(0);
+    } else {
+      setIsTimerRunning(false);
+      endAtMsRef.current = null;
+    }
+  }, [visible]);
+
+  // Automatyczne wykrywanie i auto-start stopera przy wejściu w krok (jak przerwa między seriami!)
+  useEffect(() => {
+    if (!visible) return;
+    const detectedSec = extractStepDurationSeconds(currentStep);
+    if (detectedSec && detectedSec > 0) {
+      setStepDurationSec(detectedSec);
+      setRemainingSeconds(detectedSec);
+      setIsTimerFinished(false);
+      endAtMsRef.current = Date.now() + detectedSec * 1000;
+      setIsTimerRunning(true);
+    } else {
+      setStepDurationSec(0);
+      setRemainingSeconds(0);
+      setIsTimerRunning(false);
+      setIsTimerFinished(false);
+      endAtMsRef.current = null;
+    }
+  }, [currentStepIndex, currentStep, visible]);
+
+  // Odliczanie czasu w interwale
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (isTimerRunning && remainingSeconds > 0) {
+      interval = setInterval(() => {
+        if (endAtMsRef.current) {
+          const rem = calculateRemainingTimerSec(endAtMsRef.current);
+          setRemainingSeconds(rem);
+          if (rem <= 0) {
+            setIsTimerRunning(false);
+            setIsTimerFinished(true);
+            endAtMsRef.current = null;
+            notifyTimerFinished(recipeTitle);
+          }
+        }
+      }, 500);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isTimerRunning, remainingSeconds, recipeTitle]);
+
+  // Obsługa wybudzenia z tła (RD-ENG-06)
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active' && isTimerRunning && endAtMsRef.current) {
+        const rem = calculateRemainingTimerSec(endAtMsRef.current);
+        setRemainingSeconds(rem);
+        if (rem <= 0) {
+          setIsTimerRunning(false);
+          setIsTimerFinished(true);
+          endAtMsRef.current = null;
+          notifyTimerFinished(recipeTitle);
+        }
+      }
+    });
+    return () => sub.remove();
+  }, [isTimerRunning, recipeTitle]);
+
+  const handleToggleTimer = () => {
+    if (!isTimerRunning) {
+      const startSec = remainingSeconds > 0 ? remainingSeconds : stepDurationSec || 300;
+      if (stepDurationSec === 0) setStepDurationSec(startSec);
+      setRemainingSeconds(startSec);
+      endAtMsRef.current = Date.now() + startSec * 1000;
+      setIsTimerRunning(true);
+      setIsTimerFinished(false);
+    } else {
+      if (endAtMsRef.current) {
+        const left = pauseTimerTimestamp(endAtMsRef.current);
+        setRemainingSeconds(left);
+        endAtMsRef.current = null;
+      }
+      setIsTimerRunning(false);
+    }
+  };
+
+  const handleAdjustTimer = (deltaSeconds: number) => {
+    const nextSec = Math.max(10, remainingSeconds + deltaSeconds);
+    setRemainingSeconds(nextSec);
+    setStepDurationSec((prev) => Math.max(prev, nextSec));
+    setIsTimerFinished(false);
+    if (isTimerRunning) {
+      endAtMsRef.current = Date.now() + nextSec * 1000;
+    }
+  };
+
+  const handleResetTimer = () => {
+    const base = stepDurationSec || 300;
+    setRemainingSeconds(base);
+    setIsTimerFinished(false);
+    endAtMsRef.current = Date.now() + base * 1000;
+    setIsTimerRunning(true);
+  };
+
+  const handleStartManualTimer = (mins: number) => {
+    const secs = mins * 60;
+    setStepDurationSec(secs);
+    setRemainingSeconds(secs);
+    setIsTimerFinished(false);
+    endAtMsRef.current = Date.now() + secs * 1000;
+    setIsTimerRunning(true);
+  };
+
+  const formatTime = (secs: number) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
 
   const handleNext = () => {
     if (isLastStep) {
@@ -175,9 +340,10 @@ export const CraftProcedureModal: React.FC<CraftProcedureModalProps> = ({
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.stepsCarousel}
           >
-            {resolvedSteps.map((_, idx) => {
+            {resolvedSteps.map((stepStr, idx) => {
               const isPast = idx < currentStepIndex;
               const isCurrent = idx === currentStepIndex;
+              const hasTimer = extractStepDurationSeconds(stepStr) !== null;
               return (
                 <TouchableOpacity
                   key={idx}
@@ -196,7 +362,7 @@ export const CraftProcedureModal: React.FC<CraftProcedureModalProps> = ({
                       isPast && styles.stepPillTextPast,
                     ]}
                   >
-                    {isPast ? `✓ ${idx + 1}` : `${idx + 1}`}
+                    {isPast ? `✓ ${idx + 1}` : `${idx + 1}${hasTimer ? ' ⏱️' : ''}`}
                   </Text>
                 </TouchableOpacity>
               );
@@ -204,7 +370,7 @@ export const CraftProcedureModal: React.FC<CraftProcedureModalProps> = ({
           </ScrollView>
         </View>
 
-        {/* KARTA GŁÓWNEGO KROKU (DUŻA CZCIONKA BLATU) */}
+        {/* KARTA GŁÓWNEGO KROKU (DUŻA CZCIONKA BLATU + AUTO-STOPER) */}
         <ScrollView
           style={styles.mainContent}
           contentContainerStyle={styles.mainContentInner}
@@ -225,6 +391,85 @@ export const CraftProcedureModal: React.FC<CraftProcedureModalProps> = ({
 
             {/* WIELKA CZYTELNA TREŚĆ KROKU */}
             <Text style={styles.heroStepInstruction}>{currentStep}</Text>
+
+            {/* ============================================================ */}
+            {/* WBUDOWANY AUTOMATYCZNY STOPER KROKU (JAK PRZERWA MIĘDZY SERIAMI) */}
+            {/* ============================================================ */}
+            {stepDurationSec > 0 ? (
+              <View
+                style={[
+                  styles.autoTimerCard,
+                  isTimerFinished && styles.autoTimerCardFinished,
+                ]}
+              >
+                <View style={styles.autoTimerHeader}>
+                  <Text style={styles.autoTimerBadge}>
+                    {isTimerFinished
+                      ? t('🔔 CZAS KROKU MINĄŁ!')
+                      : isTimerRunning
+                      ? t('⚡ AUTO-STOPER KROKU (ODLICZANIE)')
+                      : t('⏸️ STOPER KROKU WSTRZYMANY')}
+                  </Text>
+                </View>
+
+                <Text style={styles.autoTimerDigits}>{formatTime(remainingSeconds)}</Text>
+
+                <View style={styles.autoTimerControls}>
+                  <TouchableOpacity
+                    style={styles.timerDeltaBtn}
+                    onPress={() => handleAdjustTimer(-60)}
+                    hitSlop={theme.hitSlop}
+                  >
+                    <Text style={styles.timerDeltaText}>-1 min</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.timerMainBtn,
+                      isTimerRunning && styles.timerMainBtnPause,
+                    ]}
+                    onPress={handleToggleTimer}
+                    hitSlop={theme.hitSlop}
+                  >
+                    <Text style={styles.timerMainBtnText}>
+                      {isTimerRunning ? t('⏸️ Pauza') : t('▶️ Wznów')}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.timerDeltaBtn}
+                    onPress={() => handleAdjustTimer(60)}
+                    hitSlop={theme.hitSlop}
+                  >
+                    <Text style={styles.timerDeltaText}>+1 min</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.timerDeltaBtn}
+                    onPress={handleResetTimer}
+                    hitSlop={theme.hitSlop}
+                  >
+                    <Text style={styles.timerDeltaText}>↺</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ) : (
+              <View style={styles.manualTimerRow}>
+                <Text style={styles.manualTimerHint}>{t('Potrzebujesz minutnika na ten etap?')}</Text>
+                <View style={styles.manualTimerBtns}>
+                  {[5, 10, 15, 20].map((m) => (
+                    <TouchableOpacity
+                      key={m}
+                      style={styles.manualTimerChip}
+                      onPress={() => handleStartManualTimer(m)}
+                      hitSlop={theme.hitSlop}
+                    >
+                      <Text style={styles.manualTimerChipText}>⏱️ {m} min</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            )}
 
             {/* WSKAZÓWKA LUB AROMATY */}
             {herbs ? (
@@ -298,44 +543,44 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 14,
+    paddingHorizontal: 18,
+    paddingTop: 14,
+    paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
+    backgroundColor: theme.colors.bgCard,
   },
   headerTitleCol: {
     flex: 1,
-    marginRight: 10,
+    marginRight: 12,
   },
   badgeRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 2,
+    marginBottom: 4,
   },
   badgeText: {
-    color: theme.colors.pickleGreen,
     fontSize: 10,
     fontWeight: '800',
     letterSpacing: 1,
+    color: theme.colors.pickleGreen,
   },
   stepCounterText: {
-    color: theme.colors.textMuted,
     fontSize: 11,
     fontWeight: '700',
+    color: theme.colors.textSecondary,
   },
   recipeTitle: {
+    fontSize: 18,
+    fontWeight: '900',
     color: theme.colors.textPrimary,
-    fontSize: 17,
-    fontWeight: '800',
   },
   closeBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: theme.colors.bgCard,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: theme.colors.bgCardElevated,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -344,59 +589,60 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.bgCardElevated,
     paddingVertical: 10,
     paddingHorizontal: 16,
-    justifyContent: 'space-around',
-    alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
+    justifyContent: 'space-around',
+    alignItems: 'center',
   },
   stripItem: {
     alignItems: 'center',
   },
   stripLabel: {
-    color: theme.colors.textMuted,
     fontSize: 10,
+    color: theme.colors.textMuted,
     fontWeight: '700',
     textTransform: 'uppercase',
-    marginBottom: 2,
   },
   stripValue: {
+    fontSize: 14,
     color: theme.colors.textPrimary,
-    fontSize: 13,
     fontWeight: '800',
+    marginTop: 2,
   },
   stripDivider: {
     width: 1,
-    height: 22,
+    height: 24,
     backgroundColor: theme.colors.border,
   },
   progressBarBg: {
-    height: 4,
+    height: 5,
     backgroundColor: theme.colors.bgCard,
     width: '100%',
   },
   progressBarFill: {
-    height: 4,
+    height: 5,
     backgroundColor: theme.colors.pickleGreen,
   },
   stepsCarouselContainer: {
-    backgroundColor: theme.colors.bgCard,
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
-    paddingVertical: 8,
+    backgroundColor: theme.colors.bg,
   },
   stepsCarousel: {
     paddingHorizontal: 16,
     gap: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
   },
   stepPill: {
+    minWidth: 44,
+    height: 36,
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 14,
-    backgroundColor: theme.colors.bgCardElevated,
+    borderRadius: 18,
+    backgroundColor: theme.colors.bgCard,
     borderWidth: 1,
     borderColor: theme.colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   stepPillCurrent: {
     backgroundColor: theme.colors.pickleGreen,
@@ -407,32 +653,29 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.pickleGreen,
   },
   stepPillText: {
+    fontSize: 13,
+    fontWeight: '800',
     color: theme.colors.textSecondary,
-    fontSize: 12,
-    fontWeight: '700',
   },
   stepPillTextCurrent: {
     color: '#FFFFFF',
-    fontWeight: '800',
   },
   stepPillTextPast: {
     color: theme.colors.pickleGreenLight,
-    fontWeight: '700',
   },
   mainContent: {
     flex: 1,
   },
   mainContentInner: {
-    padding: 20,
-    paddingBottom: 36,
+    padding: 18,
+    paddingBottom: 32,
   },
   heroStepCard: {
     backgroundColor: theme.colors.bgCard,
+    borderRadius: theme.borderRadius.lg,
     borderWidth: 1.5,
-    borderColor: theme.colors.border,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
+    borderColor: theme.colors.pickleGreen,
+    padding: 22,
   },
   heroStepBadgeRow: {
     flexDirection: 'row',
@@ -441,72 +684,170 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   stepNumBubble: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: theme.colors.pickleGreen,
     alignItems: 'center',
     justifyContent: 'center',
   },
   stepNumBubbleText: {
     color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '800',
+    fontSize: 18,
+    fontWeight: '900',
   },
   heroStepLabel: {
-    color: theme.colors.pickleGreen,
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '800',
     letterSpacing: 1,
+    color: theme.colors.pickleGreen,
   },
   heroStepInstruction: {
-    color: theme.colors.textPrimary,
     fontSize: 21,
+    lineHeight: 31,
     fontWeight: '800',
-    lineHeight: 30,
-    marginBottom: 20,
-    letterSpacing: 0.2,
+    color: theme.colors.textPrimary,
+    marginBottom: 18,
+  },
+  autoTimerCard: {
+    backgroundColor: theme.colors.bgCardElevated,
+    borderWidth: 1.5,
+    borderColor: theme.colors.amberBrine,
+    borderRadius: theme.borderRadius.md,
+    padding: 16,
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  autoTimerCardFinished: {
+    borderColor: theme.colors.pickleGreen,
+    backgroundColor: theme.colors.pickleGreenMuted,
+  },
+  autoTimerHeader: {
+    marginBottom: 6,
+  },
+  autoTimerBadge: {
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 0.8,
+    color: theme.colors.amberBrine,
+  },
+  autoTimerDigits: {
+    fontSize: 48,
+    fontWeight: '900',
+    color: theme.colors.textPrimary,
+    fontVariant: ['tabular-nums'],
+    marginVertical: 6,
+  },
+  autoTimerControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 8,
+  },
+  timerDeltaBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: theme.colors.bgCard,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    minHeight: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  timerDeltaText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: theme.colors.textSecondary,
+  },
+  timerMainBtn: {
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: theme.colors.pickleGreen,
+    minHeight: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  timerMainBtnPause: {
+    backgroundColor: theme.colors.amberBrine,
+  },
+  timerMainBtnText: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#FFFFFF',
+  },
+  manualTimerRow: {
+    backgroundColor: theme.colors.bgCardElevated,
+    borderRadius: theme.borderRadius.md,
+    padding: 12,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  manualTimerHint: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: theme.colors.textMuted,
+    marginBottom: 8,
+  },
+  manualTimerBtns: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  manualTimerChip: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 14,
+    backgroundColor: theme.colors.bgCard,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  manualTimerChipText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: theme.colors.textSecondary,
   },
   tipBox: {
     backgroundColor: theme.colors.bgCardElevated,
+    borderRadius: theme.borderRadius.md,
+    padding: 14,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    borderRadius: 12,
-    padding: 14,
     marginBottom: 12,
   },
   tipTitle: {
-    color: theme.colors.pickleGreen,
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '800',
+    color: theme.colors.pickleGreen,
     marginBottom: 4,
   },
   tipText: {
+    fontSize: 14,
+    lineHeight: 20,
     color: theme.colors.textSecondary,
-    fontSize: 13,
-    lineHeight: 18,
   },
   craftTipBox: {
     backgroundColor: theme.colors.bgCardElevated,
-    borderWidth: 1,
-    borderColor: theme.colors.amberBrine,
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
     padding: 14,
+    borderLeftWidth: 3,
+    borderLeftColor: theme.colors.amberBrine,
   },
   craftTipTitle: {
-    color: theme.colors.amberBrine,
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '800',
+    color: theme.colors.amberBrine,
     marginBottom: 4,
   },
   craftTipText: {
+    fontSize: 14,
+    lineHeight: 20,
     color: theme.colors.textSecondary,
-    fontSize: 13,
-    lineHeight: 18,
   },
   footer: {
-    paddingHorizontal: 20,
-    paddingVertical: 14,
+    padding: 16,
     borderTopWidth: 1,
     borderTopColor: theme.colors.border,
     backgroundColor: theme.colors.bgCard,
@@ -518,44 +859,48 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   prevBtn: {
-    paddingVertical: 12,
+    paddingVertical: 14,
     paddingHorizontal: 16,
     borderRadius: theme.borderRadius.md,
     backgroundColor: theme.colors.bgCardElevated,
     borderWidth: 1,
     borderColor: theme.colors.border,
+    minHeight: 52,
+    justifyContent: 'center',
   },
   prevBtnText: {
-    color: theme.colors.textSecondary,
     fontSize: 14,
     fontWeight: '700',
+    color: theme.colors.textSecondary,
   },
   nextBtn: {
     flex: 1,
-    paddingVertical: 14,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
     borderRadius: theme.borderRadius.md,
     backgroundColor: theme.colors.pickleGreen,
     alignItems: 'center',
     justifyContent: 'center',
+    minHeight: 52,
   },
   nextBtnText: {
+    fontSize: 16,
+    fontWeight: '900',
     color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '800',
   },
   finishBtn: {
     flex: 1,
-    paddingVertical: 14,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
     borderRadius: theme.borderRadius.md,
     backgroundColor: theme.colors.pickleGreen,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: '#7FD655',
+    minHeight: 52,
   },
   finishBtnText: {
+    fontSize: 16,
+    fontWeight: '900',
     color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '800',
   },
 });

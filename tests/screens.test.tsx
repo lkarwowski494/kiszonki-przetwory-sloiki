@@ -62,12 +62,15 @@ describe('RNTL Screen Tests (7 Tras Aplikacji, BR-TEST-016..020)', () => {
   });
 
   // --------------------------------------------------------------------------
-  // Trasa 5: app/settings.tsx (Ustawienia & Kopia)
+  // Trasa 5: app/settings.tsx oraz app/(tabs)/ustawienia.tsx (Ustawienia & Kopia)
   // --------------------------------------------------------------------------
-  test('Trasa 5: /settings renderuje przełącznik jednostek i zarządzanie kopiami', async () => {
+  test('Trasa 5: /settings oraz /(tabs)/ustawienia renderują przełącznik jednostek i zarządzanie kopiami', async () => {
     const { toJSON } = await renderApp({ route: '/settings' });
     const jsonStr = JSON.stringify(toJSON());
     expect(jsonStr).toContain('Język & Jednostki');
+
+    const tabRes = await renderApp({ route: '/(tabs)/ustawienia' });
+    expect(JSON.stringify(tabRes.toJSON())).toContain('Język & Jednostki');
   });
 
   // --------------------------------------------------------------------------
