@@ -38,7 +38,10 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Run verification with random seed & 1000 runs
         run: npm run verify
+
+      - name: Run mutation tests (Stryker)
+        run: npm run test:mutation

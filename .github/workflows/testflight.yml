@@ -21,6 +21,10 @@ jobs:
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Weryfikacja przodka gałęzi głównej (BR-REL-005)
+        run: git merge-base --is-ancestor "$GITHUB_SHA" origin/master
       - name: Select Xcode 26.x
         run: bash scripts/ci/select-xcode.sh 26
       - uses: actions/setup-node@v4

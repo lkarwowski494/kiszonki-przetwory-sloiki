@@ -19,6 +19,7 @@
     "check:corpus": "node scripts/check-corpus.mjs",
     "verify:native": "node scripts/verify-native.mjs",
     "generate:assets": "node scripts/generate-assets.mjs",
+    "test:mutation": "stryker run",
     "verify": "npm run typecheck && npm test && npm run check:corpus && npm run check:i18n && npm run check:matrix && npm run check:maestro && npm run check:licenses && npm run verify:native"
   },
   "dependencies": {
@@ -47,6 +48,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.0",
+    "@stryker-mutator/core": "^10.0.0",
+    "@stryker-mutator/jest-runner": "^10.0.0",
     "@types/jest": "^29.5.14",
     "@types/react": "~19.2.10",
     "@types/react-test-renderer": "^19.3.0",
