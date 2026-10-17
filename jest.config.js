@@ -5,6 +5,7 @@ module.exports = {
     '<rootDir>/dist/tests/**/*.test.js',
   ],
   moduleFileExtensions: ['js', 'json', 'node'],
+  modulePathIgnorePatterns: ['<rootDir>/.stryker-tmp/'],
   setupFiles: ['<rootDir>/jest.setup.js'],
   setupFilesAfterEnv: ['<rootDir>/jest.after-env.js'],
   collectCoverageFrom: [

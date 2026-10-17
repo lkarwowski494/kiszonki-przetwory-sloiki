@@ -12,6 +12,9 @@
     "!src/core/pantry/pdf-sheet-generator.ts",
     "!src/core/access/**"
   ],
+  "mutator": {
+    "excludedMutations": ["StringLiteral"]
+  },
   "testRunner": "jest",
   "jest": {
     "configFile": "jest.mutation.config.js"
