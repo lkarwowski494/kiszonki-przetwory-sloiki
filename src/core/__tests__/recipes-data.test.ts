@@ -4,12 +4,12 @@ import {
   getRecipesByCategory,
 } from '../recipes/recipes-data';
 
-describe('Baza 46 Mistrzowskich Receptur Świata (Master Recipes)', () => {
-  it('zawiera dokładnie 46 fabrycznych receptur (REC-01 do REC-46)', () => {
-    expect(MASTER_RECIPES.length).toBe(46);
+describe('Baza 155 Mistrzowskich Receptur Świata (Master Recipes)', () => {
+  it('zawiera dokładnie 155 fabrycznych receptur (REC-01 do REC-155)', () => {
+    expect(MASTER_RECIPES.length).toBe(155);
 
     const ids = MASTER_RECIPES.map((r) => r.id);
-    for (let i = 1; i <= 46; i++) {
+    for (let i = 1; i <= 155; i++) {
       const expectedId = `REC-${i.toString().padStart(2, '0')}`;
       expect(ids).toContain(expectedId);
     }
@@ -42,22 +42,30 @@ describe('Baza 46 Mistrzowskich Receptur Świata (Master Recipes)', () => {
     expect(tepache).toBeDefined();
     expect(tepache?.title).toContain('Tepache');
 
+    const umeboshi = getRecipeById('REC-78');
+    expect(umeboshi).toBeDefined();
+    expect(umeboshi?.title).toContain('Umeboshi');
+
+    const spruceBeer = getRecipeById('REC-155');
+    expect(spruceBeer).toBeDefined();
+    expect(spruceBeer?.title).toContain('Piwo świerkowe');
+
     const polishRecipes = getRecipesByCategory('poland_central_europe');
-    expect(polishRecipes.length).toBe(10);
+    expect(polishRecipes.length).toBe(30);
 
     const asianRecipes = getRecipesByCategory('east_asia');
-    expect(asianRecipes.length).toBe(9);
+    expect(asianRecipes.length).toBe(28);
 
     const mideastRecipes = getRecipesByCategory('mideast_maghreb_india');
-    expect(mideastRecipes.length).toBe(7);
+    expect(mideastRecipes.length).toBe(26);
 
     const americasRecipes = getRecipesByCategory('americas_mediterranean');
-    expect(americasRecipes.length).toBe(8);
+    expect(americasRecipes.length).toBe(28);
 
     const sweetRecipes = getRecipesByCategory('sweet_preserves');
-    expect(sweetRecipes.length).toBe(8);
+    expect(sweetRecipes.length).toBe(23);
 
     const drinksAndVinegars = getRecipesByCategory('drinks_vinegars');
-    expect(drinksAndVinegars.length).toBe(4);
+    expect(drinksAndVinegars.length).toBe(20);
   });
 });

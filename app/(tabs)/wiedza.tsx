@@ -140,7 +140,7 @@ export default function WiedzaScreen() {
             </View>
           </View>
           <Text style={styles.tagline}>
-            {t('46 Receptur Świata oraz Doktor Mikrobiologiczny ratujący słoiki.')}
+            {t('155 Receptur Świata oraz Doktor Mikrobiologiczny ratujący słoiki.')}
           </Text>
         </View>
 

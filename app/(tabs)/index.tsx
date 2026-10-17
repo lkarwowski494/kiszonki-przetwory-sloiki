@@ -516,7 +516,7 @@ export default function RitualScreen() {
                 ritualMode === 'recipes' && styles.modeTabBtnTextActive,
               ]}
             >
-              📜 {t('Receptury (46)')}
+              📜 {t('Receptury (155)')}
             </Text>
           </TouchableOpacity>
 
@@ -638,7 +638,7 @@ export default function RitualScreen() {
             <SearchField
               query={recipeSearch}
               onChangeQuery={setRecipeSearch}
-              placeholder={t('Szukaj wśród 46 receptur...')}
+              placeholder={t('Szukaj wśród 155 receptur...')}
             />
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recipesScroll}>
