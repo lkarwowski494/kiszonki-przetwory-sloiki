@@ -1,7 +1,7 @@
 // ============================================================================
-// Słoik (Jarwise) — Rytuał (Główny Warsztat & Active Focus)
-// Apps4Craft Studio — Czyste Rzemiosło, Ergonomia Blatu Kuchennego.
-// 1-Tap waga, Święte Liczby, Zegar kuchenny, Sprzęt rzemieślnika.
+// Słoik (Jarwise) — Rytuał 2.0 (Kompaktowa Checklista 4 Kroków + Okna Modalne)
+// Każdy krok procesu jest zwięzłą kartą na jednym ekranie, a wybór i edycja
+// parametrów otwierają się w dedykowanym oknie z przyciskami Powrót / Zatwierdź.
 // ============================================================================
 
 import React, { useState, useEffect } from 'react';
@@ -14,19 +14,17 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Alert,
+  Modal,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { calculateBrine } from '../../src/core/brine/brine-calculator';
-import { evaluatePasteurizationSafety } from '../../src/core/safety/safety-guard';
 import { scheduleFermentationAlerts } from '../../src/core/notifications/kitchen-notifications';
 import { calculateFermentationTimeline } from '../../src/core/timeline/fermentation-timeline';
 import { dbStore, CustomEquipmentRecord, BatchRecord } from '../../src/data/db/database';
 import { theme } from '../../src/ui/theme';
 import { KitchenCard } from '../../src/ui/components/KitchenCard';
-import { KitchenButton } from '../../src/ui/components/KitchenButton';
 import { Badge } from '../../src/ui/components/Badge';
 import { SacredNumbersBar } from '../../src/ui/components/SacredNumbersBar';
-import { ActiveFocusTimer } from '../../src/ui/components/ActiveFocusTimer';
 import { CraftOnboardingModal, CraftProfileId } from '../../src/ui/components/CraftOnboardingModal';
 import { QuickStartGuideModal } from '../../src/ui/components/QuickStartGuideModal';
 import { AppTourModal } from '../../src/ui/components/AppTourModal';
@@ -62,119 +60,22 @@ export const PRODUCE_CATEGORIES: { id: ProduceFilterCategory; label: string; ico
 
 export const getProduceCategory = (id: string): 'leafy' | 'veggies' | 'root' | 'aroma' => {
   if (['cabbage_white', 'cabbage_red', 'cabbage_napa'].includes(id)) return 'leafy';
-  if (['cucumber', 'bell_pepper', 'hot_pepper', 'cauliflower', 'radish', 'tomato', 'zucchini', 'green_beans'].includes(id)) return 'veggies';
+  if (
+    [
+      'cucumber',
+      'bell_pepper',
+      'hot_pepper',
+      'cauliflower',
+      'radish',
+      'tomato',
+      'zucchini',
+      'green_beans',
+    ].includes(id)
+  )
+    return 'veggies';
   if (['carrot', 'beet', 'ginger', 'pumpkin'].includes(id)) return 'root';
   return 'aroma';
 };
-
-interface RitualPreset {
-  id: string;
-  name: string;
-  profile: CraftProfileId | 'all';
-  salinity: number;
-  isDrySalting: boolean;
-  waterRatio: number;
-  herbs: string;
-  defaultProduceGrams: number;
-}
-
-const RITUAL_PRESETS: RitualPreset[] = [
-  // Klasyka Domowa
-  {
-    id: 'malosolne',
-    name: '🥒 Ogórki małosolne (48h)',
-    profile: 'classic_pickles',
-    salinity: 2.0,
-    isDrySalting: false,
-    waterRatio: 0.8,
-    herbs: 'Czosnek (2 ząbki), baldach kopru, kawałek chrzanu, liść dębu',
-    defaultProduceGrams: 1000,
-  },
-  {
-    id: 'ogorki_zima',
-    name: '🥒 Ogórki kiszone na zimę',
-    profile: 'classic_pickles',
-    salinity: 2.5,
-    isDrySalting: false,
-    waterRatio: 0.8,
-    herbs: 'Czosnek (3 ząbki), chrzan, koper, gorczyca, ziele angielskie',
-    defaultProduceGrams: 1500,
-  },
-  {
-    id: 'kapusta',
-    name: '🥬 Kiszona kapusta z kminkiem',
-    profile: 'classic_pickles',
-    salinity: 2.0,
-    isDrySalting: true,
-    waterRatio: 0,
-    herbs: 'Kminek całe ziarno, starta marchew (opcjonalnie)',
-    defaultProduceGrams: 2000,
-  },
-  {
-    id: 'buraki',
-    name: '🟣 Zakwas z buraków',
-    profile: 'classic_pickles',
-    salinity: 2.0,
-    isDrySalting: false,
-    waterRatio: 1.0,
-    herbs: 'Czosnek, liść laurowy, ziele angielskie, skórka chleba żytniego',
-    defaultProduceGrams: 1000,
-  },
-
-  // Fermenty Świata
-  {
-    id: 'kimchi',
-    name: '🌶️ Baechu-Kimchi',
-    profile: 'world_ferments',
-    salinity: 2.5,
-    isDrySalting: true,
-    waterRatio: 0,
-    herbs: 'Gochugaru, imbir, czosnek, rzodkiew mu, dymka',
-    defaultProduceGrams: 1500,
-  },
-  {
-    id: 'tursu',
-    name: '🧄 Tursu (Bliskowschodnie Pikle)',
-    profile: 'world_ferments',
-    salinity: 3.0,
-    isDrySalting: false,
-    waterRatio: 0.85,
-    herbs: 'Kolendra w ziarnach, czosnek, ocet winny 1 łyżka, chili',
-    defaultProduceGrams: 1200,
-  },
-  {
-    id: 'jalapeno',
-    name: '🔥 Fermentowane Jalapeño & Habanero',
-    profile: 'world_ferments',
-    salinity: 3.5,
-    isDrySalting: false,
-    waterRatio: 0.9,
-    herbs: 'Ziele angielskie, czosnek, oregano meksykańskie',
-    defaultProduceGrams: 600,
-  },
-
-  // Spiżarnia & Weki
-  {
-    id: 'dzem_truskawka',
-    name: '🍓 Konfitura truskawkowa z pektyną',
-    profile: 'canning_pantry',
-    salinity: 0.0,
-    isDrySalting: true,
-    waterRatio: 0,
-    herbs: 'Cukier trzcinowy 300g, sok z cytryny, pektyna jabłkowa',
-    defaultProduceGrams: 1000,
-  },
-  {
-    id: 'przecier_pomidor',
-    name: '🍅 Passata pomidorowa na zimę',
-    profile: 'canning_pantry',
-    salinity: 1.0,
-    isDrySalting: true,
-    waterRatio: 0,
-    herbs: 'Sól kamienna, świeża bazylia, oliwa z oliwek na wierzch',
-    defaultProduceGrams: 2500,
-  },
-];
 
 const CLASSIC_RECIPE_IDS = new Set([
   'REC-01',
@@ -202,72 +103,173 @@ const RECIPE_CATEGORIES: { label: string; value: RecipeCategory | 'all' | 'class
   { label: 'Napoje', value: 'drinks_vinegars' },
 ];
 
+const QUICK_HERB_CHIPS = [
+  'Czosnek (3 ząbki)',
+  'Baldach kopru',
+  'Korzeń chrzanu',
+  'Liść dębu / wiśni',
+  'Gorczyca biała',
+  'Ziele angielskie',
+  'Liść laurowy',
+  'Kminek cały',
+  'Imbir świeży',
+  'Płatki chili / Gochugaru',
+];
+
 export default function RitualScreen() {
   const router = useRouter();
   const { canCreate } = useAppAccess();
   useLang();
   const unitSystem = useUnitSystem();
 
-  // Onboarding profile
+  // Onboarding i przewodniki
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
-  const [activeProfile, setActiveProfile] = useState<CraftProfileId>(
+  const [, setActiveProfile] = useState<CraftProfileId>(
     dbStore.getOnboardingProfile() || 'classic_pickles'
   );
-
-  // Modale
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const [isTourOpen, setIsTourOpen] = useState(false);
   const [isPaywallOpen, setIsPaywallOpen] = useState(false);
   const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
   const [isCustomRecipeModalOpen, setIsCustomRecipeModalOpen] = useState(false);
   const [isProcedureModalOpen, setIsProcedureModalOpen] = useState(false);
 
-  // Stan wybranego nastawu
-  const [selectedPresetId, setSelectedPresetId] = useState<string>('malosolne');
-  const [produceWeightNum, setProduceWeightNum] = useState<number>(1000);
-  const [equipmentList, setEquipmentList] = useState<CustomEquipmentRecord[]>([]);
-  const [selectedEquipmentId, setSelectedEquipmentId] = useState<string>('eq_weck_1000');
+  // Nowe okna wyboru dla poszczególnych kroków (żeby nie rozciągać ekranu głównego)
+  const [isFreeformModalOpen, setIsFreeformModalOpen] = useState(false);
+  const [isRecipesModalOpen, setIsRecipesModalOpen] = useState(false);
+  const [isWeightModalOpen, setIsWeightModalOpen] = useState(false);
+  const [isIngredientsModalOpen, setIsIngredientsModalOpen] = useState(false);
 
-  // Zaawansowane opcje
-  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
-  const [customTitle, setCustomTitle] = useState('');
-  const [customSalinityPct, setCustomSalinityPct] = useState<number>(2.0);
-  const [isDrySaltingCustom, setIsDrySaltingCustom] = useState<boolean>(false);
-
-  // Przewodnik Pierwsze Kroki (Złote Zasady) & Przewodnik po Funkcjach Aplikacji
-  const [isGuideOpen, setIsGuideOpen] = useState(false);
-  const [isTourOpen, setIsTourOpen] = useState(false);
-
-  // Tryb wyboru nastawu (2 ścieżki: Styl Dowolny vs Gotowe Receptury z Klasykami)
+  // Stan KROKU 1: Co kisimy? ('freeform' lub 'recipe')
   const [ritualMode, setRitualMode] = useState<'freeform' | 'recipes'>('freeform');
   const [selectedProduce, setSelectedProduce] = useState<string[]>(['cucumber']);
   const [produceCategory, setProduceCategory] = useState<ProduceFilterCategory>('all');
   const [recipeCategory, setRecipeCategory] = useState<RecipeCategory | 'all' | 'classics'>('classics');
   const [recipeSearch, setRecipeSearch] = useState<string>('');
+  const [selectedMasterRecipeId, setSelectedMasterRecipeId] = useState<string>('REC-01');
+
+  // Stan parametrów nastawu (w pełni edytowalny zarowno dla Stylu Dowolnego jak i Receptury!)
+  const [produceWeightNum, setProduceWeightNum] = useState<number>(1000);
+  const [customTitle, setCustomTitle] = useState<string>('');
+  const [customSalinityPct, setCustomSalinityPct] = useState<number>(2.0);
+  const [isDrySaltingCustom, setIsDrySaltingCustom] = useState<boolean>(false);
+  const [customFermentationDays, setCustomFermentationDays] = useState<number>(4);
+  const [customHerbsText, setCustomHerbsText] = useState<string>('');
+  const [hasCustomizedParams, setHasCustomizedParams] = useState<boolean>(false);
+
+  // Sprzęt
+  const [equipmentList, setEquipmentList] = useState<CustomEquipmentRecord[]>([]);
+  const [selectedEquipmentId, setSelectedEquipmentId] = useState<string>('eq_weck_1000');
+
+  useEffect(() => {
+    const profile = dbStore.getOnboardingProfile();
+    if (profile) setActiveProfile(profile);
+
+    const eq = dbStore.getCustomEquipment();
+    setEquipmentList(eq);
+    if (eq.length > 0) setSelectedEquipmentId(eq[0].id);
+  }, []);
 
   const freeformSuggestion = composeFreeformRecipe(selectedProduce, produceWeightNum);
+  const allAvailableRecipes = [...dbStore.getCustomRecipes(), ...MASTER_RECIPES];
+  const selectedMasterRecipe: MasterRecipe =
+    allAvailableRecipes.find((r) => r.id === selectedMasterRecipeId) || MASTER_RECIPES[0];
 
+  // Wyliczenie aktywnych parametrów (uwzględniające ręczne modyfikacje użytkownika)
+  const activeSalinity = hasCustomizedParams
+    ? customSalinityPct
+    : ritualMode === 'freeform'
+    ? freeformSuggestion.recommendedSalinityPercent
+    : selectedMasterRecipe.defaultSalinityPercent;
+
+  const isDrySalting = hasCustomizedParams
+    ? isDrySaltingCustom
+    : ritualMode === 'freeform'
+    ? freeformSuggestion.isDrySalting
+    : selectedMasterRecipe.method === 'sweet_preserve' ||
+      selectedMasterRecipe.title.toLowerCase().includes('kapust') ||
+      selectedMasterRecipe.title.toLowerCase().includes('kimchi') ||
+      selectedMasterRecipe.title.toLowerCase().includes('cytryn');
+
+  const activeFermentationDays = hasCustomizedParams
+    ? customFermentationDays
+    : ritualMode === 'freeform'
+    ? freeformSuggestion.fermentationDays
+    : selectedMasterRecipe.fermentationDays;
+
+  const waterRatio = isDrySalting ? 0 : ritualMode === 'freeform' ? 0.6 : 0.8;
+
+  const brineCalculation = calculateBrine({
+    method: isDrySalting ? 'dry_salting' : 'total_mass',
+    targetSalinityPercent: activeSalinity,
+    produceWeightGrams: produceWeightNum,
+    waterWeightGrams: isDrySalting ? 0 : Math.round(produceWeightNum * waterRatio),
+  });
+
+  const selectedEquipment =
+    equipmentList.find((e) => e.id === selectedEquipmentId) || equipmentList[0];
+
+  const activeRecipeTitle =
+    customTitle.trim() ||
+    (ritualMode === 'freeform' ? freeformSuggestion.title : selectedMasterRecipe.title);
+
+  const activeRecipeCulture =
+    ritualMode === 'freeform' ? t('Styl Dowolny') : selectedMasterRecipe.culture;
+
+  const activeRecipeHerbs =
+    customHerbsText.trim() ||
+    (ritualMode === 'freeform'
+      ? freeformSuggestion.suggestedHerbs.join(', ')
+      : selectedMasterRecipe.ingredients.map((i) => `${i.name} (${i.amount})`).join(', '));
+
+  const activeRecipeSteps =
+    ritualMode === 'freeform' ? freeformSuggestion.steps : selectedMasterRecipe.steps;
+
+  const activeRecipeCraftTips =
+    ritualMode === 'freeform'
+      ? freeformSuggestion.craftTips
+      : selectedMasterRecipe.crispnessSecrets;
+
+  // Przełączanie warzyw w oknie Stylu Dowolnego
   const handleToggleProduce = (id: string) => {
     setSelectedProduce((prev) => {
-      if (prev.includes(id)) {
-        if (prev.length === 1) return prev;
-        return prev.filter((p) => p !== id);
+      const next = prev.includes(id)
+        ? prev.length === 1
+          ? prev
+          : prev.filter((p) => p !== id)
+        : [...prev, id];
+      const nextSuggestion = composeFreeformRecipe(next, produceWeightNum);
+      if (!hasCustomizedParams) {
+        setCustomSalinityPct(nextSuggestion.recommendedSalinityPercent);
+        setIsDrySaltingCustom(nextSuggestion.isDrySalting);
+        setCustomFermentationDays(nextSuggestion.fermentationDays);
+        setCustomHerbsText(nextSuggestion.suggestedHerbs.join(', '));
       }
-      return [...prev, id];
+      return next;
     });
   };
 
-  const handleApplyFreeform = () => {
-    setCustomTitle(freeformSuggestion.title);
-    setCustomSalinityPct(freeformSuggestion.recommendedSalinityPercent);
-    setIsDrySaltingCustom(freeformSuggestion.isDrySalting);
-    setIsAdvancedOpen(true);
-    Alert.alert(
-      t('Zastosowano Styl Dowolny! 🫙'),
-      t('Parametry autorskiego nastawu zostały załadowane do kalkulatora blatu kuchennego.')
-    );
+  // Otwarcie okna Stylu Dowolnego z inicjalizacją pól edycji
+  const openFreeformModal = () => {
+    setRitualMode('freeform');
+    if (!hasCustomizedParams) {
+      setCustomSalinityPct(freeformSuggestion.recommendedSalinityPercent);
+      setIsDrySaltingCustom(freeformSuggestion.isDrySalting);
+      setCustomFermentationDays(freeformSuggestion.fermentationDays);
+      setCustomHerbsText(freeformSuggestion.suggestedHerbs.join(', '));
+    }
+    setIsFreeformModalOpen(true);
   };
 
-  const handleSelectMasterRecipe = (recipe: MasterRecipe) => {
-    setSelectedPresetId(`rec_${recipe.id.toLowerCase()}`);
+  // Otwarcie okna Gotowych Receptur
+  const openRecipesModal = () => {
+    setIsRecipesModalOpen(true);
+  };
+
+  // Wybór gotowej receptury w oknie modalnym
+  const handlePickMasterRecipeInModal = (recipe: MasterRecipe) => {
+    setRitualMode('recipes');
+    setSelectedMasterRecipeId(recipe.id);
     setCustomTitle(recipe.title);
     setCustomSalinityPct(recipe.defaultSalinityPercent);
     setProduceWeightNum(recipe.defaultProduceWeightGrams);
@@ -277,17 +279,10 @@ export default function RitualScreen() {
       recipe.title.toLowerCase().includes('kimchi') ||
       recipe.title.toLowerCase().includes('cytryn');
     setIsDrySaltingCustom(isDry);
-    setIsAdvancedOpen(true);
-    Alert.alert(
-      t('Receptura załadowana! 📖'),
-      t('Nastaw "{title}" ({salinity}% soli) jest gotowy do odważenia.', {
-        title: recipe.title,
-        salinity: recipe.defaultSalinityPercent,
-      })
-    );
+    setCustomFermentationDays(recipe.fermentationDays);
+    setCustomHerbsText(recipe.ingredients.map((i) => `${i.name} (${i.amount})`).join(', '));
+    setHasCustomizedParams(true);
   };
-
-  const allAvailableRecipes = [...dbStore.getCustomRecipes(), ...MASTER_RECIPES];
 
   const filteredMasterRecipes = allAvailableRecipes.filter((r) => {
     const matchesCat =
@@ -305,87 +300,40 @@ export default function RitualScreen() {
     return matchesCat && matchesSearch;
   });
 
-  useEffect(() => {
-    const profile = dbStore.getOnboardingProfile();
-    if (profile) setActiveProfile(profile);
-
-    const eq = dbStore.getCustomEquipment();
-    setEquipmentList(eq);
-    if (eq.length > 0) setSelectedEquipmentId(eq[0].id);
-  }, []);
-
-  const currentPreset =
-    RITUAL_PRESETS.find((p) => p.id === selectedPresetId) || RITUAL_PRESETS[0];
-
-  // Filtruj presety według aktywnego profilu (lub pokaż wszystkie jeśli brak dopasowania)
-  const visiblePresets = RITUAL_PRESETS.filter(
-    (p) => p.profile === activeProfile || p.profile === 'all'
-  );
-  const displayPresets = visiblePresets.length > 0 ? visiblePresets : RITUAL_PRESETS;
-
-  // Obliczenia solanki
-  const activeSalinity = isAdvancedOpen
-    ? customSalinityPct
-    : ritualMode === 'freeform'
-    ? freeformSuggestion.recommendedSalinityPercent
-    : currentPreset.salinity;
-
-  const isDrySalting = isAdvancedOpen
-    ? isDrySaltingCustom
-    : ritualMode === 'freeform'
-    ? freeformSuggestion.isDrySalting
-    : currentPreset.isDrySalting;
-
-  const waterRatio = isDrySalting
-    ? 0
-    : ritualMode === 'freeform'
-    ? 0.5
-    : currentPreset.waterRatio;
-
-  const brineCalculation = calculateBrine({
-    method: isDrySalting ? 'dry_salting' : 'total_mass',
-    targetSalinityPercent: activeSalinity,
-    produceWeightGrams: produceWeightNum,
-    waterWeightGrams: isDrySalting ? 0 : Math.round(produceWeightNum * waterRatio),
-  });
-
-  const selectedEquipment =
-    equipmentList.find((e) => e.id === selectedEquipmentId) || equipmentList[0];
-
-  // Szybkie dodawanie wagi
   const handleAddWeight = (deltaGrams: number) => {
     setProduceWeightNum((prev) => Math.max(100, prev + deltaGrams));
   };
 
-  const activeRecipeTitle =
-    customTitle.trim() ||
-    (ritualMode === 'freeform'
-      ? freeformSuggestion.title
-      : currentPreset.name.replace(/^[^\s]+\s*/, ''));
+  const handleAdjustSalinity = (delta: number) => {
+    setHasCustomizedParams(true);
+    setCustomSalinityPct((prev) => {
+      const base = hasCustomizedParams ? prev : activeSalinity;
+      return Math.round(Math.min(8.0, Math.max(0.5, base + delta)) * 10) / 10;
+    });
+  };
 
-  const activeRecipeCulture =
-    ritualMode === 'freeform'
-      ? 'Styl Dowolny'
-      : (MASTER_RECIPES.find((r) => r.title === customTitle)?.culture) ||
-        (activeProfile === 'world_ferments' ? 'Azja / Świat' : 'Polska');
+  const handleAdjustDays = (delta: number) => {
+    setHasCustomizedParams(true);
+    setCustomFermentationDays((prev) => {
+      const base = hasCustomizedParams ? prev : activeFermentationDays;
+      return Math.max(1, Math.min(90, base + delta));
+    });
+  };
 
-  const activeRecipeHerbs =
-    ritualMode === 'freeform'
-      ? freeformSuggestion.suggestedHerbs.join(', ')
-      : (MASTER_RECIPES.find((r) => r.title === customTitle)?.ingredients.map((i) => i.name).join(', ')) ||
-        currentPreset.herbs;
+  const handleToggleHerbChip = (herb: string) => {
+    setHasCustomizedParams(true);
+    const current = (customHerbsText || activeRecipeHerbs)
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (current.includes(herb)) {
+      setCustomHerbsText(current.filter((h) => h !== herb).join(', '));
+    } else {
+      setCustomHerbsText([...current, herb].join(', '));
+    }
+  };
 
-  const activeRecipeSteps =
-    ritualMode === 'freeform'
-      ? freeformSuggestion.steps
-      : (MASTER_RECIPES.find((r) => r.title === customTitle)?.steps) || [];
-
-  const activeRecipeCraftTips =
-    ritualMode === 'freeform'
-      ? freeformSuggestion.craftTips
-      : (MASTER_RECIPES.find((r) => r.title === customTitle)?.crispnessSecrets) || [];
-
-  // Rozpoczęcie nastawu i zapis do bazy
+  // Zapis słoika do bazy
   const handleSaveBatch = () => {
     if (!canCreate) {
       setIsPaywallOpen(true);
@@ -393,7 +341,7 @@ export default function RitualScreen() {
     }
 
     const title = activeRecipeTitle;
-    const recipeId = isAdvancedOpen ? 'CUSTOM' : `REC_${currentPreset.id.toUpperCase()}`;
+    const recipeId = ritualMode === 'recipes' ? selectedMasterRecipe.id : 'CUSTOM_FREEFORM';
     const batchId = `batch_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
 
     const newBatch: BatchRecord = {
@@ -406,12 +354,12 @@ export default function RitualScreen() {
       waterWeightGrams: brineCalculation.waterGrams,
       saltWeightGrams: brineCalculation.saltGrams,
       salinityPercent: activeSalinity,
-      targetFermentationDays: isDrySalting ? 14 : 4,
+      targetFermentationDays: activeFermentationDays,
       status: 'fermenting',
       qrCodeUri: `sloik://batch/${batchId}`,
       createdAt: Date.now(),
       startedAt: Date.now(),
-      notes: `Sprzęt: ${selectedEquipment?.name || 'Słoik 1000 ml'}`,
+      notes: `Sprzęt: ${selectedEquipment?.name || 'Słoik 1000 ml'} | Przyprawy: ${activeRecipeHerbs}`,
     };
     dbStore.saveBatch(newBatch);
 
@@ -427,7 +375,7 @@ export default function RitualScreen() {
         defaultSalinityPercent: newBatch.salinityPercent,
         fermentationDays: newBatch.targetFermentationDays,
         shelfLifeMonths: 12,
-        recommendedJarType: 'Słoik 1000 ml',
+        recommendedJarType: selectedEquipment?.name || 'Słoik 1000 ml',
         ingredients: [],
         steps: [],
         crispnessSecrets: [],
@@ -451,10 +399,15 @@ export default function RitualScreen() {
     );
   };
 
+  const saltTeaspoons = (brineCalculation.saltGrams / 6).toFixed(1);
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.container}>
-        {/* Baner odzyskiwania uszkodzonego stanu (BR-TEST-023 / NFR-INT-008) */}
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Baner odzyskiwania uszkodzonego stanu */}
         {dbStore.isCorrupt() && (
           <View style={styles.corruptBanner} testID="corrupt-recovery-banner">
             <View style={{ flex: 1, marginRight: 8 }}>
@@ -476,10 +429,12 @@ export default function RitualScreen() {
           </View>
         )}
 
-        {/* Nagłówek Rytuału — Czysty prawy górny róg z przewodnikiem */}
+        {/* Nagłówek Rytuału — Czysty prawy górny róg */}
         <View style={styles.header}>
           <View style={styles.titleRow}>
-            <Text style={styles.headerTitleText} numberOfLines={1}>{t('Słoik (Jarwise) 🫙')}</Text>
+            <Text style={styles.headerTitleText} numberOfLines={1}>
+              {t('Słoik (Jarwise) 🫙')}
+            </Text>
             <TouchableOpacity
               onPress={() => setIsTourOpen(true)}
               style={styles.tourHeaderBtn}
@@ -492,518 +447,925 @@ export default function RitualScreen() {
             </TouchableOpacity>
           </View>
           <Text style={styles.tagline}>
-            {t('Rytuał przygotowania, precyzja soli i aktywny zegar blatu kuchennego.')}
+            {t('Checklista nastawu: przejrzyj 4 kroki i edytuj każdy w osobnym oknie.')}
           </Text>
         </View>
 
-        {/* ZŁOTE ZASADY KISZENIA: 5 REGUŁ MISTRZA (STAŁE NA GÓRZE EKRANU) */}
+        {/* ZŁOTE ZASADY KISZENIA — ZWARTY BANER NA GÓRZE */}
         <TouchableOpacity
           style={styles.goldenRulesBanner}
           onPress={() => setIsGuideOpen(true)}
           activeOpacity={0.85}
           accessibilityLabel={t('Złote Zasady Kiszenia: 5 Reguł Mistrza')}
         >
-          <View style={styles.goldenRulesIconBox}>
-            <Text style={styles.goldenRulesEmoji}>📜</Text>
-          </View>
+          <Text style={styles.goldenRulesEmoji}>📜</Text>
           <View style={styles.goldenRulesTextCol}>
-            <View style={styles.goldenRulesBadgeRow}>
-              <Text style={styles.goldenRulesBadge}>{t('FUNDAMENT RZEMIOSŁA')}</Text>
-              <Text style={styles.goldenRulesArrow}>→</Text>
-            </View>
-            <Text style={styles.goldenRulesTitle}>{t('Złote Zasady Kiszenia: 5 Reguł Mistrza')}</Text>
-            <Text style={styles.goldenRulesSubtitle}>
-              {t('Precyzja stężenia soli, beztlenowy słoik, temperatura, odgazowanie i sterylność.')}
+            <Text style={styles.goldenRulesTitle}>
+              {t('Złote Zasady Kiszenia: 5 Reguł Mistrza')}
+            </Text>
+            <Text style={styles.goldenRulesSubtitle} numberOfLines={1}>
+              {t('Sól 2–3%, brak tlenu, temp. 18–22°C, odgazowanie, czysty słoik.')}
             </Text>
           </View>
+          <Text style={styles.goldenRulesArrow}>{t('Otwórz →')}</Text>
         </TouchableOpacity>
 
         {/* ============================================================== */}
-        {/* KROK 1: WYBÓR WARZYW I PRZEPISU                                */}
+        {/* KARTA CHECKLISTY 1: CO DZISIAJ KISIMY?                          */}
         {/* ============================================================== */}
-        <View style={styles.flowSectionHeader}>
-          <View style={styles.flowStepBadge}>
-            <Text style={styles.flowStepBadgeText}>1</Text>
+        <KitchenCard style={styles.checklistCard}>
+          <View style={styles.checklistHeaderRow}>
+            <View style={styles.stepCheckBadge}>
+              <Text style={styles.stepCheckBadgeText}>1</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.checklistStepTitle}>{t('Krok 1: Co dzisiaj kisimy?')}</Text>
+              <Text style={styles.checklistStepSub}>
+                {t('Wybierz warzywa w Stylu Dowolnym lub gotową recepturę w nowym oknie.')}
+              </Text>
+            </View>
+            <Badge
+              label={ritualMode === 'freeform' ? t('Styl Dowolny') : t('Receptura')}
+              variant="green"
+            />
           </View>
-          <View style={styles.flowSectionTextCol}>
-            <Text style={styles.flowSectionTitle}>{t('Krok 1: Co dzisiaj kisimy?')}</Text>
-            <Text style={styles.flowSectionSubtitle}>
-              {t('Wybierz warzywa w Stylu Dowolnym lub sięgnij po gotową recepturę.')}
-            </Text>
+
+          {/* Podsumowanie aktualnie wybranego nastawu */}
+          <View style={styles.currentSummaryBox}>
+            <Text style={styles.currentSummaryLabel}>{t('AKTYWNY NASTAW:')}</Text>
+            <Text style={styles.currentSummaryTitle}>{activeRecipeTitle}</Text>
+            <View style={styles.currentSummaryPills}>
+              <Text style={styles.currentSummaryMeta}>
+                {isDrySalting ? `🥬 ${t('Solenie na sucho')}` : `💧 ${t('Solanka wodna')}`}
+              </Text>
+              <Text style={styles.currentSummaryDot}>•</Text>
+              <Text style={styles.currentSummaryMeta}>
+                🧂 {activeSalinity}% {t('soli')}
+              </Text>
+              <Text style={styles.currentSummaryDot}>•</Text>
+              <Text style={styles.currentSummaryMeta}>
+                ⏳ {activeFermentationDays} {t('dni')}
+              </Text>
+            </View>
           </View>
-        </View>
 
-        {/* PRZEŁĄCZNIK TRYBU (2 ŚCIEŻKI: STYL DOWOLNY vs RECEPTURY Z KLASYKAMI) */}
-        <View style={styles.modeTabsRow}>
-          <TouchableOpacity
-            style={[styles.modeTabBtn, ritualMode === 'freeform' && styles.modeTabBtnActive]}
-            onPress={() => setRitualMode('freeform')}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.modeTabEmoji}>🧪</Text>
-            <Text
+          {/* 2 Przyciski otwierające osobne okna wyboru */}
+          <View style={styles.twoModalButtonsRow}>
+            <TouchableOpacity
               style={[
-                styles.modeTabBtnText,
-                ritualMode === 'freeform' && styles.modeTabBtnTextActive,
+                styles.modalTriggerBtn,
+                ritualMode === 'freeform' && styles.modalTriggerBtnActive,
               ]}
-              numberOfLines={1}
+              onPress={openFreeformModal}
+              activeOpacity={0.85}
             >
-              {t('Styl Dowolny (Mam warzywa)')}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.modeTabBtn, ritualMode === 'recipes' && styles.modeTabBtnActive]}
-            onPress={() => setRitualMode('recipes')}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.modeTabEmoji}>📜</Text>
-            <Text
-              style={[
-                styles.modeTabBtnText,
-                ritualMode === 'recipes' && styles.modeTabBtnTextActive,
-              ]}
-              numberOfLines={1}
-            >
-              {t('Gotowe Receptury (155)')}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* TRYB 1: STYL DOWOLNY */}
-        {ritualMode === 'freeform' && (
-          <View style={styles.freeformBox}>
-            <Text style={styles.freeformSubtitle}>
-              {t('Zaznacz warzywa, które masz w kuchni — aplikacja wyliczy solankę, zioła i technikę:')}
-            </Text>
-
-            {/* KATEGORIE WARZYW (FILTR) */}
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.produceCategoryScroll}
-            >
-              {PRODUCE_CATEGORIES.map((cat) => {
-                const isActive = produceCategory === cat.id;
-                return (
-                  <TouchableOpacity
-                    key={cat.id}
-                    style={[
-                      styles.produceCatChip,
-                      isActive && styles.produceCatChipActive,
-                    ]}
-                    onPress={() => setProduceCategory(cat.id)}
-                    hitSlop={theme.hitSlop}
-                  >
-                    <Text style={styles.produceCatIcon}>{cat.icon}</Text>
-                    <Text
-                      style={[
-                        styles.produceCatText,
-                        isActive && styles.produceCatTextActive,
-                      ]}
-                    >
-                      {t(cat.label)}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
-
-            {/* PODSUMOWANIE WYBRANYCH WARZYW */}
-            <View style={styles.selectedProduceSummary}>
-              <View style={styles.selectedProduceHeader}>
-                <Text style={styles.selectedProduceCount}>
-                  {t('Wybrane składniki ({count}):', { count: selectedProduce.length })}
+              <Text style={styles.modalTriggerEmoji}>🧪</Text>
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={[
+                    styles.modalTriggerTitle,
+                    ritualMode === 'freeform' && styles.modalTriggerTitleActive,
+                  ]}
+                >
+                  {t('Styl Dowolny')}
                 </Text>
-                {selectedProduce.length > 1 && (
-                  <TouchableOpacity
-                    onPress={() => setSelectedProduce(['cucumber'])}
-                    hitSlop={theme.hitSlop}
-                  >
-                    <Text style={styles.clearProduceText}>{t('Zresetuj')}</Text>
-                  </TouchableOpacity>
-                )}
+                <Text style={styles.modalTriggerSub}>
+                  {t('Zaznacz warzywa i parametry →')}
+                </Text>
               </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.modalTriggerBtn,
+                ritualMode === 'recipes' && styles.modalTriggerBtnActive,
+              ]}
+              onPress={openRecipesModal}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.modalTriggerEmoji}>📜</Text>
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={[
+                    styles.modalTriggerTitle,
+                    ritualMode === 'recipes' && styles.modalTriggerTitleActive,
+                  ]}
+                >
+                  {t('Gotowe Receptury')}
+                </Text>
+                <Text style={styles.modalTriggerSub}>
+                  {t('Wybierz z 155 przepisów →')}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </KitchenCard>
+
+        {/* ============================================================== */}
+        {/* KARTA CHECKLISTY 2: WAGA SUROWCA I PARAMETRY SŁOIKA             */}
+        {/* ============================================================== */}
+        <KitchenCard style={styles.checklistCard}>
+          <View style={styles.checklistHeaderRow}>
+            <View style={styles.stepCheckBadge}>
+              <Text style={styles.stepCheckBadgeText}>2</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.checklistStepTitle}>{t('Waga Surowca na Szalce')}</Text>
+              <Text style={styles.checklistStepSub}>
+                {t('Krok 2: Waga warzyw, rozmiar słoika oraz parametry solanki.')}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.compactMetricsRow}>
+            <View style={styles.compactMetricItem}>
+              <Text style={styles.compactMetricLabel}>{t('WAGA WARZYW')}</Text>
+              <Text style={styles.compactMetricValue}>
+                {formatProduceWeight(produceWeightNum, unitSystem)}
+              </Text>
+            </View>
+            <View style={styles.compactMetricDivider} />
+            <View style={styles.compactMetricItem}>
+              <Text style={styles.compactMetricLabel}>{t('NACZYNIE')}</Text>
+              <Text style={styles.compactMetricValue} numberOfLines={1}>
+                {selectedEquipment ? `${selectedEquipment.jarVolumeMl} ml` : '1000 ml'}
+              </Text>
+            </View>
+            <View style={styles.compactMetricDivider} />
+            <View style={styles.compactMetricItem}>
+              <Text style={styles.compactMetricLabel}>{t('STĘŻENIE / CZAS')}</Text>
+              <Text style={styles.compactMetricValue}>
+                {activeSalinity}% · {activeFermentationDays}d
+              </Text>
+            </View>
+          </View>
+
+          <TouchableOpacity
+            style={styles.openStepWindowBtn}
+            onPress={() => setIsWeightModalOpen(true)}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.openStepWindowBtnText}>
+              ⚖️ {t('Zmień wagę surowca, słoik i parametry nastawu →')}
+            </Text>
+          </TouchableOpacity>
+        </KitchenCard>
+
+        {/* ============================================================== */}
+        {/* KARTA CHECKLISTY 3: GRAMATURA SKŁADNIKÓW (ŚWIĘTE PROPORCJE)     */}
+        {/* ============================================================== */}
+        <KitchenCard style={styles.checklistCard}>
+          <View style={styles.checklistHeaderRow}>
+            <View style={styles.stepCheckBadge}>
+              <Text style={styles.stepCheckBadgeText}>3</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.checklistStepTitle}>
+                {t('Krok 3: Święte Proporcje dla Twojej Wagi')}
+              </Text>
+              <Text style={styles.checklistStepSub}>
+                {t('Przeliczona gramatura składników dla wybranego przepisu i ilości surowca.')}
+              </Text>
+            </View>
+          </View>
+
+          <SacredNumbersBar
+            produceWeightGrams={produceWeightNum}
+            waterWeightGrams={brineCalculation.waterGrams}
+            saltWeightGrams={brineCalculation.saltGrams}
+            salinityPercent={activeSalinity}
+            isDrySalting={isDrySalting}
+          />
+
+          <View style={styles.compactHerbsRow}>
+            <Text style={styles.compactHerbsText} numberOfLines={2}>
+              🌿 <Text style={{ fontWeight: '700' }}>{t('Przyprawy:')}</Text> {activeRecipeHerbs}
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            style={styles.openStepWindowBtn}
+            onPress={() => setIsIngredientsModalOpen(true)}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.openStepWindowBtnText}>
+              🌿 {t('Podgląd gramatury i edycja przypraw w nowym oknie →')}
+            </Text>
+          </TouchableOpacity>
+        </KitchenCard>
+
+        {/* ============================================================== */}
+        {/* KARTA CHECKLISTY 4: PROCEDURA NASTAWU I ZAPIS SŁOIKA            */}
+        {/* ============================================================== */}
+        <KitchenCard style={styles.checklistCard}>
+          <View style={styles.checklistHeaderRow}>
+            <View style={styles.stepCheckBadge}>
+              <Text style={styles.stepCheckBadgeText}>4</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.checklistStepTitle}>
+                {t('Krok 4: Procedura i zapis słoika')}
+              </Text>
+              <Text style={styles.checklistStepSub}>
+                {t('Otwórz okno krok po kroku z automatycznym stoperem lub zapisz od razu.')}
+              </Text>
+            </View>
+          </View>
+
+          <TouchableOpacity
+            style={styles.procedureLaunchBtn}
+            onPress={() => setIsProcedureModalOpen(true)}
+            activeOpacity={0.85}
+            accessibilityLabel={t('Zacznij procedurę nastawu krok po kroku')}
+          >
+            <View style={styles.procedureLaunchLeft}>
+              <Text style={styles.procedureLaunchEmoji}>🚀</Text>
+              <View style={styles.procedureLaunchTextCol}>
+                <Text style={styles.procedureLaunchTitle}>
+                  {t('Zacznij procedurę nastawu krok po kroku →')}
+                </Text>
+                <Text style={styles.procedureLaunchSub}>
+                  {t('Nowe okno: duże kroki, auto-stoper oraz przycisk Zakończ i zapisz słoik.')}
+                </Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.mainStartButton}
+            onPress={handleSaveBatch}
+            activeOpacity={0.85}
+            accessibilityLabel={t('Szybki zapis słoika (bez asystenta)')}
+          >
+            <Text style={styles.mainStartButtonText}>
+              {t('🫙 Szybki zapis słoika (bez asystenta)')}
+            </Text>
+          </TouchableOpacity>
+        </KitchenCard>
+
+        {/* ============================================================== */}
+        {/* OKNO MODALNE 1A: KREATOR STYLU DOWOLNEGO (WARZYWA + PARAMETRY)  */}
+        {/* ============================================================== */}
+        <Modal
+          visible={isFreeformModalOpen}
+          animationType="slide"
+          presentationStyle="pageSheet"
+          onRequestClose={() => setIsFreeformModalOpen(false)}
+        >
+          <SafeAreaView style={styles.stepModalSafeArea}>
+            <View style={styles.stepModalHeader}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.stepModalKicker}>{t('KROK 1 • STYL DOWOLNY')}</Text>
+                <Text style={styles.stepModalTitle}>
+                  {t('Zaznacz warzywa i dostosuj parametry')}
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={styles.stepModalCloseIcon}
+                onPress={() => setIsFreeformModalOpen(false)}
+                hitSlop={theme.hitSlop}
+              >
+                <Text style={styles.stepModalCloseIconText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView
+              contentContainerStyle={styles.stepModalScroll}
+              keyboardShouldPersistTaps="handled"
+            >
+              {/* SEKCJA A: ZAZNACZ WARZYWA */}
+              <Text style={styles.modalSectionHeading}>
+                1. {t('Jakie warzywa masz na blacie?')}
+              </Text>
+
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.selectedProduceScroll}
+                contentContainerStyle={styles.produceCategoryScroll}
               >
-                {selectedProduce.map((id) => {
-                  const prod = FREEFORM_PRODUCE.find((p) => p.id === id);
-                  if (!prod) return null;
+                {PRODUCE_CATEGORIES.map((cat) => {
+                  const isActive = produceCategory === cat.id;
                   return (
                     <TouchableOpacity
-                      key={id}
-                      style={styles.selectedProducePill}
-                      onPress={() => handleToggleProduce(id)}
-                      hitSlop={theme.hitSlop}
+                      key={cat.id}
+                      style={[
+                        styles.produceCatChip,
+                        isActive && styles.produceCatChipActive,
+                      ]}
+                      onPress={() => setProduceCategory(cat.id)}
                     >
-                      <Text style={styles.selectedProducePillEmoji}>{prod.emoji}</Text>
-                      <Text style={styles.selectedProducePillText}>{t(prod.name)}</Text>
-                      <Text style={styles.selectedProducePillRemove}>✕</Text>
+                      <Text style={styles.produceCatIcon}>{cat.icon}</Text>
+                      <Text
+                        style={[
+                          styles.produceCatText,
+                          isActive && styles.produceCatTextActive,
+                        ]}
+                      >
+                        {t(cat.label)}
+                      </Text>
                     </TouchableOpacity>
                   );
                 })}
               </ScrollView>
-            </View>
 
-            {/* ZWARTY GRID WARZYW (FILTROWANY) */}
-            <View style={styles.produceGrid}>
-              {FREEFORM_PRODUCE.filter(
-                (p) => produceCategory === 'all' || getProduceCategory(p.id) === produceCategory
-              ).map((prod) => {
-                const isSelected = selectedProduce.includes(prod.id);
-                return (
-                  <TouchableOpacity
-                    key={prod.id}
-                    style={[styles.produceChip, isSelected && styles.produceChipSelected]}
-                    onPress={() => handleToggleProduce(prod.id)}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={{ fontSize: 16 }}>{prod.emoji}</Text>
-                    <Text
-                      style={[
-                        styles.produceChipText,
-                        isSelected && styles.produceChipTextSelected,
-                      ]}
+              <View style={styles.produceGrid}>
+                {FREEFORM_PRODUCE.filter(
+                  (p) => produceCategory === 'all' || getProduceCategory(p.id) === produceCategory
+                ).map((prod) => {
+                  const isSelected = selectedProduce.includes(prod.id);
+                  return (
+                    <TouchableOpacity
+                      key={prod.id}
+                      style={[styles.produceChip, isSelected && styles.produceChipSelected]}
+                      onPress={() => handleToggleProduce(prod.id)}
+                      activeOpacity={0.8}
                     >
-                      {t(prod.name)}
-                    </Text>
-                    {isSelected && <Text style={styles.produceCheck}>✓</Text>}
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-
-            {/* KARTA WYNIKU KOMPOZYCJI */}
-            <KitchenCard style={styles.freeformResultCard}>
-              <Text style={styles.freeformTitle}>{freeformSuggestion.title}</Text>
-              <Text style={styles.freeformSubtitleText}>{freeformSuggestion.subtitle}</Text>
-
-              <View style={styles.freeformBadgesRow}>
-                <Badge
-                  label={freeformSuggestion.isDrySalting ? t('Solenie na sucho') : t('Solanka wodna')}
-                  variant="green"
-                />
-                <Badge
-                  label={`${freeformSuggestion.recommendedSalinityPercent}% ${t('sól')}`}
-                  variant="amber"
-                />
-                <Badge
-                  label={`⏳ ${freeformSuggestion.fermentationDays} ${t('dni')}`}
-                  variant="gray"
-                />
+                      <Text style={{ fontSize: 16 }}>{prod.emoji}</Text>
+                      <Text
+                        style={[
+                          styles.produceChipText,
+                          isSelected && styles.produceChipTextSelected,
+                        ]}
+                      >
+                        {t(prod.name)}
+                      </Text>
+                      {isSelected && <Text style={styles.produceCheck}>✓</Text>}
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
 
-              <Text style={styles.freeformHerbs}>
-                🌿 <Text style={{ fontWeight: '700' }}>{t('Sugerowane zioła:')}</Text>{' '}
-                {freeformSuggestion.suggestedHerbs.join(', ')}
+              {/* SEKCJA B: EDYCJA PARAMETRÓW AUTORSKIEGO NASTAWU */}
+              <Text style={[styles.modalSectionHeading, { marginTop: 18 }]}>
+                2. {t('Dostosuj parametry autorskiego nastawu')}
               </Text>
 
-              <Text style={styles.freeformTip}>
-                💡 {freeformSuggestion.craftTips[0]}
-              </Text>
+              <KitchenCard style={styles.modalEditCard}>
+                <Text style={styles.modalFieldLabel}>{t('Nazwa Twojego nastawu:')}</Text>
+                <TextInput
+                  style={styles.modalTextInput}
+                  value={customTitle}
+                  onChangeText={(txt) => {
+                    setHasCustomizedParams(true);
+                    setCustomTitle(txt);
+                  }}
+                  placeholder={freeformSuggestion.title}
+                  placeholderTextColor={theme.colors.textMuted}
+                />
 
-              <TouchableOpacity
-                style={styles.freeformApplyBtn}
-                onPress={handleApplyFreeform}
-                activeOpacity={0.85}
-              >
-                <Text style={styles.freeformApplyBtnText}>
-                  {t('Zastosuj w kalkulatorze blatu 🫙')}
+                <Text style={[styles.modalFieldLabel, { marginTop: 12 }]}>
+                  {t('Metoda kiszenia:')}
                 </Text>
-              </TouchableOpacity>
-            </KitchenCard>
-          </View>
-        )}
-
-        {/* TRYB 2: GOTOWE RECEPTURY (Z KLASYKAMI JAKO PIERWSZĄ KATEGORIĄ) */}
-        {ritualMode === 'recipes' && (
-          <View style={styles.recipesModeBox}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.recipeCatScroll}>
-              {RECIPE_CATEGORIES.map((cat) => {
-                const isActive = recipeCategory === cat.value;
-                return (
+                <View style={styles.methodToggleRow}>
                   <TouchableOpacity
-                    key={cat.value}
-                    style={[styles.recipeCatChip, isActive && styles.recipeCatChipActive]}
-                    onPress={() => setRecipeCategory(cat.value)}
+                    style={[
+                      styles.methodOptionBtn,
+                      !isDrySalting && styles.methodOptionBtnActive,
+                    ]}
+                    onPress={() => {
+                      setHasCustomizedParams(true);
+                      setIsDrySaltingCustom(false);
+                    }}
                   >
                     <Text
                       style={[
-                        styles.recipeCatChipText,
-                        isActive && styles.recipeCatChipTextActive,
+                        styles.methodOptionText,
+                        !isDrySalting && styles.methodOptionTextActive,
                       ]}
                     >
-                      {t(cat.label)}
+                      💧 {t('Solanka wodna (Zalewa)')}
                     </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.methodOptionBtn,
+                      isDrySalting && styles.methodOptionBtnActive,
+                    ]}
+                    onPress={() => {
+                      setHasCustomizedParams(true);
+                      setIsDrySaltingCustom(true);
+                    }}
+                  >
+                    <Text
+                      style={[
+                        styles.methodOptionText,
+                        isDrySalting && styles.methodOptionTextActive,
+                      ]}
+                    >
+                      🥬 {t('Solenie na sucho (Własny sok)')}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                <Text style={[styles.modalFieldLabel, { marginTop: 12 }]}>
+                  {t('Stężenie soli (%):')}
+                </Text>
+                <View style={styles.stepperControlRow}>
+                  <TouchableOpacity
+                    style={styles.stepperBtn}
+                    onPress={() => handleAdjustSalinity(-0.5)}
+                  >
+                    <Text style={styles.stepperBtnText}>-0.5%</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.stepperValueText}>{activeSalinity.toFixed(1)}%</Text>
+                  <TouchableOpacity
+                    style={styles.stepperBtn}
+                    onPress={() => handleAdjustSalinity(0.5)}
+                  >
+                    <Text style={styles.stepperBtnText}>+0.5%</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <Text style={[styles.modalFieldLabel, { marginTop: 12 }]}>
+                  {t('Docelowy czas fermentacji (dni):')}
+                </Text>
+                <View style={styles.stepperControlRow}>
+                  <TouchableOpacity
+                    style={styles.stepperBtn}
+                    onPress={() => handleAdjustDays(-1)}
+                  >
+                    <Text style={styles.stepperBtnText}>-1 {t('dzień')}</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.stepperValueText}>
+                    {activeFermentationDays} {t('dni')}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.stepperBtn}
+                    onPress={() => handleAdjustDays(1)}
+                  >
+                    <Text style={styles.stepperBtnText}>+1 {t('dzień')}</Text>
+                  </TouchableOpacity>
+                </View>
+              </KitchenCard>
+            </ScrollView>
+
+            {/* DOLNY PASEK AKCJI OKNA: POWRÓT / ZATWIERDŹ */}
+            <View style={styles.stepModalFooter}>
+              <TouchableOpacity
+                style={styles.stepModalBackBtn}
+                onPress={() => setIsFreeformModalOpen(false)}
+              >
+                <Text style={styles.stepModalBackBtnText}>← {t('Powrót')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.stepModalConfirmBtn}
+                onPress={() => {
+                  setRitualMode('freeform');
+                  setIsFreeformModalOpen(false);
+                }}
+              >
+                <Text style={styles.stepModalConfirmBtnText}>
+                  ✓ {t('Zatwierdź wybór')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </SafeAreaView>
+        </Modal>
+
+        {/* ============================================================== */}
+        {/* OKNO MODALNE 1B: KATALOG GOTOWYCH RECEPTUR (155)                */}
+        {/* ============================================================== */}
+        <Modal
+          visible={isRecipesModalOpen}
+          animationType="slide"
+          presentationStyle="pageSheet"
+          onRequestClose={() => setIsRecipesModalOpen(false)}
+        >
+          <SafeAreaView style={styles.stepModalSafeArea}>
+            <View style={styles.stepModalHeader}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.stepModalKicker}>{t('KROK 1 • GOTOWE RECEPTURY')}</Text>
+                <Text style={styles.stepModalTitle}>
+                  {t('Wybierz przepis z katalogu (155)')}
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={styles.stepModalCloseIcon}
+                onPress={() => setIsRecipesModalOpen(false)}
+                hitSlop={theme.hitSlop}
+              >
+                <Text style={styles.stepModalCloseIconText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={{ paddingHorizontal: 16, paddingTop: 10 }}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.recipeCatScroll}
+              >
+                {RECIPE_CATEGORIES.map((cat) => {
+                  const isActive = recipeCategory === cat.value;
+                  return (
+                    <TouchableOpacity
+                      key={cat.value}
+                      style={[styles.recipeCatChip, isActive && styles.recipeCatChipActive]}
+                      onPress={() => setRecipeCategory(cat.value)}
+                    >
+                      <Text
+                        style={[
+                          styles.recipeCatChipText,
+                          isActive && styles.recipeCatChipTextActive,
+                        ]}
+                      >
+                        {t(cat.label)}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+
+              <SearchField
+                query={recipeSearch}
+                onChangeQuery={setRecipeSearch}
+                placeholder={t('Szukaj wśród 155 receptur...')}
+              />
+
+              <TouchableOpacity
+                style={styles.addOwnRecipeInlineBtn}
+                onPress={() => {
+                  setIsRecipesModalOpen(false);
+                  setIsCustomRecipeModalOpen(true);
+                }}
+              >
+                <Text style={styles.addOwnRecipeInlineText}>
+                  + {t('Stwórz własną recepturę krok po kroku')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView
+              contentContainerStyle={styles.stepModalScroll}
+              keyboardShouldPersistTaps="handled"
+            >
+              {filteredMasterRecipes.slice(0, 40).map((recipe) => {
+                const isSelected =
+                  ritualMode === 'recipes' && selectedMasterRecipeId === recipe.id;
+                return (
+                  <TouchableOpacity
+                    key={recipe.id}
+                    style={[
+                      styles.modalRecipeListItem,
+                      isSelected && styles.modalRecipeListItemSelected,
+                    ]}
+                    onPress={() => handlePickMasterRecipeInModal(recipe)}
+                    activeOpacity={0.85}
+                  >
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.recipeCulture}>{recipe.culture}</Text>
+                      <Text style={styles.modalRecipeTitle}>{recipe.title}</Text>
+                      <Text style={styles.modalRecipeSubtitle} numberOfLines={2}>
+                        {recipe.subtitle}
+                      </Text>
+                      <View style={styles.modalRecipeBadges}>
+                        <Badge label={`${recipe.defaultSalinityPercent}% soli`} variant="green" />
+                        <Badge label={`⏳ ${recipe.fermentationDays} dni`} variant="amber" />
+                      </View>
+                    </View>
+                    <View
+                      style={[
+                        styles.recipeRadioCircle,
+                        isSelected && styles.recipeRadioCircleActive,
+                      ]}
+                    >
+                      {isSelected && <Text style={styles.recipeRadioCheck}>✓</Text>}
+                    </View>
                   </TouchableOpacity>
                 );
               })}
             </ScrollView>
 
-            <SearchField
-              query={recipeSearch}
-              onChangeQuery={setRecipeSearch}
-              placeholder={t('Szukaj wśród 155 receptur...')}
-            />
-
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recipesScroll}>
-              {filteredMasterRecipes.slice(0, 20).map((recipe) => (
-                <TouchableOpacity
-                  key={recipe.id}
-                  style={styles.recipeCard}
-                  onPress={() => handleSelectMasterRecipe(recipe)}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.recipeCulture}>{recipe.culture}</Text>
-                  <Text style={styles.recipeCardTitle} numberOfLines={2}>
-                    {recipe.title}
-                  </Text>
-                  <Text style={styles.recipeCardSubtitle} numberOfLines={2}>
-                    {recipe.subtitle}
-                  </Text>
-                  <View style={styles.recipeCardFooter}>
-                    <Badge label={`${recipe.defaultSalinityPercent}%`} variant="green" />
-                    <Text style={styles.recipeCardAction}>{t('Wybierz →')}</Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-        )}
-
-        {/* KARTA AKTYWNEGO NASTAWU (SUMMARY CARD WYBRANEGO PRZEPISU) */}
-        <View style={styles.activeSelectionCard}>
-          <View style={styles.activeSelectionHeader}>
-            <Text style={styles.activeSelectionLabel}>
-              {t('AKTYWNY NASTAW:')}
-            </Text>
-            <Badge
-              label={isDrySalting ? t('Solenie na sucho') : t('Solanka wodna')}
-              variant="green"
-            />
-          </View>
-          <Text style={styles.activeSelectionTitle}>{activeRecipeTitle}</Text>
-          <View style={styles.activeSelectionMetaRow}>
-            <Text style={styles.activeSelectionMetaItem}>
-              🌍 {activeRecipeCulture}
-            </Text>
-            <Text style={styles.activeSelectionMetaDot}>•</Text>
-            <Text style={styles.activeSelectionMetaItem}>
-              🧂 {activeSalinity}% {t('soli')}
-            </Text>
-            <Text style={styles.activeSelectionMetaDot}>•</Text>
-            <Text style={styles.activeSelectionMetaItem}>
-              ⏳ {isDrySalting ? '14-21' : '4-7'} {t('dni')}
-            </Text>
-          </View>
-        </View>
-
-        {/* ============================================================== */}
-        {/* KROK 2: WAGA SUROWCA I NACZYNIE                                */}
-        {/* ============================================================== */}
-        <View style={styles.flowSectionHeader}>
-          <View style={styles.flowStepBadge}>
-            <Text style={styles.flowStepBadgeText}>2</Text>
-          </View>
-          <View style={styles.flowSectionTextCol}>
-            <Text style={styles.flowSectionTitle}>{t('Krok 2: Waga surowca i naczynie')}</Text>
-            <Text style={styles.flowSectionSubtitle}>
-              {t('Zważ surowiec na wadze kuchennej i dobierz odpowiedni słoik.')}
-            </Text>
-          </View>
-        </View>
-
-        {/* KUCHENNA WAGA 1-TAP (PRODUCE WEIGHT BUTTONS) */}
-        <KitchenCard style={styles.weightCard}>
-          <View style={styles.weightHeaderRow}>
-            <Text style={styles.cardHeaderTitle}>{t('Waga Surowca na Szalce')}</Text>
-            <TouchableOpacity
-              onPress={() => setProduceWeightNum(1000)}
-              hitSlop={theme.hitSlop}
-            >
-              <Text style={styles.resetWeightText}>{t('Zresetuj 1 kg')}</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.weightDisplayRow}>
-            <TextInput
-              style={styles.weightInput}
-              keyboardType="decimal-pad"
-              value={String(produceWeightNum)}
-              onChangeText={(v) => setProduceWeightNum(parseInt(v.replace(/,/g, '.'), 10) || 0)}
-              accessibilityLabel={t('Waga surowca na szalce')}
-              accessibilityRole="text"
-              hitSlop={theme.hitSlop}
-            />
-            <Text style={styles.weightUnitText}>
-              {unitSystem === 'imperial' ? 'oz' : 'g'}
-            </Text>
-          </View>
-
-          <View style={styles.quickWeightButtons}>
-            <TouchableOpacity
-              style={styles.weightDeltaBtn}
-              onPress={() => handleAddWeight(100)}
-              hitSlop={theme.hitSlop}
-            >
-              <Text style={styles.weightDeltaText}>+100 g</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.weightDeltaBtn}
-              onPress={() => handleAddWeight(250)}
-              hitSlop={theme.hitSlop}
-            >
-              <Text style={styles.weightDeltaText}>+250 g</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.weightDeltaBtn}
-              onPress={() => handleAddWeight(500)}
-              hitSlop={theme.hitSlop}
-            >
-              <Text style={styles.weightDeltaText}>+500 g</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.weightDeltaBtn}
-              onPress={() => handleAddWeight(1000)}
-              hitSlop={theme.hitSlop}
-            >
-              <Text style={styles.weightDeltaText}>+1 kg</Text>
-            </TouchableOpacity>
-          </View>
-        </KitchenCard>
-
-        {/* SPRZĘT I SŁOIKI RZEMIEŚLNIKA */}
-        <KitchenCard style={styles.equipmentCard}>
-          <View style={styles.weightHeaderRow}>
-            <Text style={styles.cardHeaderTitle}>{t('Słoik / Naczynie')}</Text>
-            <TouchableOpacity
-              onPress={() => setIsEquipmentModalOpen(true)}
-              hitSlop={theme.hitSlop}
-            >
-              <Text style={styles.resetWeightText}>⚙️ {t('Warsztat sprzętu')}</Text>
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 8 }}>
-            {equipmentList.map((eq) => {
-              const isSelected = selectedEquipmentId === eq.id;
-              return (
-                <TouchableOpacity
-                  key={eq.id}
-                  style={[
-                    styles.eqChip,
-                    isSelected && styles.eqChipSelected,
-                  ]}
-                  onPress={() => setSelectedEquipmentId(eq.id)}
-                  hitSlop={theme.hitSlop}
-                >
-                  <Text style={[styles.eqChipText, isSelected && styles.eqChipTextSelected]}>
-                    {eq.name}
-                  </Text>
-                  <Text style={styles.eqChipSub}>
-                    {eq.jarVolumeMl} ml · {eq.sealType}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        </KitchenCard>
-
-        {/* ============================================================== */}
-        {/* KROK 3: WYLICZONE PROPORCJE I ZIOŁA                            */}
-        {/* ============================================================== */}
-        <View style={styles.flowSectionHeader}>
-          <View style={styles.flowStepBadge}>
-            <Text style={styles.flowStepBadgeText}>3</Text>
-          </View>
-          <View style={styles.flowSectionTextCol}>
-            <Text style={styles.flowSectionTitle}>{t('Krok 3: Święte Proporcje dla Twojej Wagi')}</Text>
-            <Text style={styles.flowSectionSubtitle}>
-              {t('Dokładnie wyliczona sól i woda oraz dopasowane aromaty.')}
-            </Text>
-          </View>
-        </View>
-
-        {/* ŚWIĘTE LICZBY FERMENTACJI (SACRED NUMBERS BAR) */}
-        <SacredNumbersBar
-          produceWeightGrams={produceWeightNum}
-          waterWeightGrams={brineCalculation.waterGrams}
-          saltWeightGrams={brineCalculation.saltGrams}
-          salinityPercent={activeSalinity}
-          isDrySalting={isDrySalting}
-        />
-
-        {/* Wskazówki Rzemieślnika */}
-        <View style={styles.herbsTipBox}>
-          <Text style={styles.herbsTipTitle}>🌿 {t('Sugerowane zioła i przyprawy:')}</Text>
-          <Text style={styles.herbsTipText}>{activeRecipeHerbs}</Text>
-          {activeRecipeCraftTips && activeRecipeCraftTips.length > 0 && (
-            <Text style={[styles.freeformTip, { marginTop: 8 }]}>
-              💡 {activeRecipeCraftTips[0]}
-            </Text>
-          )}
-        </View>
-
-        {/* ============================================================== */}
-        {/* KROK 4: PROCEDURA I ZAPIS SŁOIKA                               */}
-        {/* ============================================================== */}
-        <View style={styles.flowSectionHeader}>
-          <View style={styles.flowStepBadge}>
-            <Text style={styles.flowStepBadgeText}>4</Text>
-          </View>
-          <View style={styles.flowSectionTextCol}>
-            <Text style={styles.flowSectionTitle}>{t('Krok 4: Procedura i zapis słoika')}</Text>
-            <Text style={styles.flowSectionSubtitle}>
-              {t('Przejdź przez kroki nastawu na blacie kuchennym lub zapisz od razu.')}
-            </Text>
-          </View>
-        </View>
-
-        {/* GŁÓWNY PRZYCISK: ASYSTENT PROCEDURY KROK PO KROKU */}
-        <TouchableOpacity
-          style={styles.procedureLaunchBtn}
-          onPress={() => setIsProcedureModalOpen(true)}
-          activeOpacity={0.85}
-          accessibilityLabel={t('Zacznij procedurę nastawu krok po kroku')}
-        >
-          <View style={styles.procedureLaunchLeft}>
-            <Text style={styles.procedureLaunchEmoji}>🚀</Text>
-            <View style={styles.procedureLaunchTextCol}>
-              <Text style={styles.procedureLaunchTitle}>
-                {t('Zacznij procedurę nastawu krok po kroku →')}
-              </Text>
-              <Text style={styles.procedureLaunchSub}>
-                {t('Asystent blatu: czytelne kroki, ekran nie gaśnie, automatyczny zapis.')}
-              </Text>
+            <View style={styles.stepModalFooter}>
+              <TouchableOpacity
+                style={styles.stepModalBackBtn}
+                onPress={() => setIsRecipesModalOpen(false)}
+              >
+                <Text style={styles.stepModalBackBtnText}>← {t('Powrót')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.stepModalConfirmBtn}
+                onPress={() => {
+                  setRitualMode('recipes');
+                  setIsRecipesModalOpen(false);
+                }}
+              >
+                <Text style={styles.stepModalConfirmBtnText}>
+                  ✓ {t('Zatwierdź recepturę')}
+                </Text>
+              </TouchableOpacity>
             </View>
-          </View>
-        </TouchableOpacity>
+          </SafeAreaView>
+        </Modal>
 
-        {/* SZYBKI ZAPIS SŁOIKA (BEZ ASYSTENTA) */}
-        <TouchableOpacity
-          style={styles.mainStartButton}
-          onPress={handleSaveBatch}
-          activeOpacity={0.85}
-          accessibilityLabel={t('Szybki zapis słoika (bez asystenta)')}
+        {/* ============================================================== */}
+        {/* OKNO MODALNE 2: WAGA SUROWCA, SŁOIK I PARAMETRY NASTAWU         */}
+        {/* ============================================================== */}
+        <Modal
+          visible={isWeightModalOpen}
+          animationType="slide"
+          presentationStyle="pageSheet"
+          onRequestClose={() => setIsWeightModalOpen(false)}
         >
-          <Text style={styles.mainStartButtonText}>
-            {t('🫙 Szybki zapis słoika (bez asystenta)')}
-          </Text>
-        </TouchableOpacity>
+          <SafeAreaView style={styles.stepModalSafeArea}>
+            <View style={styles.stepModalHeader}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.stepModalKicker}>{t('KROK 2 • WAGA I PARAMETRY')}</Text>
+                <Text style={styles.stepModalTitle}>
+                  {t('Waga Surowca na Szalce i Słoik')}
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={styles.stepModalCloseIcon}
+                onPress={() => setIsWeightModalOpen(false)}
+                hitSlop={theme.hitSlop}
+              >
+                <Text style={styles.stepModalCloseIconText}>✕</Text>
+              </TouchableOpacity>
+            </View>
 
-        {/* PRZYCISK: WŁASNA PROCEDURA KROK PO KROKU */}
-        <TouchableOpacity
-          style={styles.customProcedureButton}
-          onPress={() => setIsCustomRecipeModalOpen(true)}
-          activeOpacity={0.8}
+            <ScrollView
+              contentContainerStyle={styles.stepModalScroll}
+              keyboardShouldPersistTaps="handled"
+            >
+              <KitchenCard style={styles.weightCard}>
+                <View style={styles.weightHeaderRow}>
+                  <Text style={styles.cardHeaderTitle}>{t('Waga Surowca na Szalce')}</Text>
+                  <TouchableOpacity
+                    onPress={() => setProduceWeightNum(1000)}
+                    hitSlop={theme.hitSlop}
+                  >
+                    <Text style={styles.resetWeightText}>{t('Zresetuj 1 kg')}</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.weightDisplayRow}>
+                  <TextInput
+                    style={styles.weightInput}
+                    keyboardType="decimal-pad"
+                    value={String(produceWeightNum)}
+                    onChangeText={(v) =>
+                      setProduceWeightNum(parseInt(v.replace(/,/g, '.'), 10) || 0)
+                    }
+                    accessibilityLabel={t('Waga surowca na szalce')}
+                  />
+                  <Text style={styles.weightUnitText}>
+                    {unitSystem === 'imperial' ? 'oz' : 'g'}
+                  </Text>
+                </View>
+
+                <View style={styles.quickWeightButtons}>
+                  <TouchableOpacity
+                    style={styles.weightDeltaBtn}
+                    onPress={() => handleAddWeight(-250)}
+                  >
+                    <Text style={styles.weightDeltaText}>-250 g</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.weightDeltaBtn}
+                    onPress={() => handleAddWeight(100)}
+                  >
+                    <Text style={styles.weightDeltaText}>+100 g</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.weightDeltaBtn}
+                    onPress={() => handleAddWeight(250)}
+                  >
+                    <Text style={styles.weightDeltaText}>+250 g</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.weightDeltaBtn}
+                    onPress={() => handleAddWeight(500)}
+                  >
+                    <Text style={styles.weightDeltaText}>+500 g</Text>
+                  </TouchableOpacity>
+                </View>
+              </KitchenCard>
+
+              <KitchenCard style={styles.equipmentCard}>
+                <View style={styles.weightHeaderRow}>
+                  <Text style={styles.cardHeaderTitle}>{t('Słoik / Naczynie')}</Text>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setIsWeightModalOpen(false);
+                      setIsEquipmentModalOpen(true);
+                    }}
+                  >
+                    <Text style={styles.resetWeightText}>⚙️ {t('Warsztat sprzętu')}</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <View style={{ gap: 8, marginTop: 10 }}>
+                  {equipmentList.map((eq) => {
+                    const isSelected = selectedEquipmentId === eq.id;
+                    return (
+                      <TouchableOpacity
+                        key={eq.id}
+                        style={[styles.eqChip, isSelected && styles.eqChipSelected]}
+                        onPress={() => setSelectedEquipmentId(eq.id)}
+                      >
+                        <Text
+                          style={[styles.eqChipText, isSelected && styles.eqChipTextSelected]}
+                        >
+                          {eq.name}
+                        </Text>
+                        <Text style={styles.eqChipSub}>
+                          {eq.jarVolumeMl} ml · {eq.sealType}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </KitchenCard>
+
+              <KitchenCard style={styles.modalEditCard}>
+                <Text style={styles.cardHeaderTitle}>{t('Korekta stężenia soli i czasu')}</Text>
+                <Text style={[styles.modalFieldLabel, { marginTop: 10 }]}>
+                  {t('Stężenie soli (%):')}
+                </Text>
+                <View style={styles.stepperControlRow}>
+                  <TouchableOpacity
+                    style={styles.stepperBtn}
+                    onPress={() => handleAdjustSalinity(-0.5)}
+                  >
+                    <Text style={styles.stepperBtnText}>-0.5%</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.stepperValueText}>{activeSalinity.toFixed(1)}%</Text>
+                  <TouchableOpacity
+                    style={styles.stepperBtn}
+                    onPress={() => handleAdjustSalinity(0.5)}
+                  >
+                    <Text style={styles.stepperBtnText}>+0.5%</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <Text style={[styles.modalFieldLabel, { marginTop: 12 }]}>
+                  {t('Czas fermentacji (dni):')}
+                </Text>
+                <View style={styles.stepperControlRow}>
+                  <TouchableOpacity
+                    style={styles.stepperBtn}
+                    onPress={() => handleAdjustDays(-1)}
+                  >
+                    <Text style={styles.stepperBtnText}>-1 {t('dzień')}</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.stepperValueText}>
+                    {activeFermentationDays} {t('dni')}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.stepperBtn}
+                    onPress={() => handleAdjustDays(1)}
+                  >
+                    <Text style={styles.stepperBtnText}>+1 {t('dzień')}</Text>
+                  </TouchableOpacity>
+                </View>
+              </KitchenCard>
+            </ScrollView>
+
+            <View style={styles.stepModalFooter}>
+              <TouchableOpacity
+                style={styles.stepModalBackBtn}
+                onPress={() => setIsWeightModalOpen(false)}
+              >
+                <Text style={styles.stepModalBackBtnText}>← {t('Powrót')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.stepModalConfirmBtn}
+                onPress={() => setIsWeightModalOpen(false)}
+              >
+                <Text style={styles.stepModalConfirmBtnText}>
+                  ✓ {t('Zatwierdź parametry')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </SafeAreaView>
+        </Modal>
+
+        {/* ============================================================== */}
+        {/* OKNO MODALNE 3: GRAMATURA SKŁADNIKÓW I EDYCJA PRZYPRAW          */}
+        {/* ============================================================== */}
+        <Modal
+          visible={isIngredientsModalOpen}
+          animationType="slide"
+          presentationStyle="pageSheet"
+          onRequestClose={() => setIsIngredientsModalOpen(false)}
         >
-          <Text style={styles.customProcedureText}>
-            📝 {t('Zdefiniuj własną procedurę krok po kroku')}
-          </Text>
-        </TouchableOpacity>
+          <SafeAreaView style={styles.stepModalSafeArea}>
+            <View style={styles.stepModalHeader}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.stepModalKicker}>{t('KROK 3 • ŚWIĘTE PROPORCJE')}</Text>
+                <Text style={styles.stepModalTitle}>
+                  {t('Gramatura składników i przyprawy')}
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={styles.stepModalCloseIcon}
+                onPress={() => setIsIngredientsModalOpen(false)}
+                hitSlop={theme.hitSlop}
+              >
+                <Text style={styles.stepModalCloseIconText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView
+              contentContainerStyle={styles.stepModalScroll}
+              keyboardShouldPersistTaps="handled"
+            >
+              <SacredNumbersBar
+                produceWeightGrams={produceWeightNum}
+                waterWeightGrams={brineCalculation.waterGrams}
+                saltWeightGrams={brineCalculation.saltGrams}
+                salinityPercent={activeSalinity}
+                isDrySalting={isDrySalting}
+              />
+
+              <KitchenCard style={styles.modalEditCard}>
+                <Text style={styles.cardHeaderTitle}>{t('Przelicznik kuchenny dla Twojej wagi')}</Text>
+                <Text style={styles.kitchenMeasureLine}>
+                  • <Text style={{ fontWeight: '800' }}>{t('Surowiec:')}</Text>{' '}
+                  {formatProduceWeight(produceWeightNum, unitSystem)}
+                </Text>
+                <Text style={styles.kitchenMeasureLine}>
+                  • <Text style={{ fontWeight: '800' }}>{t('Sól kamienna niejodowana:')}</Text>{' '}
+                  {formatSaltWeight(brineCalculation.saltGrams, unitSystem)} (ok. {saltTeaspoons}{' '}
+                  {t('płaskiej łyżeczki')})
+                </Text>
+                <Text style={styles.kitchenMeasureLine}>
+                  • <Text style={{ fontWeight: '800' }}>{t('Woda do solanki:')}</Text>{' '}
+                  {isDrySalting
+                    ? t('0 ml (kiszenie we własnym soku)')
+                    : formatBrineVolume(brineCalculation.waterGrams, unitSystem)}
+                </Text>
+              </KitchenCard>
+
+              <KitchenCard style={styles.modalEditCard}>
+                <Text style={styles.cardHeaderTitle}>{t('Zioła i przyprawy do słoika')}</Text>
+                <Text style={styles.modalFieldLabel}>
+                  {t('Kliknij, aby dodać lub usunąć przyprawę, lub wpisz własne:')}
+                </Text>
+                <View style={styles.produceGrid}>
+                  {QUICK_HERB_CHIPS.map((herb) => {
+                    const isIncluded = (customHerbsText || activeRecipeHerbs).includes(herb);
+                    return (
+                      <TouchableOpacity
+                        key={herb}
+                        style={[styles.produceChip, isIncluded && styles.produceChipSelected]}
+                        onPress={() => handleToggleHerbChip(herb)}
+                      >
+                        <Text
+                          style={[
+                            styles.produceChipText,
+                            isIncluded && styles.produceChipTextSelected,
+                          ]}
+                        >
+                          {t(herb)}
+                        </Text>
+                        {isIncluded && <Text style={styles.produceCheck}>✓</Text>}
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+
+                <TextInput
+                  style={[styles.modalTextInput, { marginTop: 12 }]}
+                  value={customHerbsText || activeRecipeHerbs}
+                  onChangeText={(txt) => {
+                    setHasCustomizedParams(true);
+                    setCustomHerbsText(txt);
+                  }}
+                  multiline
+                />
+              </KitchenCard>
+
+              {activeRecipeCraftTips && activeRecipeCraftTips.length > 0 && (
+                <View style={styles.herbsTipBox}>
+                  <Text style={styles.herbsTipTitle}>💡 {t('Sekrety chrupkości Mistrza:')}</Text>
+                  {activeRecipeCraftTips.map((tip, idx) => (
+                    <Text key={idx} style={styles.herbsTipText}>
+                      • {tip}
+                    </Text>
+                  ))}
+                </View>
+              )}
+            </ScrollView>
+
+            <View style={styles.stepModalFooter}>
+              <TouchableOpacity
+                style={styles.stepModalBackBtn}
+                onPress={() => setIsIngredientsModalOpen(false)}
+              >
+                <Text style={styles.stepModalBackBtnText}>← {t('Powrót')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.stepModalConfirmBtn}
+                onPress={() => setIsIngredientsModalOpen(false)}
+              >
+                <Text style={styles.stepModalConfirmBtnText}>
+                  ✓ {t('Zatwierdź składniki')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </SafeAreaView>
+        </Modal>
 
         {/* MODAL PROCEDURY NASTAWU KROK PO KROKU */}
         <CraftProcedureModal
@@ -1025,7 +1387,7 @@ export default function RitualScreen() {
           }}
         />
 
-        {/* MODAL ONBOARDINGU (PIERWSZE URUCHOMIENIE LUB ZMIANA) */}
+        {/* MODAL ONBOARDINGU */}
         <CraftOnboardingModal
           visible={isOnboardingOpen}
           canDismiss={dbStore.isOnboardingCompleted()}
@@ -1043,11 +1405,8 @@ export default function RitualScreen() {
           onStartRitual={() => setIsGuideOpen(false)}
         />
 
-        {/* MODAL PRZEWODNIKA PO APLIKACJI (APP TOUR) */}
-        <AppTourModal
-          visible={isTourOpen}
-          onClose={() => setIsTourOpen(false)}
-        />
+        {/* MODAL PRZEWODNIKA PO APLIKACJI */}
+        <AppTourModal visible={isTourOpen} onClose={() => setIsTourOpen(false)} />
 
         {/* MODAL SPRZĘTU */}
         <CustomEquipmentModal
@@ -1069,10 +1428,7 @@ export default function RitualScreen() {
         />
 
         {/* PAYWALL */}
-        <PaywallModal
-          visible={isPaywallOpen}
-          onClose={() => setIsPaywallOpen(false)}
-        />
+        <PaywallModal visible={isPaywallOpen} onClose={() => setIsPaywallOpen(false)} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -1085,10 +1441,10 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: theme.spacing.md,
-    paddingBottom: 40,
+    paddingBottom: 32,
   },
   header: {
-    marginBottom: 12,
+    marginBottom: 10,
   },
   titleRow: {
     flexDirection: 'row',
@@ -1104,111 +1460,581 @@ const styles = StyleSheet.create({
     color: theme.colors.textPrimary,
     marginRight: 6,
   },
-  headerButtons: {
-    flexDirection: 'row',
-    gap: 6,
-    flexShrink: 0,
-    alignItems: 'center',
-  },
   tourHeaderBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    minHeight: 40,
-    backgroundColor: theme.colors.bgCardElevated,
-    borderWidth: 1,
-    borderColor: theme.colors.pickleGreen,
-    borderRadius: 20,
-    flexShrink: 0,
-  },
-  tourHeaderBtnText: {
-    color: theme.colors.textPrimary,
-    fontSize: 12,
-    fontWeight: '800',
-  },
-  iconButton: {
-    width: 38,
-    height: 38,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
     backgroundColor: theme.colors.bgCard,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: theme.borderRadius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconButtonEmoji: {
-    fontSize: 18,
-    lineHeight: 20,
-    textAlign: 'center',
-  },
-  tagline: {
-    fontSize: 13,
-    color: theme.colors.textSecondary,
-    marginTop: 4,
-    lineHeight: 18,
-  },
-  focusTimerLaunchBtn: {
-    backgroundColor: theme.colors.bgCardElevated,
     borderWidth: 1,
     borderColor: theme.colors.amberBrine,
     borderRadius: theme.borderRadius.md,
-    paddingVertical: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 8,
+    flexShrink: 0,
   },
-  focusTimerLaunchText: {
-    fontSize: 14,
-    fontWeight: '700',
+  tourHeaderBtnText: {
+    fontSize: 11,
+    fontWeight: '800',
     color: theme.colors.amberBrine,
   },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: theme.colors.textPrimary,
-    marginTop: 14,
-    marginBottom: 8,
+  iconButtonEmoji: {
+    fontSize: 15,
   },
-  presetsScroll: {
+  tagline: {
+    fontSize: 12,
+    color: theme.colors.textSecondary,
+    marginTop: 3,
+  },
+  goldenRulesBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.colors.bgCardElevated,
+    borderWidth: 1,
+    borderColor: theme.colors.pickleGreen,
+    borderRadius: theme.borderRadius.md,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginBottom: 12,
     gap: 10,
-    paddingBottom: 6,
   },
-  presetChip: {
+  goldenRulesEmoji: {
+    fontSize: 20,
+  },
+  goldenRulesTextCol: {
+    flex: 1,
+  },
+  goldenRulesTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: theme.colors.textPrimary,
+  },
+  goldenRulesSubtitle: {
+    fontSize: 11,
+    color: theme.colors.textSecondary,
+    marginTop: 1,
+  },
+  goldenRulesArrow: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: theme.colors.pickleGreenLight,
+  },
+  checklistCard: {
     backgroundColor: theme.colors.bgCard,
+    padding: 14,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  checklistHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 10,
+  },
+  stepCheckBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: theme.colors.pickleGreen,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepCheckBadgeText: {
+    color: '#FFFFFF',
+    fontWeight: '900',
+    fontSize: 14,
+  },
+  checklistStepTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: theme.colors.textPrimary,
+  },
+  checklistStepSub: {
+    fontSize: 11,
+    color: theme.colors.textSecondary,
+    marginTop: 1,
+  },
+  currentSummaryBox: {
+    backgroundColor: theme.colors.bgCardElevated,
+    borderRadius: theme.borderRadius.sm,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    marginBottom: 10,
+  },
+  currentSummaryLabel: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: theme.colors.pickleGreenLight,
+    letterSpacing: 0.6,
+  },
+  currentSummaryTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: theme.colors.textPrimary,
+    marginVertical: 2,
+  },
+  currentSummaryPills: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 6,
+  },
+  currentSummaryMeta: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: theme.colors.textSecondary,
+  },
+  currentSummaryDot: {
+    color: theme.colors.textMuted,
+  },
+  twoModalButtonsRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  modalTriggerBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    padding: 10,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.bgCardElevated,
     borderWidth: 1.5,
     borderColor: theme.colors.border,
-    borderRadius: theme.borderRadius.md,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    minWidth: 160,
   },
-  presetChipSelected: {
+  modalTriggerBtnActive: {
     borderColor: theme.colors.pickleGreen,
     backgroundColor: theme.colors.pickleGreenMuted,
   },
-  presetChipText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: theme.colors.textPrimary,
-    marginBottom: 2,
+  modalTriggerEmoji: {
+    fontSize: 20,
   },
-  presetChipTextSelected: {
+  modalTriggerTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: theme.colors.textPrimary,
+  },
+  modalTriggerTitleActive: {
     color: theme.colors.pickleGreenLight,
   },
-  presetChipSalinity: {
+  modalTriggerSub: {
+    fontSize: 10,
+    color: theme.colors.textSecondary,
+    marginTop: 1,
+  },
+  compactMetricsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.colors.bgCardElevated,
+    borderRadius: theme.borderRadius.sm,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    marginBottom: 10,
+  },
+  compactMetricItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  compactMetricDivider: {
+    width: 1,
+    height: 26,
+    backgroundColor: theme.colors.border,
+  },
+  compactMetricLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: theme.colors.textMuted,
+  },
+  compactMetricValue: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: theme.colors.textPrimary,
+    marginTop: 2,
+  },
+  openStepWindowBtn: {
+    backgroundColor: theme.colors.bgCardElevated,
+    borderWidth: 1,
+    borderColor: theme.colors.amberBrine,
+    borderRadius: theme.borderRadius.sm,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+  },
+  openStepWindowBtnText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: theme.colors.amberBrine,
+  },
+  compactHerbsRow: {
+    marginVertical: 8,
+    paddingHorizontal: 4,
+  },
+  compactHerbsText: {
     fontSize: 12,
     color: theme.colors.textSecondary,
+    lineHeight: 17,
   },
-  presetChipSalinitySelected: {
+  procedureLaunchBtn: {
+    backgroundColor: theme.colors.pickleGreen,
+    borderRadius: theme.borderRadius.md,
+    padding: 14,
+    marginBottom: 8,
+  },
+  procedureLaunchLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  procedureLaunchEmoji: {
+    fontSize: 24,
+  },
+  procedureLaunchTextCol: {
+    flex: 1,
+  },
+  procedureLaunchTitle: {
+    fontSize: 15,
+    fontWeight: '900',
+    color: '#FFFFFF',
+  },
+  procedureLaunchSub: {
+    fontSize: 11,
+    color: '#E8F5E9',
+    marginTop: 2,
+  },
+  mainStartButton: {
+    backgroundColor: theme.colors.bgCardElevated,
+    borderWidth: 1,
+    borderColor: theme.colors.pickleGreen,
+    borderRadius: theme.borderRadius.md,
+    paddingVertical: 11,
+    alignItems: 'center',
+  },
+  mainStartButtonText: {
+    fontSize: 13,
+    fontWeight: '800',
     color: theme.colors.pickleGreenLight,
+  },
+  stepModalSafeArea: {
+    flex: 1,
+    backgroundColor: theme.colors.bg,
+  },
+  stepModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+    backgroundColor: theme.colors.bgCard,
+  },
+  stepModalKicker: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: theme.colors.pickleGreenLight,
+    letterSpacing: 0.8,
+  },
+  stepModalTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: theme.colors.textPrimary,
+    marginTop: 2,
+  },
+  stepModalCloseIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: theme.colors.bgCardElevated,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepModalCloseIconText: {
+    fontSize: 16,
+    color: theme.colors.textSecondary,
+    fontWeight: '700',
+  },
+  stepModalScroll: {
+    padding: 16,
+    paddingBottom: 32,
+  },
+  stepModalFooter: {
+    flexDirection: 'row',
+    gap: 10,
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
+    backgroundColor: theme.colors.bgCard,
+  },
+  stepModalBackBtn: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.bgCardElevated,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    alignItems: 'center',
+  },
+  stepModalBackBtnText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: theme.colors.textSecondary,
+  },
+  stepModalConfirmBtn: {
+    flex: 2,
+    paddingVertical: 14,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.pickleGreen,
+    alignItems: 'center',
+  },
+  stepModalConfirmBtnText: {
+    fontSize: 15,
+    fontWeight: '900',
+    color: '#FFFFFF',
+  },
+  modalSectionHeading: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: theme.colors.textPrimary,
+    marginBottom: 10,
+  },
+  produceCategoryScroll: {
+    gap: 8,
+    paddingBottom: 10,
+  },
+  produceCatChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 18,
+    backgroundColor: theme.colors.bgCard,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  produceCatChipActive: {
+    borderColor: theme.colors.pickleGreen,
+    backgroundColor: theme.colors.pickleGreenMuted,
+  },
+  produceCatIcon: {
+    fontSize: 14,
+  },
+  produceCatText: {
+    fontSize: 12,
     fontWeight: '600',
+    color: theme.colors.textSecondary,
+  },
+  produceCatTextActive: {
+    color: theme.colors.pickleGreenLight,
+    fontWeight: '800',
+  },
+  produceGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  produceChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 11,
+    paddingVertical: 8,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: theme.colors.bgCard,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  produceChipSelected: {
+    borderColor: theme.colors.pickleGreen,
+    backgroundColor: theme.colors.pickleGreenMuted,
+  },
+  produceChipText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: theme.colors.textSecondary,
+  },
+  produceChipTextSelected: {
+    color: theme.colors.textPrimary,
+    fontWeight: '800',
+  },
+  produceCheck: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: theme.colors.pickleGreenLight,
+  },
+  modalEditCard: {
+    backgroundColor: theme.colors.bgCard,
+    padding: 14,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  modalFieldLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: theme.colors.textSecondary,
+    marginBottom: 6,
+  },
+  modalTextInput: {
+    backgroundColor: theme.colors.bgCardElevated,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.borderRadius.sm,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: theme.colors.textPrimary,
+  },
+  methodToggleRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  methodOptionBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: theme.colors.bgCardElevated,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    alignItems: 'center',
+  },
+  methodOptionBtnActive: {
+    borderColor: theme.colors.pickleGreen,
+    backgroundColor: theme.colors.pickleGreenMuted,
+  },
+  methodOptionText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: theme.colors.textSecondary,
+    textAlign: 'center',
+  },
+  methodOptionTextActive: {
+    color: theme.colors.pickleGreenLight,
+    fontWeight: '800',
+  },
+  stepperControlRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: theme.colors.bgCardElevated,
+    borderRadius: theme.borderRadius.sm,
+    padding: 6,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  stepperBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    backgroundColor: theme.colors.bgCard,
+    borderRadius: theme.borderRadius.sm,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  stepperBtnText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: theme.colors.amberBrine,
+  },
+  stepperValueText: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: theme.colors.textPrimary,
+  },
+  recipeCatScroll: {
+    marginBottom: 10,
+  },
+  recipeCatChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 16,
+    backgroundColor: theme.colors.bgCard,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    marginRight: 8,
+  },
+  recipeCatChipActive: {
+    borderColor: theme.colors.pickleGreen,
+    backgroundColor: theme.colors.pickleGreenMuted,
+  },
+  recipeCatChipText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: theme.colors.textSecondary,
+  },
+  recipeCatChipTextActive: {
+    color: theme.colors.pickleGreenLight,
+  },
+  addOwnRecipeInlineBtn: {
+    alignSelf: 'flex-end',
+    paddingVertical: 6,
+  },
+  addOwnRecipeInlineText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: theme.colors.pickleGreenLight,
+  },
+  modalRecipeListItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.colors.bgCard,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.borderRadius.md,
+    padding: 12,
+    marginBottom: 10,
+    gap: 10,
+  },
+  modalRecipeListItemSelected: {
+    borderColor: theme.colors.pickleGreen,
+    backgroundColor: theme.colors.pickleGreenMuted,
+  },
+  recipeCulture: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: theme.colors.textMuted,
+    textTransform: 'uppercase',
+  },
+  modalRecipeTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: theme.colors.textPrimary,
+    marginVertical: 2,
+  },
+  modalRecipeSubtitle: {
+    fontSize: 12,
+    color: theme.colors.textSecondary,
+    marginBottom: 6,
+  },
+  modalRecipeBadges: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  recipeRadioCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: theme.colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  recipeRadioCircleActive: {
+    borderColor: theme.colors.pickleGreen,
+    backgroundColor: theme.colors.pickleGreen,
+  },
+  recipeRadioCheck: {
+    color: '#FFFFFF',
+    fontWeight: '900',
+    fontSize: 14,
   },
   weightCard: {
     backgroundColor: theme.colors.bgCard,
-    padding: 16,
-    marginTop: 14,
+    padding: 14,
+    marginBottom: 14,
   },
   weightHeaderRow: {
     flexDirection: 'row',
@@ -1216,76 +2042,74 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cardHeaderTitle: {
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: 15,
+    fontWeight: '800',
     color: theme.colors.textPrimary,
   },
   resetWeightText: {
     fontSize: 12,
-    fontWeight: '600',
-    color: theme.colors.pickleGreen,
+    fontWeight: '700',
+    color: theme.colors.amberBrine,
   },
   weightDisplayRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
     justifyContent: 'center',
-    marginVertical: 10,
+    marginVertical: 12,
+    gap: 8,
   },
   weightInput: {
-    fontSize: 48,
-    fontWeight: '800',
+    fontSize: 38,
+    fontWeight: '900',
     color: theme.colors.textPrimary,
-    fontVariant: ['tabular-nums'],
+    borderBottomWidth: 2,
+    borderBottomColor: theme.colors.pickleGreen,
+    minWidth: 120,
     textAlign: 'center',
-    minWidth: 140,
+    paddingVertical: 4,
   },
   weightUnitText: {
     fontSize: 20,
-    fontWeight: '700',
+    fontWeight: '800',
     color: theme.colors.textSecondary,
-    marginLeft: 6,
   },
   quickWeightButtons: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     gap: 8,
-    justifyContent: 'center',
-    marginTop: 6,
   },
   weightDeltaBtn: {
     flex: 1,
-    minHeight: 40,
+    paddingVertical: 10,
     backgroundColor: theme.colors.bgCardElevated,
+    borderRadius: theme.borderRadius.sm,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    borderRadius: theme.borderRadius.sm,
     alignItems: 'center',
-    justifyContent: 'center',
   },
   weightDeltaText: {
     fontSize: 13,
-    fontWeight: '600',
-    color: theme.colors.textSecondary,
+    fontWeight: '800',
+    color: theme.colors.textPrimary,
   },
   equipmentCard: {
     backgroundColor: theme.colors.bgCard,
     padding: 14,
-    marginTop: 12,
+    marginBottom: 14,
   },
   eqChip: {
+    padding: 12,
+    borderRadius: theme.borderRadius.sm,
     backgroundColor: theme.colors.bgCardElevated,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    borderRadius: theme.borderRadius.sm,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginRight: 8,
   },
   eqChipSelected: {
     borderColor: theme.colors.pickleGreen,
     backgroundColor: theme.colors.pickleGreenMuted,
   },
   eqChipText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '700',
     color: theme.colors.textPrimary,
   },
@@ -1294,593 +2118,63 @@ const styles = StyleSheet.create({
   },
   eqChipSub: {
     fontSize: 11,
-    color: theme.colors.textMuted,
+    color: theme.colors.textSecondary,
     marginTop: 2,
   },
+  kitchenMeasureLine: {
+    fontSize: 13,
+    color: theme.colors.textSecondary,
+    lineHeight: 20,
+    marginTop: 6,
+  },
   herbsTipBox: {
-    backgroundColor: theme.colors.bgCard,
+    backgroundColor: theme.colors.bgCardElevated,
     borderRadius: theme.borderRadius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    padding: 12,
-    marginVertical: 12,
+    padding: 14,
+    borderLeftWidth: 3,
+    borderLeftColor: theme.colors.pickleGreen,
   },
   herbsTipTitle: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: theme.colors.pickleGreen,
-    marginBottom: 4,
+    fontSize: 13,
+    fontWeight: '800',
+    color: theme.colors.pickleGreenLight,
+    marginBottom: 6,
   },
   herbsTipText: {
     fontSize: 13,
     color: theme.colors.textSecondary,
-    lineHeight: 18,
-  },
-  flowSectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginTop: 18,
-    marginBottom: 10,
-  },
-  flowStepBadge: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: theme.colors.pickleGreen,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  flowStepBadgeText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '900',
-  },
-  flowSectionTextCol: {
-    flex: 1,
-  },
-  flowSectionTitle: {
-    color: theme.colors.textPrimary,
-    fontSize: 16,
-    fontWeight: '800',
-    letterSpacing: 0.2,
-  },
-  flowSectionSubtitle: {
-    color: theme.colors.textSecondary,
-    fontSize: 12,
-    lineHeight: 16,
-    marginTop: 1,
-  },
-  activeSelectionCard: {
-    backgroundColor: theme.colors.bgCard,
-    borderWidth: 1.5,
-    borderColor: theme.colors.pickleGreen,
-    borderRadius: theme.borderRadius.md,
-    padding: 14,
-    marginTop: 10,
-    marginBottom: 6,
-  },
-  activeSelectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    lineHeight: 19,
     marginBottom: 4,
-  },
-  activeSelectionLabel: {
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 1,
-    color: theme.colors.pickleGreen,
-  },
-  activeSelectionTitle: {
-    fontSize: 17,
-    fontWeight: '800',
-    color: theme.colors.textPrimary,
-    marginBottom: 6,
-  },
-  activeSelectionMetaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 6,
-  },
-  activeSelectionMetaItem: {
-    fontSize: 12,
-    color: theme.colors.textSecondary,
-    fontWeight: '600',
-  },
-  activeSelectionMetaDot: {
-    fontSize: 12,
-    color: theme.colors.border,
-  },
-  procedureLaunchBtn: {
-    backgroundColor: theme.colors.pickleGreen,
-    borderRadius: theme.borderRadius.md,
-    padding: 16,
-    marginTop: 6,
-    marginBottom: 8,
-    shadowColor: theme.colors.pickleGreen,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  procedureLaunchLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  procedureLaunchEmoji: {
-    fontSize: 28,
-  },
-  procedureLaunchTextCol: {
-    flex: 1,
-  },
-  procedureLaunchTitle: {
-    fontSize: 16,
-    fontWeight: '900',
-    color: '#FFFFFF',
-    letterSpacing: 0.2,
-  },
-  procedureLaunchSub: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.85)',
-    marginTop: 2,
-    lineHeight: 16,
-  },
-  mainStartButton: {
-    backgroundColor: theme.colors.bgCardElevated,
-    borderWidth: 1.5,
-    borderColor: theme.colors.border,
-    minHeight: 48,
-    borderRadius: theme.borderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 4,
-  },
-  mainStartButtonText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: theme.colors.textPrimary,
-  },
-  customProcedureButton: {
-    minHeight: 46,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 8,
-  },
-  customProcedureText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: theme.colors.textSecondary,
   },
   corruptBanner: {
-    backgroundColor: '#3A1A1A',
-    borderColor: '#D32F2F',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#3A1D1D',
     borderWidth: 1,
+    borderColor: theme.colors.danger,
     borderRadius: theme.borderRadius.md,
     padding: 12,
-    marginBottom: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  corruptBannerTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#FFCDD2',
-    marginBottom: 2,
-  },
-  corruptBannerSubtitle: {
-    fontSize: 12,
-    color: '#EF9A9A',
-    lineHeight: 16,
-  },
-  corruptBannerButton: {
-    backgroundColor: '#D32F2F',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: theme.borderRadius.sm,
-    minHeight: 44,
-    minWidth: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  corruptBannerButtonText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  goldenRulesBanner: {
-    backgroundColor: theme.colors.bgCard,
-    borderWidth: 1.5,
-    borderColor: theme.colors.pickleGreen,
-    borderRadius: theme.borderRadius.md,
-    padding: 14,
-    marginTop: 10,
-    marginBottom: 6,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  goldenRulesIconBox: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: theme.colors.bgCardElevated,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: theme.colors.pickleGreenMuted,
-  },
-  goldenRulesEmoji: {
-    fontSize: 22,
-    lineHeight: 24,
-    textAlign: 'center',
-  },
-  goldenRulesTextCol: {
-    flex: 1,
-  },
-  goldenRulesBadgeRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  goldenRulesBadge: {
-    color: theme.colors.pickleGreen,
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 1,
-  },
-  goldenRulesArrow: {
-    color: theme.colors.pickleGreen,
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  goldenRulesTitle: {
-    color: theme.colors.textPrimary,
-    fontSize: 15,
-    fontWeight: '800',
-    marginTop: 2,
-  },
-  goldenRulesSubtitle: {
-    color: theme.colors.textSecondary,
-    fontSize: 12,
-    lineHeight: 16,
-    marginTop: 2,
-  },
-  appTourBanner: {
-    backgroundColor: theme.colors.bgCardElevated,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: theme.borderRadius.md,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    marginBottom: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  appTourIconBox: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: theme.colors.bgCard,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  appTourEmoji: {
-    fontSize: 18,
-    lineHeight: 20,
-    textAlign: 'center',
-  },
-  appTourTextCol: {
-    flex: 1,
-  },
-  appTourTitle: {
-    color: theme.colors.textPrimary,
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  appTourSub: {
-    color: theme.colors.textSecondary,
-    fontSize: 11,
-    lineHeight: 14,
-    marginTop: 1,
-  },
-  appTourArrow: {
-    color: theme.colors.pickleGreen,
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  modeTabsRow: {
-    flexDirection: 'row',
-    backgroundColor: theme.colors.bgCard,
-    borderRadius: theme.borderRadius.md,
-    padding: 4,
-    marginVertical: 10,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    gap: 4,
-  },
-  modeTabBtn: {
-    flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: theme.borderRadius.sm,
-  },
-  modeTabBtnActive: {
-    backgroundColor: theme.colors.pickleGreen,
-  },
-  modeTabEmoji: {
-    fontSize: 16,
-    lineHeight: 18,
-    marginBottom: 2,
-    textAlign: 'center',
-  },
-  modeTabBtnText: {
-    color: theme.colors.textSecondary,
-    fontSize: 11,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  modeTabBtnTextActive: {
-    color: '#FFFFFF',
-    fontWeight: '800',
-  },
-  produceCategoryScroll: {
-    gap: 6,
-    paddingBottom: 8,
-    marginBottom: 6,
-  },
-  produceCatChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 16,
-    backgroundColor: theme.colors.bgCard,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    gap: 5,
-  },
-  produceCatChipActive: {
-    backgroundColor: theme.colors.pickleGreen,
-    borderColor: theme.colors.pickleGreen,
-  },
-  produceCatIcon: {
-    fontSize: 13,
-    lineHeight: 15,
-  },
-  produceCatText: {
-    color: theme.colors.textSecondary,
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  produceCatTextActive: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-  },
-  selectedProduceSummary: {
-    backgroundColor: theme.colors.bgCard,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: theme.borderRadius.md,
-    padding: 10,
-    marginBottom: 10,
-  },
-  selectedProduceHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  selectedProduceCount: {
-    color: theme.colors.textPrimary,
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  clearProduceText: {
-    color: theme.colors.amberBrine,
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  selectedProduceScroll: {
-    gap: 6,
-    paddingVertical: 2,
-  },
-  selectedProducePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.colors.pickleGreenMuted,
-    borderWidth: 1,
-    borderColor: theme.colors.pickleGreen,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    gap: 4,
-  },
-  selectedProducePillEmoji: {
-    fontSize: 13,
-    lineHeight: 15,
-  },
-  selectedProducePillText: {
-    color: theme.colors.pickleGreenLight,
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  selectedProducePillRemove: {
-    color: theme.colors.pickleGreen,
-    fontSize: 11,
-    fontWeight: '800',
-    marginLeft: 2,
-  },
-  freeformBox: {
-    marginBottom: 8,
-  },
-  freeformSubtitle: {
-    fontSize: 12,
-    color: theme.colors.textSecondary,
-    marginBottom: 10,
-    lineHeight: 16,
-  },
-  produceGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 14,
-  },
-  produceChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-    borderRadius: 20,
-    backgroundColor: theme.colors.bgCard,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  produceChipSelected: {
-    backgroundColor: theme.colors.pickleGreenMuted,
-    borderColor: theme.colors.pickleGreen,
-  },
-  produceChipText: {
-    color: theme.colors.textPrimary,
-    fontSize: 12,
-    fontWeight: '600',
-    marginLeft: 6,
-  },
-  produceChipTextSelected: {
-    color: theme.colors.pickleGreenLight,
-    fontWeight: '700',
-  },
-  produceCheck: {
-    color: theme.colors.pickleGreen,
-    fontWeight: '800',
-    fontSize: 12,
-    marginLeft: 4,
-  },
-  freeformResultCard: {
-    backgroundColor: theme.colors.bgCardElevated,
-    padding: 16,
-    borderRadius: theme.borderRadius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    marginBottom: 10,
-  },
-  freeformTitle: {
-    color: theme.colors.textPrimary,
-    fontSize: 16,
-    fontWeight: '800',
-    marginBottom: 4,
-  },
-  freeformSubtitleText: {
-    color: theme.colors.pickleGreen,
-    fontSize: 13,
-    fontWeight: '600',
-    marginBottom: 10,
-  },
-  freeformBadgesRow: {
-    flexDirection: 'row',
-    gap: 8,
     marginBottom: 12,
   },
-  freeformHerbs: {
-    color: theme.colors.textSecondary,
+  corruptBannerTitle: {
     fontSize: 13,
-    lineHeight: 18,
-    marginBottom: 8,
-  },
-  freeformTip: {
-    color: theme.colors.amberBrine,
-    fontSize: 12,
-    fontStyle: 'italic',
-    lineHeight: 17,
-    marginBottom: 14,
-  },
-  freeformApplyBtn: {
-    backgroundColor: theme.colors.pickleGreen,
-    borderRadius: theme.borderRadius.md,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  freeformApplyBtnText: {
-    color: '#FFFFFF',
-    fontSize: 14,
     fontWeight: '800',
+    color: '#FF8A80',
   },
-  recipesModeBox: {
-    marginBottom: 10,
-  },
-  recipeCatScroll: {
-    gap: 8,
-    marginBottom: 10,
-  },
-  recipeCatChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    backgroundColor: theme.colors.bgCard,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    marginRight: 6,
-  },
-  recipeCatChipActive: {
-    backgroundColor: theme.colors.pickleGreen,
-    borderColor: theme.colors.pickleGreen,
-  },
-  recipeCatChipText: {
-    color: theme.colors.textSecondary,
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  recipeCatChipTextActive: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-  },
-  recipesScroll: {
-    gap: 10,
-    paddingBottom: 6,
-    marginTop: 8,
-  },
-  recipeCard: {
-    backgroundColor: theme.colors.bgCard,
-    borderWidth: 1.5,
-    borderColor: theme.colors.border,
-    borderRadius: theme.borderRadius.md,
-    padding: 14,
-    width: 220,
-  },
-  recipeCulture: {
-    color: theme.colors.textMuted,
+  corruptBannerSubtitle: {
     fontSize: 11,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    marginBottom: 4,
+    color: '#FFCDD2',
+    marginTop: 2,
   },
-  recipeCardTitle: {
-    color: theme.colors.textPrimary,
-    fontSize: 14,
+  corruptBannerButton: {
+    backgroundColor: theme.colors.danger,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: theme.borderRadius.sm,
+  },
+  corruptBannerButtonText: {
+    color: '#FFFFFF',
     fontWeight: '800',
-    marginBottom: 4,
-  },
-  recipeCardSubtitle: {
-    color: theme.colors.textSecondary,
     fontSize: 12,
-    lineHeight: 16,
-    marginBottom: 8,
-  },
-  recipeCardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  recipeCardAction: {
-    color: theme.colors.pickleGreen,
-    fontSize: 12,
-    fontWeight: '700',
   },
 });
-

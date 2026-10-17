@@ -64,9 +64,10 @@ export default function DojrzewalniaScreen() {
   // Główny przełącznik sekcji słoików
   const [activeSection, setActiveSection] = useState<'counter' | 'pantry'>('counter');
 
-  // Filtr harmonogramu akcji (Najbliższe vs Wszystkie) oraz filtr wybranego dnia z kalendarza
+  // Filtr harmonogramu akcji (Najbliższe vs Wszystkie w nowym oknie) oraz filtr wybranego dnia z kalendarza
   const [actionScope, setActionScope] = useState<'nearest' | 'all'>('nearest');
   const [selectedDayOffset, setSelectedDayOffset] = useState<number | null>(null);
+  const [isAllActionsModalOpen, setIsAllActionsModalOpen] = useState(false);
 
   // Stan dla części aktywnej (Na Blacie)
   const [activeBatches, setActiveBatches] = useState<BatchRecord[]>([]);
@@ -511,51 +512,19 @@ export default function DojrzewalniaScreen() {
         </KitchenCard>
 
         {/* ================================================================ */}
-        {/* KROK 2: HARMONOGRAM AKCJI (NAJBLIŻSZE vs WSZYSTKIE CHRONOLOGICZNIE) */}
+        {/* KROK 2: HARMONOGRAM AKCJI (KOMPAKTOWY PODGLĄD + PEŁNE OKNO)      */}
         {/* ================================================================ */}
         <View style={styles.actionsSection}>
           <View style={styles.actionsHeaderRow}>
             <Text style={styles.sectionHeader}>{t('Harmonogram Akcji ⚡')}</Text>
-            <View style={styles.scopeToggleRow}>
-              <TouchableOpacity
-                style={[
-                  styles.scopeChip,
-                  actionScope === 'nearest' && selectedDayOffset === null && styles.scopeChipActive,
-                ]}
-                onPress={() => {
-                  setSelectedDayOffset(null);
-                  setActionScope('nearest');
-                }}
-              >
-                <Text
-                  style={[
-                    styles.scopeChipText,
-                    actionScope === 'nearest' && selectedDayOffset === null && styles.scopeChipTextActive,
-                  ]}
-                >
-                  {t('Najbliższe')}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.scopeChip,
-                  actionScope === 'all' && selectedDayOffset === null && styles.scopeChipActive,
-                ]}
-                onPress={() => {
-                  setSelectedDayOffset(null);
-                  setActionScope('all');
-                }}
-              >
-                <Text
-                  style={[
-                    styles.scopeChipText,
-                    actionScope === 'all' && selectedDayOffset === null && styles.scopeChipTextActive,
-                  ]}
-                >
-                  {t('Wszystkie ({count})', { count: allScheduledActions.length })}
-                </Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={[styles.scopeChip, styles.scopeChipActive]}
+              onPress={() => setIsAllActionsModalOpen(true)}
+            >
+              <Text style={[styles.scopeChipText, styles.scopeChipTextActive]}>
+                📅 {t('Wszystkie ({count})', { count: allScheduledActions.length })} →
+              </Text>
+            </TouchableOpacity>
           </View>
 
           {displayedActions.length === 0 ? (
@@ -565,7 +534,7 @@ export default function DojrzewalniaScreen() {
               </Text>
             </KitchenCard>
           ) : (
-            displayedActions.map((actItem) => {
+            displayedActions.slice(0, 2).map((actItem) => {
               const dateLabel =
                 actItem.dayOffsetFromToday === 0
                   ? t('DZIŚ')
@@ -639,6 +608,17 @@ export default function DojrzewalniaScreen() {
                 </View>
               );
             })
+          )}
+
+          {allScheduledActions.length > 2 && (
+            <TouchableOpacity
+              style={styles.actionCalendarBtn}
+              onPress={() => setIsAllActionsModalOpen(true)}
+            >
+              <Text style={styles.actionCalendarBtnText}>
+                📅 {t('Otwórz pełny harmonogram akcji w nowym oknie →')}
+              </Text>
+            </TouchableOpacity>
           )}
         </View>
 
@@ -911,6 +891,119 @@ export default function DojrzewalniaScreen() {
             )}
           </View>
         )}
+
+        {/* MODAL: PEŁNY HARMONOGRAM WSZYSTKICH AKCJI */}
+        <Modal
+          visible={isAllActionsModalOpen}
+          animationType="slide"
+          presentationStyle="pageSheet"
+          onRequestClose={() => setIsAllActionsModalOpen(false)}
+        >
+          <SafeAreaView style={styles.modalContainer}>
+            <ModalHeader
+              title={t('Harmonogram Akcji ⚡')}
+              onClose={() => setIsAllActionsModalOpen(false)}
+              closeLabel={t('Powrót')}
+            />
+            <ScrollView contentContainerStyle={styles.modalContent}>
+              {allScheduledActions.length === 0 ? (
+                <KitchenCard style={styles.emptyActionCard}>
+                  <Text style={styles.emptyActionText}>
+                    {t('Brak zaplanowanych akcji w wybranym terminie. Twoje słoiki spokojnie pracują!')}
+                  </Text>
+                </KitchenCard>
+              ) : (
+                allScheduledActions.map((actItem) => {
+                  const dateLabel =
+                    actItem.dayOffsetFromToday === 0
+                      ? t('DZIŚ')
+                      : actItem.dayOffsetFromToday === 1
+                      ? t('JUTRO')
+                      : t('Za {days} dni ({date})', {
+                          days: actItem.dayOffsetFromToday,
+                          date: new Date(actItem.dateTimestamp).toLocaleDateString(),
+                        });
+
+                  return (
+                    <View key={actItem.id} style={styles.actionTimelineCard}>
+                      <View style={styles.actionTopRow}>
+                        <Badge
+                          label={dateLabel}
+                          variant={
+                            actItem.type === 'ready'
+                              ? 'green'
+                              : actItem.dayOffsetFromToday === 0
+                              ? 'amber'
+                              : 'gray'
+                          }
+                        />
+                        <Text style={styles.actionBatchName} numberOfLines={1}>
+                          🫙 {actItem.batch.recipeTitle}
+                        </Text>
+                      </View>
+
+                      <Text style={styles.actionTitle}>{actItem.title}</Text>
+                      <Text style={styles.actionDesc}>{actItem.description}</Text>
+
+                      <View style={styles.actionButtonsRow}>
+                        {actItem.type === 'ready' ? (
+                          <TouchableOpacity
+                            style={styles.actionPrimaryBtn}
+                            onPress={() => {
+                              setIsAllActionsModalOpen(false);
+                              handleMoveToPantry(actItem.batch);
+                            }}
+                          >
+                            <Text style={styles.actionPrimaryBtnText}>
+                              ✓ {t('Przenieś do spiżarni')}
+                            </Text>
+                          </TouchableOpacity>
+                        ) : actItem.type === 'burp' ? (
+                          <TouchableOpacity
+                            style={styles.actionPrimaryBtn}
+                            onPress={() => handleBurp(actItem.batch.id)}
+                          >
+                            <Text style={styles.actionPrimaryBtnText}>
+                              ✓ {t('Wykonaj (Odgazuj)')}
+                            </Text>
+                          </TouchableOpacity>
+                        ) : (
+                          <TouchableOpacity
+                            style={styles.actionPrimaryBtn}
+                            onPress={() => {
+                              setIsAllActionsModalOpen(false);
+                              setActiveBatchForLog(actItem.batch);
+                            }}
+                          >
+                            <Text style={styles.actionPrimaryBtnText}>
+                              ✓ {t('Oceń smak / pH')}
+                            </Text>
+                          </TouchableOpacity>
+                        )}
+
+                        <TouchableOpacity
+                          style={styles.actionCalendarBtn}
+                          onPress={() => handleAddActionToCalendar(actItem)}
+                        >
+                          <Text style={styles.actionCalendarBtnText}>
+                            🔔 {t('Przypomnij / Kalendarz')}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  );
+                })
+              )}
+
+              <TouchableOpacity
+                style={[styles.saveLogActionBtn, { marginTop: 12 }]}
+                onPress={() => setIsAllActionsModalOpen(false)}
+              >
+                <Text style={styles.saveLogActionText}>✓ {t('Zatwierdź i zamknij')}</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </SafeAreaView>
+        </Modal>
 
         {/* MODAL: DODAWANIE WPISU DO DZIENNIKA */}
         <Modal visible={!!activeBatchForLog} animationType="slide">
