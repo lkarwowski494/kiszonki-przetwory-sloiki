@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Text } from 'react-native';
+import { View, Text } from 'react-native';
 import { theme } from '../../src/ui/theme';
 
 export default function TabsLayout() {
@@ -11,15 +11,16 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: theme.colors.bgCard,
           borderTopColor: theme.colors.border,
-          height: 64,
+          height: 66,
           paddingBottom: 8,
-          paddingTop: 8,
+          paddingTop: 6,
         },
         tabBarActiveTintColor: theme.colors.pickleGreen,
         tabBarInactiveTintColor: theme.colors.textMuted,
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: '700',
+          marginTop: 2,
         },
       }}
     >
@@ -28,7 +29,9 @@ export default function TabsLayout() {
         options={{
           title: 'Rytuał',
           tabBarIcon: ({ focused }) => (
-            <Text style={{ fontSize: 20 }}>{focused ? '⚖️' : '⏱️'}</Text>
+            <View style={{ width: 28, height: 26, alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ fontSize: 20, lineHeight: 24, textAlign: 'center' }}>{focused ? '⚖️' : '⏱️'}</Text>
+            </View>
           ),
         }}
       />
@@ -37,7 +40,9 @@ export default function TabsLayout() {
         options={{
           title: 'Dojrzewalnia',
           tabBarIcon: ({ focused }) => (
-            <Text style={{ fontSize: 20 }}>{focused ? '🫙' : '🫧'}</Text>
+            <View style={{ width: 28, height: 26, alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ fontSize: 20, lineHeight: 24, textAlign: 'center' }}>{focused ? '🫙' : '🫧'}</Text>
+            </View>
           ),
         }}
       />
@@ -46,10 +51,13 @@ export default function TabsLayout() {
         options={{
           title: 'Wiedza',
           tabBarIcon: ({ focused }) => (
-            <Text style={{ fontSize: 20 }}>{focused ? '📖' : '📕'}</Text>
+            <View style={{ width: 28, height: 26, alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ fontSize: 20, lineHeight: 24, textAlign: 'center' }}>{focused ? '📖' : '📕'}</Text>
+            </View>
           ),
         }}
       />
     </Tabs>
   );
 }
+

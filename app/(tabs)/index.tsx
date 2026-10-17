@@ -29,6 +29,7 @@ import { SacredNumbersBar } from '../../src/ui/components/SacredNumbersBar';
 import { ActiveFocusTimer } from '../../src/ui/components/ActiveFocusTimer';
 import { CraftOnboardingModal, CraftProfileId } from '../../src/ui/components/CraftOnboardingModal';
 import { QuickStartGuideModal } from '../../src/ui/components/QuickStartGuideModal';
+import { AppTourModal } from '../../src/ui/components/AppTourModal';
 import { CustomEquipmentModal } from '../../src/ui/components/CustomEquipmentModal';
 import { CustomRecipeModal } from '../../src/ui/components/CustomRecipeModal';
 import { useAppAccess } from '../../src/core/access/app-access';
@@ -47,6 +48,23 @@ import {
   formatSaltWeight,
   formatBrineVolume,
 } from '../../src/core/unit-converter';
+
+export type ProduceFilterCategory = 'all' | 'leafy' | 'veggies' | 'root' | 'aroma';
+
+export const PRODUCE_CATEGORIES: { id: ProduceFilterCategory; label: string; icon: string }[] = [
+  { id: 'all', label: 'Wszystkie', icon: '🌟' },
+  { id: 'leafy', label: 'Kapusty & Liście', icon: '🥬' },
+  { id: 'veggies', label: 'Warzywa', icon: '🥒' },
+  { id: 'root', label: 'Korzenie', icon: '🥕' },
+  { id: 'aroma', label: 'Aromaty & Inne', icon: '🧄' },
+];
+
+export const getProduceCategory = (id: string): 'leafy' | 'veggies' | 'root' | 'aroma' => {
+  if (['cabbage_white', 'cabbage_red', 'cabbage_napa'].includes(id)) return 'leafy';
+  if (['cucumber', 'bell_pepper', 'hot_pepper', 'cauliflower', 'radish', 'tomato', 'zucchini', 'green_beans'].includes(id)) return 'veggies';
+  if (['carrot', 'beet', 'ginger', 'pumpkin'].includes(id)) return 'root';
+  return 'aroma';
+};
 
 interface RitualPreset {
   id: string;
@@ -197,12 +215,14 @@ export default function RitualScreen() {
   const [customSalinityPct, setCustomSalinityPct] = useState<number>(2.0);
   const [isDrySaltingCustom, setIsDrySaltingCustom] = useState<boolean>(false);
 
-  // Przewodnik Pierwsze Kroki
+  // Przewodnik Pierwsze Kroki (Złote Zasady) & Przewodnik po Funkcjach Aplikacji
   const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const [isTourOpen, setIsTourOpen] = useState(false);
 
   // Tryb wyboru nastawu (Styl Dowolny / Receptury Mistrzów / Klasyczne Presety)
   const [ritualMode, setRitualMode] = useState<'freeform' | 'recipes' | 'presets'>('freeform');
   const [selectedProduce, setSelectedProduce] = useState<string[]>(['cucumber']);
+  const [produceCategory, setProduceCategory] = useState<ProduceFilterCategory>('all');
   const [recipeCategory, setRecipeCategory] = useState<RecipeCategory | 'all'>('all');
   const [recipeSearch, setRecipeSearch] = useState<string>('');
 
@@ -397,8 +417,17 @@ export default function RitualScreen() {
         {/* Nagłówek Rytuału */}
         <View style={styles.header}>
           <View style={styles.titleRow}>
-            <Text style={theme.typography.heroTitle}>{t('Słoik (Jarwise) 🫙')}</Text>
+            <Text style={styles.headerTitleText} numberOfLines={1}>{t('Słoik (Jarwise) 🫙')}</Text>
             <View style={styles.headerButtons}>
+              <TouchableOpacity
+                onPress={() => setIsTourOpen(true)}
+                style={styles.iconButton}
+                accessibilityLabel={t('Przewodnik po funkcjach aplikacji')}
+                accessibilityRole="button"
+                hitSlop={theme.hitSlop}
+              >
+                <Text style={styles.iconButtonEmoji}>🧭</Text>
+              </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => router.push('/experiments')}
                 style={styles.iconButton}
@@ -406,7 +435,7 @@ export default function RitualScreen() {
                 accessibilityRole="button"
                 hitSlop={theme.hitSlop}
               >
-                <Text style={{ fontSize: 20 }}>🔬</Text>
+                <Text style={styles.iconButtonEmoji}>🔬</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => router.push('/pasteurizer')}
@@ -415,7 +444,7 @@ export default function RitualScreen() {
                 accessibilityRole="button"
                 hitSlop={theme.hitSlop}
               >
-                <Text style={{ fontSize: 20 }}>⏱️</Text>
+                <Text style={styles.iconButtonEmoji}>⏱️</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => router.push('/settings')}
@@ -424,7 +453,7 @@ export default function RitualScreen() {
                 accessibilityRole="button"
                 hitSlop={theme.hitSlop}
               >
-                <Text style={{ fontSize: 20 }}>⚙️</Text>
+                <Text style={styles.iconButtonEmoji}>⚙️</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -433,24 +462,45 @@ export default function RitualScreen() {
           </Text>
         </View>
 
-        {/* BANER PRZEWODNIKA: PIERWSZE KROKI */}
+        {/* ZŁOTE ZASADY KISZENIA: 5 REGUŁ MISTRZA (STAŁE NA GÓRZE EKRANU) */}
         <TouchableOpacity
-          style={styles.guideBanner}
+          style={styles.goldenRulesBanner}
           onPress={() => setIsGuideOpen(true)}
           activeOpacity={0.85}
-          accessibilityLabel={t('Pierwsze kroki w Słoiku')}
+          accessibilityLabel={t('Złote Zasady Kiszenia: 5 Reguł Mistrza')}
         >
-          <Text style={styles.guideBannerEmoji}>✨</Text>
-          <View style={styles.guideBannerTextCol}>
-            <View style={styles.guideBannerBadgeRow}>
-              <Text style={styles.guideBannerBadge}>{t('PIERWSZE KROKI')}</Text>
-              <Text style={styles.guideBannerArrow}>→</Text>
+          <View style={styles.goldenRulesIconBox}>
+            <Text style={styles.goldenRulesEmoji}>📜</Text>
+          </View>
+          <View style={styles.goldenRulesTextCol}>
+            <View style={styles.goldenRulesBadgeRow}>
+              <Text style={styles.goldenRulesBadge}>{t('FUNDAMENT RZEMIOSŁA')}</Text>
+              <Text style={styles.goldenRulesArrow}>→</Text>
             </View>
-            <Text style={styles.guideBannerTitle}>{t('Przewodnik: Jak zacząć domowe przetwory?')}</Text>
-            <Text style={styles.guideBannerSubtitle}>
-              {t('5 złotych reguł: precyzja soli, beztlenowy słoik i idealna chrupkość.')}
+            <Text style={styles.goldenRulesTitle}>{t('Złote Zasady Kiszenia: 5 Reguł Mistrza')}</Text>
+            <Text style={styles.goldenRulesSubtitle}>
+              {t('Precyzja stężenia soli, beztlenowy słoik, temperatura, odgazowanie i sterylność.')}
             </Text>
           </View>
+        </TouchableOpacity>
+
+        {/* PRZEWODNIK PO FUNKCJACH APLIKACJI (INTERAKTYWNY TOUR) */}
+        <TouchableOpacity
+          style={styles.appTourBanner}
+          onPress={() => setIsTourOpen(true)}
+          activeOpacity={0.85}
+          accessibilityLabel={t('Przewodnik po funkcjach aplikacji')}
+        >
+          <View style={styles.appTourIconBox}>
+            <Text style={styles.appTourEmoji}>🧭</Text>
+          </View>
+          <View style={styles.appTourTextCol}>
+            <Text style={styles.appTourTitle}>{t('Przewodnik: Jak działa aplikacja?')}</Text>
+            <Text style={styles.appTourSub}>
+              {t('Poznaj 7 modułów: Rytuał, Styl Dowolny, Receptury, Dojrzewalnię, Doktora i zasady Offline.')}
+            </Text>
+          </View>
+          <Text style={styles.appTourArrow}>➔</Text>
         </TouchableOpacity>
 
         {/* ============================================================== */}
@@ -495,13 +545,15 @@ export default function RitualScreen() {
             onPress={() => setRitualMode('freeform')}
             activeOpacity={0.8}
           >
+            <Text style={styles.modeTabEmoji}>🧪</Text>
             <Text
               style={[
                 styles.modeTabBtnText,
                 ritualMode === 'freeform' && styles.modeTabBtnTextActive,
               ]}
+              numberOfLines={1}
             >
-              🧪 {t('Styl Dowolny')}
+              {t('Styl Dowolny')}
             </Text>
           </TouchableOpacity>
 
@@ -510,13 +562,15 @@ export default function RitualScreen() {
             onPress={() => setRitualMode('recipes')}
             activeOpacity={0.8}
           >
+            <Text style={styles.modeTabEmoji}>📜</Text>
             <Text
               style={[
                 styles.modeTabBtnText,
                 ritualMode === 'recipes' && styles.modeTabBtnTextActive,
               ]}
+              numberOfLines={1}
             >
-              📜 {t('Receptury (155)')}
+              {t('Receptury (155)')}
             </Text>
           </TouchableOpacity>
 
@@ -525,13 +579,15 @@ export default function RitualScreen() {
             onPress={() => setRitualMode('presets')}
             activeOpacity={0.8}
           >
+            <Text style={styles.modeTabEmoji}>🥒</Text>
             <Text
               style={[
                 styles.modeTabBtnText,
                 ritualMode === 'presets' && styles.modeTabBtnTextActive,
               ]}
+              numberOfLines={1}
             >
-              🥒 {t('Klasyki')}
+              {t('Klasyki')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -543,8 +599,82 @@ export default function RitualScreen() {
               {t('Zaznacz warzywa, które masz w kuchni — aplikacja wyliczy solankę, zioła i technikę:')}
             </Text>
 
+            {/* KATEGORIE WARZYW (FILTR) */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.produceCategoryScroll}
+            >
+              {PRODUCE_CATEGORIES.map((cat) => {
+                const isActive = produceCategory === cat.id;
+                return (
+                  <TouchableOpacity
+                    key={cat.id}
+                    style={[
+                      styles.produceCatChip,
+                      isActive && styles.produceCatChipActive,
+                    ]}
+                    onPress={() => setProduceCategory(cat.id)}
+                    hitSlop={theme.hitSlop}
+                  >
+                    <Text style={styles.produceCatIcon}>{cat.icon}</Text>
+                    <Text
+                      style={[
+                        styles.produceCatText,
+                        isActive && styles.produceCatTextActive,
+                      ]}
+                    >
+                      {t(cat.label)}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+
+            {/* PODSUMOWANIE WYBRANYCH WARZYW */}
+            <View style={styles.selectedProduceSummary}>
+              <View style={styles.selectedProduceHeader}>
+                <Text style={styles.selectedProduceCount}>
+                  {t('Wybrane składniki ({count}):', { count: selectedProduce.length })}
+                </Text>
+                {selectedProduce.length > 1 && (
+                  <TouchableOpacity
+                    onPress={() => setSelectedProduce(['cucumber'])}
+                    hitSlop={theme.hitSlop}
+                  >
+                    <Text style={styles.clearProduceText}>{t('Zresetuj')}</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.selectedProduceScroll}
+              >
+                {selectedProduce.map((id) => {
+                  const prod = FREEFORM_PRODUCE.find((p) => p.id === id);
+                  if (!prod) return null;
+                  return (
+                    <TouchableOpacity
+                      key={id}
+                      style={styles.selectedProducePill}
+                      onPress={() => handleToggleProduce(id)}
+                      hitSlop={theme.hitSlop}
+                    >
+                      <Text style={styles.selectedProducePillEmoji}>{prod.emoji}</Text>
+                      <Text style={styles.selectedProducePillText}>{t(prod.name)}</Text>
+                      <Text style={styles.selectedProducePillRemove}>✕</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            </View>
+
+            {/* ZWARTY GRID WARZYW (FILTROWANY) */}
             <View style={styles.produceGrid}>
-              {FREEFORM_PRODUCE.map((prod) => {
+              {FREEFORM_PRODUCE.filter(
+                (p) => produceCategory === 'all' || getProduceCategory(p.id) === produceCategory
+              ).map((prod) => {
                 const isSelected = selectedProduce.includes(prod.id);
                 return (
                   <TouchableOpacity
@@ -854,11 +984,17 @@ export default function RitualScreen() {
           }}
         />
 
-        {/* MODAL PRZEWODNIKA: PIERWSZE KROKI */}
+        {/* MODAL ZŁOTYCH ZASAD KISZENIA */}
         <QuickStartGuideModal
           visible={isGuideOpen}
           onClose={() => setIsGuideOpen(false)}
           onStartRitual={() => setIsGuideOpen(false)}
+        />
+
+        {/* MODAL PRZEWODNIKA PO APLIKACJI (APP TOUR) */}
+        <AppTourModal
+          visible={isTourOpen}
+          onClose={() => setIsTourOpen(false)}
         />
 
         {/* MODAL SPRZĘTU */}
@@ -906,20 +1042,36 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 8,
+  },
+  headerTitleText: {
+    ...theme.typography.heroTitle,
+    flex: 1,
+    flexShrink: 1,
+    fontSize: 22,
+    color: theme.colors.textPrimary,
+    marginRight: 6,
   },
   headerButtons: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 6,
+    flexShrink: 0,
+    alignItems: 'center',
   },
   iconButton: {
-    minHeight: 44,
-    minWidth: 44,
+    width: 38,
+    height: 38,
     backgroundColor: theme.colors.bgCard,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    borderRadius: theme.borderRadius.md,
+    borderRadius: theme.borderRadius.sm,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  iconButtonEmoji: {
+    fontSize: 18,
+    lineHeight: 20,
+    textAlign: 'center',
   },
   tagline: {
     fontSize: 13,
@@ -1156,50 +1308,107 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#FFFFFF',
   },
-  guideBanner: {
+  goldenRulesBanner: {
     backgroundColor: theme.colors.bgCard,
     borderWidth: 1.5,
     borderColor: theme.colors.pickleGreen,
     borderRadius: theme.borderRadius.md,
     padding: 14,
-    marginVertical: 10,
+    marginTop: 10,
+    marginBottom: 6,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
   },
-  guideBannerEmoji: {
-    fontSize: 28,
+  goldenRulesIconBox: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: theme.colors.bgCardElevated,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: theme.colors.pickleGreenMuted,
   },
-  guideBannerTextCol: {
+  goldenRulesEmoji: {
+    fontSize: 22,
+    lineHeight: 24,
+    textAlign: 'center',
+  },
+  goldenRulesTextCol: {
     flex: 1,
   },
-  guideBannerBadgeRow: {
+  goldenRulesBadgeRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  guideBannerBadge: {
+  goldenRulesBadge: {
     color: theme.colors.pickleGreen,
     fontSize: 10,
     fontWeight: '800',
     letterSpacing: 1,
   },
-  guideBannerArrow: {
+  goldenRulesArrow: {
     color: theme.colors.pickleGreen,
     fontSize: 16,
     fontWeight: '700',
   },
-  guideBannerTitle: {
+  goldenRulesTitle: {
     color: theme.colors.textPrimary,
     fontSize: 15,
     fontWeight: '800',
     marginTop: 2,
   },
-  guideBannerSubtitle: {
+  goldenRulesSubtitle: {
     color: theme.colors.textSecondary,
     fontSize: 12,
     lineHeight: 16,
     marginTop: 2,
+  },
+  appTourBanner: {
+    backgroundColor: theme.colors.bgCardElevated,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.borderRadius.md,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  appTourIconBox: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: theme.colors.bgCard,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  appTourEmoji: {
+    fontSize: 18,
+    lineHeight: 20,
+    textAlign: 'center',
+  },
+  appTourTextCol: {
+    flex: 1,
+  },
+  appTourTitle: {
+    color: theme.colors.textPrimary,
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  appTourSub: {
+    color: theme.colors.textSecondary,
+    fontSize: 11,
+    lineHeight: 14,
+    marginTop: 1,
+  },
+  appTourArrow: {
+    color: theme.colors.pickleGreen,
+    fontSize: 14,
+    fontWeight: '700',
   },
   modeTabsRow: {
     flexDirection: 'row',
@@ -1213,21 +1422,117 @@ const styles = StyleSheet.create({
   },
   modeTabBtn: {
     flex: 1,
-    paddingVertical: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
     alignItems: 'center',
+    justifyContent: 'center',
     borderRadius: theme.borderRadius.sm,
   },
   modeTabBtnActive: {
     backgroundColor: theme.colors.pickleGreen,
   },
+  modeTabEmoji: {
+    fontSize: 16,
+    lineHeight: 18,
+    marginBottom: 2,
+    textAlign: 'center',
+  },
   modeTabBtnText: {
     color: theme.colors.textSecondary,
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
+    textAlign: 'center',
   },
   modeTabBtnTextActive: {
     color: '#FFFFFF',
     fontWeight: '800',
+  },
+  produceCategoryScroll: {
+    gap: 6,
+    paddingBottom: 8,
+    marginBottom: 6,
+  },
+  produceCatChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: theme.colors.bgCard,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    gap: 5,
+  },
+  produceCatChipActive: {
+    backgroundColor: theme.colors.pickleGreen,
+    borderColor: theme.colors.pickleGreen,
+  },
+  produceCatIcon: {
+    fontSize: 13,
+    lineHeight: 15,
+  },
+  produceCatText: {
+    color: theme.colors.textSecondary,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  produceCatTextActive: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+  },
+  selectedProduceSummary: {
+    backgroundColor: theme.colors.bgCard,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.borderRadius.md,
+    padding: 10,
+    marginBottom: 10,
+  },
+  selectedProduceHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  selectedProduceCount: {
+    color: theme.colors.textPrimary,
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  clearProduceText: {
+    color: theme.colors.amberBrine,
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  selectedProduceScroll: {
+    gap: 6,
+    paddingVertical: 2,
+  },
+  selectedProducePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.colors.pickleGreenMuted,
+    borderWidth: 1,
+    borderColor: theme.colors.pickleGreen,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  selectedProducePillEmoji: {
+    fontSize: 13,
+    lineHeight: 15,
+  },
+  selectedProducePillText: {
+    color: theme.colors.pickleGreenLight,
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  selectedProducePillRemove: {
+    color: theme.colors.pickleGreen,
+    fontSize: 11,
+    fontWeight: '800',
+    marginLeft: 2,
   },
   freeformBox: {
     marginBottom: 8,

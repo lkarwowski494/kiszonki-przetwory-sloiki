@@ -35,6 +35,7 @@ import { Badge } from '../../src/ui/components/Badge';
 import { ModalHeader } from '../../src/ui/components/ModalHeader';
 import { CustomRecipeModal } from '../../src/ui/components/CustomRecipeModal';
 import { QuickStartGuideModal } from '../../src/ui/components/QuickStartGuideModal';
+import { AppTourModal } from '../../src/ui/components/AppTourModal';
 import { SearchField, normSearch } from '../../src/ui/components/SearchField';
 import { t, useLang } from '../../src/lib/i18n';
 
@@ -62,6 +63,7 @@ export default function WiedzaScreen() {
   const [customRecipes, setCustomRecipes] = useState<MasterRecipe[]>([]);
   const [isCustomRecipeModalOpen, setIsCustomRecipeModalOpen] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const [isTourOpen, setIsTourOpen] = useState(false);
 
   // Stan dla Doktora
   const [currentNodeId, setCurrentNodeId] = useState<string>('ROOT');
@@ -119,15 +121,23 @@ export default function WiedzaScreen() {
         {/* Nagłówek */}
         <View style={styles.header}>
           <View style={styles.titleRow}>
-            <Text style={theme.typography.heroTitle}>{t('Wiedza Rzemieślnicza 📖')}</Text>
+            <Text style={styles.headerTitleText} numberOfLines={1}>{t('Wiedza Rzemieślnicza 📖')}</Text>
             <View style={styles.headerButtons}>
+              <TouchableOpacity
+                onPress={() => setIsTourOpen(true)}
+                style={styles.iconButton}
+                accessibilityLabel={t('Przewodnik po funkcjach aplikacji')}
+                hitSlop={theme.hitSlop}
+              >
+                <Text style={styles.iconButtonEmoji}>🧭</Text>
+              </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => setIsGuideOpen(true)}
                 style={styles.iconButton}
-                accessibilityLabel={t('Pierwsze Kroki: Przewodnik')}
+                accessibilityLabel={t('Złote Zasady Kiszenia')}
                 hitSlop={theme.hitSlop}
               >
-                <Text style={{ fontSize: 20 }}>✨</Text>
+                <Text style={styles.iconButtonEmoji}>📜</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => router.push('/settings')}
@@ -135,7 +145,7 @@ export default function WiedzaScreen() {
                 accessibilityLabel={t('Ustawienia')}
                 hitSlop={theme.hitSlop}
               >
-                <Text style={{ fontSize: 20 }}>⚙️</Text>
+                <Text style={styles.iconButtonEmoji}>⚙️</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -539,10 +549,16 @@ export default function WiedzaScreen() {
           onSaved={() => reloadCustomRecipes()}
         />
 
-        {/* MODAL PRZEWODNIKA PIERWSZE KROKI */}
+        {/* MODAL ZŁOTYCH ZASAD KISZENIA */}
         <QuickStartGuideModal
           visible={isGuideOpen}
           onClose={() => setIsGuideOpen(false)}
+        />
+
+        {/* MODAL PRZEWODNIKA PO APLIKACJI */}
+        <AppTourModal
+          visible={isTourOpen}
+          onClose={() => setIsTourOpen(false)}
         />
       </ScrollView>
     </SafeAreaView>
@@ -565,20 +581,36 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 8,
+  },
+  headerTitleText: {
+    ...theme.typography.heroTitle,
+    flex: 1,
+    flexShrink: 1,
+    fontSize: 22,
+    color: theme.colors.textPrimary,
+    marginRight: 6,
   },
   headerButtons: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 6,
+    flexShrink: 0,
+    alignItems: 'center',
   },
   iconButton: {
-    minHeight: 44,
-    minWidth: 44,
+    width: 38,
+    height: 38,
     backgroundColor: theme.colors.bgCard,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    borderRadius: theme.borderRadius.md,
+    borderRadius: theme.borderRadius.sm,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  iconButtonEmoji: {
+    fontSize: 18,
+    lineHeight: 20,
+    textAlign: 'center',
   },
   tagline: {
     fontSize: 13,

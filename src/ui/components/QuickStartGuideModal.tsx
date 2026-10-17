@@ -135,8 +135,8 @@ export const QuickStartGuideModal: React.FC<QuickStartGuideModalProps> = ({
       >
         <View style={styles.header}>
           <View>
-            <Text style={styles.brandBadge}>APPS4CRAFT • PRZEWODNIK MISTRZA</Text>
-            <Text style={styles.headerTitle}>{t('Pierwsze Kroki w Słoiku')}</Text>
+            <Text style={styles.brandBadge}>{t('APPS4CRAFT • FUNDAMENT RZEMIOSŁA')}</Text>
+            <Text style={styles.headerTitle}>{t('Złote Zasady Kiszenia')}</Text>
           </View>
           <TouchableOpacity
             onPress={onClose}

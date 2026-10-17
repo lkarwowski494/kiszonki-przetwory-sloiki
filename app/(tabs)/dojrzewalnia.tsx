@@ -253,7 +253,7 @@ export default function DojrzewalniaScreen() {
         {/* Nagłówek Dojrzewalni */}
         <View style={styles.header}>
           <View style={styles.titleRow}>
-            <Text style={theme.typography.heroTitle}>{t('Dojrzewalnia 🫙')}</Text>
+            <Text style={styles.headerTitleText} numberOfLines={1}>{t('Dojrzewalnia 🫙')}</Text>
             <View style={styles.headerButtons}>
               <TouchableOpacity
                 onPress={() => setIsScannerOpen(true)}
@@ -261,7 +261,7 @@ export default function DojrzewalniaScreen() {
                 accessibilityLabel={t('Skanuj Kod QR Słoika')}
                 hitSlop={theme.hitSlop}
               >
-                <Text style={{ fontSize: 20 }}>📷</Text>
+                <Text style={styles.iconButtonEmoji}>📷</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => router.push('/settings')}
@@ -269,7 +269,7 @@ export default function DojrzewalniaScreen() {
                 accessibilityLabel={t('Ustawienia i Warsztat')}
                 hitSlop={theme.hitSlop}
               >
-                <Text style={{ fontSize: 20 }}>⚙️</Text>
+                <Text style={styles.iconButtonEmoji}>⚙️</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -752,20 +752,36 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 8,
+  },
+  headerTitleText: {
+    ...theme.typography.heroTitle,
+    flex: 1,
+    flexShrink: 1,
+    fontSize: 22,
+    color: theme.colors.textPrimary,
+    marginRight: 6,
   },
   headerButtons: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 6,
+    flexShrink: 0,
+    alignItems: 'center',
   },
   iconButton: {
-    minHeight: 44,
-    minWidth: 44,
+    width: 38,
+    height: 38,
     backgroundColor: theme.colors.bgCard,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    borderRadius: theme.borderRadius.md,
+    borderRadius: theme.borderRadius.sm,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  iconButtonEmoji: {
+    fontSize: 18,
+    lineHeight: 20,
+    textAlign: 'center',
   },
   tagline: {
     fontSize: 13,

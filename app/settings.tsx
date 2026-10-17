@@ -36,6 +36,7 @@ import {
 } from '@apps4craft/ui';
 import { CraftOnboardingModal, CraftProfileId, CRAFT_PROFILES } from '../src/ui/components/CraftOnboardingModal';
 import { QuickStartGuideModal } from '../src/ui/components/QuickStartGuideModal';
+import { AppTourModal } from '../src/ui/components/AppTourModal';
 import { CustomEquipmentModal } from '../src/ui/components/CustomEquipmentModal';
 
 import * as FileSystem from 'expo-file-system';
@@ -58,6 +59,7 @@ export default function SettingsScreen() {
   const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
   const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const [isTourOpen, setIsTourOpen] = useState(false);
   const [activeProfile, setActiveProfile] = useState<CraftProfileId>(
     dbStore.getOnboardingProfile() || 'classic_pickles'
   );
@@ -175,10 +177,18 @@ export default function SettingsScreen() {
 
             <TouchableOpacity
               style={[styles.changeProfileBtn, { marginTop: 8 }]}
+              onPress={() => setIsTourOpen(true)}
+              hitSlop={theme.hitSlop}
+            >
+              <Text style={styles.changeProfileText}>🧭 {t('Przewodnik po Funkcjach Aplikacji')}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.changeProfileBtn, { marginTop: 8 }]}
               onPress={() => setIsGuideOpen(true)}
               hitSlop={theme.hitSlop}
             >
-              <Text style={styles.changeProfileText}>📖 {t('Pierwsze Kroki: Przewodnik Mistrza')}</Text>
+              <Text style={styles.changeProfileText}>📜 {t('Złote Zasady Kiszenia (5 Reguł Mistrza)')}</Text>
             </TouchableOpacity>
           </View>
         </KitchenCard>
@@ -509,6 +519,11 @@ export default function SettingsScreen() {
         <QuickStartGuideModal
           visible={isGuideOpen}
           onClose={() => setIsGuideOpen(false)}
+        />
+
+        <AppTourModal
+          visible={isTourOpen}
+          onClose={() => setIsTourOpen(false)}
         />
 
         <CustomEquipmentModal
