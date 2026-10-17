@@ -45,7 +45,7 @@ describe('RNTL Screen Tests (7 Tras Aplikacji, BR-TEST-016..020)', () => {
   // --------------------------------------------------------------------------
   // Trasa 3: app/(tabs)/wiedza.tsx (Receptury & Doktor)
   // --------------------------------------------------------------------------
-  test('Trasa 3: /(tabs)/wiedza renderuje 24 receptury świata i drzewo decyzyjne Doktora', async () => {
+  test('Trasa 3: /(tabs)/wiedza renderuje receptury świata i drzewo decyzyjne Doktora', async () => {
     const { toJSON } = await renderApp({ route: '/(tabs)/wiedza' });
     const jsonStr = JSON.stringify(toJSON());
     expect(jsonStr).toContain('Ogórki małosolne chrupiące');

@@ -28,11 +28,19 @@ import { Badge } from '../../src/ui/components/Badge';
 import { SacredNumbersBar } from '../../src/ui/components/SacredNumbersBar';
 import { ActiveFocusTimer } from '../../src/ui/components/ActiveFocusTimer';
 import { CraftOnboardingModal, CraftProfileId } from '../../src/ui/components/CraftOnboardingModal';
+import { QuickStartGuideModal } from '../../src/ui/components/QuickStartGuideModal';
 import { CustomEquipmentModal } from '../../src/ui/components/CustomEquipmentModal';
 import { CustomRecipeModal } from '../../src/ui/components/CustomRecipeModal';
 import { useAppAccess } from '../../src/core/access/app-access';
 import { PaywallModal } from '../../src/ui/components/PaywallModal';
 import { t, useLang } from '../../src/lib/i18n';
+import {
+  FREEFORM_PRODUCE,
+  composeFreeformRecipe,
+} from '../../src/core/recipes/freeform-composer';
+import { MASTER_RECIPES } from '../../src/core/recipes/recipes-data';
+import { MasterRecipe, RecipeCategory } from '../../src/core/types';
+import { SearchField, normSearch } from '../../src/ui/components/SearchField';
 import {
   useUnitSystem,
   formatProduceWeight,
@@ -149,6 +157,16 @@ const RITUAL_PRESETS: RitualPreset[] = [
   },
 ];
 
+const RECIPE_CATEGORIES: { label: string; value: RecipeCategory | 'all' }[] = [
+  { label: 'Wszystkie', value: 'all' },
+  { label: 'Polska', value: 'poland_central_europe' },
+  { label: 'Azja', value: 'east_asia' },
+  { label: 'Bliski Wschód', value: 'mideast_maghreb_india' },
+  { label: 'Ameryki', value: 'americas_mediterranean' },
+  { label: 'Spiżarnia', value: 'sweet_preserves' },
+  { label: 'Napoje', value: 'drinks_vinegars' },
+];
+
 export default function RitualScreen() {
   const router = useRouter();
   const { canCreate } = useAppAccess();
@@ -178,6 +196,70 @@ export default function RitualScreen() {
   const [customTitle, setCustomTitle] = useState('');
   const [customSalinityPct, setCustomSalinityPct] = useState<number>(2.0);
   const [isDrySaltingCustom, setIsDrySaltingCustom] = useState<boolean>(false);
+
+  // Przewodnik Pierwsze Kroki
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
+
+  // Tryb wyboru nastawu (Styl Dowolny / Receptury Mistrzów / Klasyczne Presety)
+  const [ritualMode, setRitualMode] = useState<'freeform' | 'recipes' | 'presets'>('freeform');
+  const [selectedProduce, setSelectedProduce] = useState<string[]>(['cucumber']);
+  const [recipeCategory, setRecipeCategory] = useState<RecipeCategory | 'all'>('all');
+  const [recipeSearch, setRecipeSearch] = useState<string>('');
+
+  const freeformSuggestion = composeFreeformRecipe(selectedProduce, produceWeightNum);
+
+  const handleToggleProduce = (id: string) => {
+    setSelectedProduce((prev) => {
+      if (prev.includes(id)) {
+        if (prev.length === 1) return prev;
+        return prev.filter((p) => p !== id);
+      }
+      return [...prev, id];
+    });
+  };
+
+  const handleApplyFreeform = () => {
+    setCustomTitle(freeformSuggestion.title);
+    setCustomSalinityPct(freeformSuggestion.recommendedSalinityPercent);
+    setIsDrySaltingCustom(freeformSuggestion.isDrySalting);
+    setIsAdvancedOpen(true);
+    Alert.alert(
+      t('Zastosowano Styl Dowolny! 🫙'),
+      t('Parametry autorskiego nastawu zostały załadowane do kalkulatora blatu kuchennego.')
+    );
+  };
+
+  const handleSelectMasterRecipe = (recipe: MasterRecipe) => {
+    setSelectedPresetId(`rec_${recipe.id.toLowerCase()}`);
+    setCustomTitle(recipe.title);
+    setCustomSalinityPct(recipe.defaultSalinityPercent);
+    setProduceWeightNum(recipe.defaultProduceWeightGrams);
+    const isDry =
+      recipe.method === 'sweet_preserve' ||
+      recipe.title.toLowerCase().includes('kapust') ||
+      recipe.title.toLowerCase().includes('kimchi') ||
+      recipe.title.toLowerCase().includes('cytryn');
+    setIsDrySaltingCustom(isDry);
+    setIsAdvancedOpen(true);
+    Alert.alert(
+      t('Receptura załadowana! 📖'),
+      t('Nastaw "{title}" ({salinity}% soli) jest gotowy do odważenia.', {
+        title: recipe.title,
+        salinity: recipe.defaultSalinityPercent,
+      })
+    );
+  };
+
+  const filteredMasterRecipes = MASTER_RECIPES.filter((r) => {
+    const matchesCat = recipeCategory === 'all' || r.category === recipeCategory;
+    const q = normSearch(recipeSearch);
+    const matchesSearch =
+      !q ||
+      normSearch(r.title).includes(q) ||
+      normSearch(r.culture).includes(q) ||
+      normSearch(r.subtitle).includes(q);
+    return matchesCat && matchesSearch;
+  });
 
   useEffect(() => {
     // Sprawdź onboarding
@@ -351,6 +433,26 @@ export default function RitualScreen() {
           </Text>
         </View>
 
+        {/* BANER PRZEWODNIKA: PIERWSZE KROKI */}
+        <TouchableOpacity
+          style={styles.guideBanner}
+          onPress={() => setIsGuideOpen(true)}
+          activeOpacity={0.85}
+          accessibilityLabel={t('Pierwsze kroki w Słoiku')}
+        >
+          <Text style={styles.guideBannerEmoji}>✨</Text>
+          <View style={styles.guideBannerTextCol}>
+            <View style={styles.guideBannerBadgeRow}>
+              <Text style={styles.guideBannerBadge}>{t('PIERWSZE KROKI')}</Text>
+              <Text style={styles.guideBannerArrow}>→</Text>
+            </View>
+            <Text style={styles.guideBannerTitle}>{t('Przewodnik: Jak zacząć domowe przetwory?')}</Text>
+            <Text style={styles.guideBannerSubtitle}>
+              {t('5 złotych reguł: precyzja soli, beztlenowy słoik i idealna chrupkość.')}
+            </Text>
+          </View>
+        </TouchableOpacity>
+
         {/* ============================================================== */}
         {/* ŚWIĘTE LICZBY FERMENTACJI (SACRED NUMBERS BAR)                 */}
         {/* ============================================================== */}
@@ -382,49 +484,233 @@ export default function RitualScreen() {
         )}
 
         {/* ============================================================== */}
-        {/* SZYBKI WYBÓR NASTAWU (PRESETY FILTROWANE PROFILEM)              */}
+        {/* WYBÓR NASTAWU RYTUAŁU (STYL DOWOLNY / RECEPTURY / KLASYKI)     */}
         {/* ============================================================== */}
         <Text style={styles.sectionTitle}>{t('Wybierz Nastaw Rytuału')}</Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.presetsScroll}
-        >
-          {displayPresets.map((preset) => {
-            const isSelected = selectedPresetId === preset.id;
-            return (
+
+        {/* PRZEŁĄCZNIK TRYBU */}
+        <View style={styles.modeTabsRow}>
+          <TouchableOpacity
+            style={[styles.modeTabBtn, ritualMode === 'freeform' && styles.modeTabBtnActive]}
+            onPress={() => setRitualMode('freeform')}
+            activeOpacity={0.8}
+          >
+            <Text
+              style={[
+                styles.modeTabBtnText,
+                ritualMode === 'freeform' && styles.modeTabBtnTextActive,
+              ]}
+            >
+              🧪 {t('Styl Dowolny')}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.modeTabBtn, ritualMode === 'recipes' && styles.modeTabBtnActive]}
+            onPress={() => setRitualMode('recipes')}
+            activeOpacity={0.8}
+          >
+            <Text
+              style={[
+                styles.modeTabBtnText,
+                ritualMode === 'recipes' && styles.modeTabBtnTextActive,
+              ]}
+            >
+              📜 {t('Receptury (46)')}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.modeTabBtn, ritualMode === 'presets' && styles.modeTabBtnActive]}
+            onPress={() => setRitualMode('presets')}
+            activeOpacity={0.8}
+          >
+            <Text
+              style={[
+                styles.modeTabBtnText,
+                ritualMode === 'presets' && styles.modeTabBtnTextActive,
+              ]}
+            >
+              🥒 {t('Klasyki')}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* TRYB 1: STYL DOWOLNY */}
+        {ritualMode === 'freeform' && (
+          <View style={styles.freeformBox}>
+            <Text style={styles.freeformSubtitle}>
+              {t('Zaznacz warzywa, które masz w kuchni — aplikacja wyliczy solankę, zioła i technikę:')}
+            </Text>
+
+            <View style={styles.produceGrid}>
+              {FREEFORM_PRODUCE.map((prod) => {
+                const isSelected = selectedProduce.includes(prod.id);
+                return (
+                  <TouchableOpacity
+                    key={prod.id}
+                    style={[styles.produceChip, isSelected && styles.produceChipSelected]}
+                    onPress={() => handleToggleProduce(prod.id)}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={{ fontSize: 16 }}>{prod.emoji}</Text>
+                    <Text
+                      style={[
+                        styles.produceChipText,
+                        isSelected && styles.produceChipTextSelected,
+                      ]}
+                    >
+                      {t(prod.name)}
+                    </Text>
+                    {isSelected && <Text style={styles.produceCheck}>✓</Text>}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            {/* KARTA WYNIKU KOMPOZYCJI */}
+            <KitchenCard style={styles.freeformResultCard}>
+              <Text style={styles.freeformTitle}>{freeformSuggestion.title}</Text>
+              <Text style={styles.freeformSubtitleText}>{freeformSuggestion.subtitle}</Text>
+
+              <View style={styles.freeformBadgesRow}>
+                <Badge
+                  label={freeformSuggestion.isDrySalting ? t('Solenie na sucho') : t('Solanka wodna')}
+                  variant="green"
+                />
+                <Badge
+                  label={`${freeformSuggestion.recommendedSalinityPercent}% ${t('sól')}`}
+                  variant="amber"
+                />
+                <Badge
+                  label={`⏳ ${freeformSuggestion.fermentationDays} ${t('dni')}`}
+                  variant="gray"
+                />
+              </View>
+
+              <Text style={styles.freeformHerbs}>
+                🌿 <Text style={{ fontWeight: '700' }}>{t('Sugerowane zioła:')}</Text>{' '}
+                {freeformSuggestion.suggestedHerbs.join(', ')}
+              </Text>
+
+              <Text style={styles.freeformTip}>
+                💡 {freeformSuggestion.craftTips[0]}
+              </Text>
+
               <TouchableOpacity
-                key={preset.id}
-                style={[
-                  styles.presetChip,
-                  isSelected && styles.presetChipSelected,
-                ]}
-                onPress={() => {
-                  setSelectedPresetId(preset.id);
-                  setProduceWeightNum(preset.defaultProduceGrams);
-                }}
-                activeOpacity={0.8}
+                style={styles.freeformApplyBtn}
+                onPress={handleApplyFreeform}
+                activeOpacity={0.85}
               >
-                <Text
-                  style={[
-                    styles.presetChipText,
-                    isSelected && styles.presetChipTextSelected,
-                  ]}
-                >
-                  {preset.name}
-                </Text>
-                <Text
-                  style={[
-                    styles.presetChipSalinity,
-                    isSelected && styles.presetChipSalinitySelected,
-                  ]}
-                >
-                  {preset.isDrySalting ? t('Solenie na sucho') : `${preset.salinity}% solanka`}
+                <Text style={styles.freeformApplyBtnText}>
+                  {t('Zastosuj w kalkulatorze blatu 🫙')}
                 </Text>
               </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
+            </KitchenCard>
+          </View>
+        )}
+
+        {/* TRYB 2: RECEPTURY MISTRZÓW */}
+        {ritualMode === 'recipes' && (
+          <View style={styles.recipesModeBox}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.recipeCatScroll}>
+              {RECIPE_CATEGORIES.map((cat) => {
+                const isActive = recipeCategory === cat.value;
+                return (
+                  <TouchableOpacity
+                    key={cat.value}
+                    style={[styles.recipeCatChip, isActive && styles.recipeCatChipActive]}
+                    onPress={() => setRecipeCategory(cat.value)}
+                  >
+                    <Text
+                      style={[
+                        styles.recipeCatChipText,
+                        isActive && styles.recipeCatChipTextActive,
+                      ]}
+                    >
+                      {t(cat.label)}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+
+            <SearchField
+              query={recipeSearch}
+              onChangeQuery={setRecipeSearch}
+              placeholder={t('Szukaj wśród 46 receptur...')}
+            />
+
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recipesScroll}>
+              {filteredMasterRecipes.slice(0, 15).map((recipe) => (
+                <TouchableOpacity
+                  key={recipe.id}
+                  style={styles.recipeCard}
+                  onPress={() => handleSelectMasterRecipe(recipe)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.recipeCulture}>{recipe.culture}</Text>
+                  <Text style={styles.recipeCardTitle} numberOfLines={2}>
+                    {recipe.title}
+                  </Text>
+                  <Text style={styles.recipeCardSubtitle} numberOfLines={2}>
+                    {recipe.subtitle}
+                  </Text>
+                  <View style={styles.recipeCardFooter}>
+                    <Badge label={`${recipe.defaultSalinityPercent}%`} variant="green" />
+                    <Text style={styles.recipeCardAction}>{t('Wybierz →')}</Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
+
+        {/* TRYB 3: KLASYCZNE PRESETY */}
+        {ritualMode === 'presets' && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.presetsScroll}
+          >
+            {displayPresets.map((preset) => {
+              const isSelected = selectedPresetId === preset.id;
+              return (
+                <TouchableOpacity
+                  key={preset.id}
+                  style={[
+                    styles.presetChip,
+                    isSelected && styles.presetChipSelected,
+                  ]}
+                  onPress={() => {
+                    setSelectedPresetId(preset.id);
+                    setProduceWeightNum(preset.defaultProduceGrams);
+                    setIsAdvancedOpen(false);
+                    setCustomTitle('');
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text
+                    style={[
+                      styles.presetChipText,
+                      isSelected && styles.presetChipTextSelected,
+                    ]}
+                  >
+                    {preset.name}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.presetChipSalinity,
+                      isSelected && styles.presetChipSalinitySelected,
+                    ]}
+                  >
+                    {preset.isDrySalting ? t('Solenie na sucho') : `${preset.salinity}% solanka`}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        )}
 
         {/* ============================================================== */}
         {/* KUCHENNA WAGA 1-TAP (PRODUCE WEIGHT BUTTONS)                    */}
@@ -566,6 +852,13 @@ export default function RitualScreen() {
             setActiveProfile(profile);
             setIsOnboardingOpen(false);
           }}
+        />
+
+        {/* MODAL PRZEWODNIKA: PIERWSZE KROKI */}
+        <QuickStartGuideModal
+          visible={isGuideOpen}
+          onClose={() => setIsGuideOpen(false)}
+          onStartRitual={() => setIsGuideOpen(false)}
         />
 
         {/* MODAL SPRZĘTU */}
@@ -862,6 +1155,244 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     color: '#FFFFFF',
+  },
+  guideBanner: {
+    backgroundColor: theme.colors.bgCard,
+    borderWidth: 1.5,
+    borderColor: theme.colors.pickleGreen,
+    borderRadius: theme.borderRadius.md,
+    padding: 14,
+    marginVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  guideBannerEmoji: {
+    fontSize: 28,
+  },
+  guideBannerTextCol: {
+    flex: 1,
+  },
+  guideBannerBadgeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  guideBannerBadge: {
+    color: theme.colors.pickleGreen,
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 1,
+  },
+  guideBannerArrow: {
+    color: theme.colors.pickleGreen,
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  guideBannerTitle: {
+    color: theme.colors.textPrimary,
+    fontSize: 15,
+    fontWeight: '800',
+    marginTop: 2,
+  },
+  guideBannerSubtitle: {
+    color: theme.colors.textSecondary,
+    fontSize: 12,
+    lineHeight: 16,
+    marginTop: 2,
+  },
+  modeTabsRow: {
+    flexDirection: 'row',
+    backgroundColor: theme.colors.bgCard,
+    borderRadius: theme.borderRadius.md,
+    padding: 4,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    gap: 4,
+  },
+  modeTabBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderRadius: theme.borderRadius.sm,
+  },
+  modeTabBtnActive: {
+    backgroundColor: theme.colors.pickleGreen,
+  },
+  modeTabBtnText: {
+    color: theme.colors.textSecondary,
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  modeTabBtnTextActive: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+  },
+  freeformBox: {
+    marginBottom: 8,
+  },
+  freeformSubtitle: {
+    fontSize: 12,
+    color: theme.colors.textSecondary,
+    marginBottom: 10,
+    lineHeight: 16,
+  },
+  produceGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 14,
+  },
+  produceChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 20,
+    backgroundColor: theme.colors.bgCard,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  produceChipSelected: {
+    backgroundColor: theme.colors.pickleGreenMuted,
+    borderColor: theme.colors.pickleGreen,
+  },
+  produceChipText: {
+    color: theme.colors.textPrimary,
+    fontSize: 12,
+    fontWeight: '600',
+    marginLeft: 6,
+  },
+  produceChipTextSelected: {
+    color: theme.colors.pickleGreenLight,
+    fontWeight: '700',
+  },
+  produceCheck: {
+    color: theme.colors.pickleGreen,
+    fontWeight: '800',
+    fontSize: 12,
+    marginLeft: 4,
+  },
+  freeformResultCard: {
+    backgroundColor: theme.colors.bgCardElevated,
+    padding: 16,
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    marginBottom: 10,
+  },
+  freeformTitle: {
+    color: theme.colors.textPrimary,
+    fontSize: 16,
+    fontWeight: '800',
+    marginBottom: 4,
+  },
+  freeformSubtitleText: {
+    color: theme.colors.pickleGreen,
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 10,
+  },
+  freeformBadgesRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 12,
+  },
+  freeformHerbs: {
+    color: theme.colors.textSecondary,
+    fontSize: 13,
+    lineHeight: 18,
+    marginBottom: 8,
+  },
+  freeformTip: {
+    color: theme.colors.amberBrine,
+    fontSize: 12,
+    fontStyle: 'italic',
+    lineHeight: 17,
+    marginBottom: 14,
+  },
+  freeformApplyBtn: {
+    backgroundColor: theme.colors.pickleGreen,
+    borderRadius: theme.borderRadius.md,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  freeformApplyBtnText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  recipesModeBox: {
+    marginBottom: 10,
+  },
+  recipeCatScroll: {
+    gap: 8,
+    marginBottom: 10,
+  },
+  recipeCatChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: theme.colors.bgCard,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    marginRight: 6,
+  },
+  recipeCatChipActive: {
+    backgroundColor: theme.colors.pickleGreen,
+    borderColor: theme.colors.pickleGreen,
+  },
+  recipeCatChipText: {
+    color: theme.colors.textSecondary,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  recipeCatChipTextActive: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+  },
+  recipesScroll: {
+    gap: 10,
+    paddingBottom: 6,
+    marginTop: 8,
+  },
+  recipeCard: {
+    backgroundColor: theme.colors.bgCard,
+    borderWidth: 1.5,
+    borderColor: theme.colors.border,
+    borderRadius: theme.borderRadius.md,
+    padding: 14,
+    width: 220,
+  },
+  recipeCulture: {
+    color: theme.colors.textMuted,
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    marginBottom: 4,
+  },
+  recipeCardTitle: {
+    color: theme.colors.textPrimary,
+    fontSize: 14,
+    fontWeight: '800',
+    marginBottom: 4,
+  },
+  recipeCardSubtitle: {
+    color: theme.colors.textSecondary,
+    fontSize: 12,
+    lineHeight: 16,
+    marginBottom: 8,
+  },
+  recipeCardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  recipeCardAction: {
+    color: theme.colors.pickleGreen,
+    fontSize: 12,
+    fontWeight: '700',
   },
 });
 

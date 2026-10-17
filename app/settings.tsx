@@ -35,6 +35,7 @@ import {
   CraftFamilyEmblem,
 } from '@apps4craft/ui';
 import { CraftOnboardingModal, CraftProfileId, CRAFT_PROFILES } from '../src/ui/components/CraftOnboardingModal';
+import { QuickStartGuideModal } from '../src/ui/components/QuickStartGuideModal';
 import { CustomEquipmentModal } from '../src/ui/components/CustomEquipmentModal';
 
 import * as FileSystem from 'expo-file-system';
@@ -56,6 +57,7 @@ export default function SettingsScreen() {
   const [isPaywallOpen, setIsPaywallOpen] = useState(false);
   const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
   const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [activeProfile, setActiveProfile] = useState<CraftProfileId>(
     dbStore.getOnboardingProfile() || 'classic_pickles'
   );
@@ -169,6 +171,14 @@ export default function SettingsScreen() {
               hitSlop={theme.hitSlop}
             >
               <Text style={styles.changeProfileText}>🔄 {t('Zmień profil rytuału')}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.changeProfileBtn, { marginTop: 8 }]}
+              onPress={() => setIsGuideOpen(true)}
+              hitSlop={theme.hitSlop}
+            >
+              <Text style={styles.changeProfileText}>📖 {t('Pierwsze Kroki: Przewodnik Mistrza')}</Text>
             </TouchableOpacity>
           </View>
         </KitchenCard>
@@ -494,6 +504,11 @@ export default function SettingsScreen() {
             setActiveProfile(profile);
             setIsOnboardingModalOpen(false);
           }}
+        />
+
+        <QuickStartGuideModal
+          visible={isGuideOpen}
+          onClose={() => setIsGuideOpen(false)}
         />
 
         <CustomEquipmentModal

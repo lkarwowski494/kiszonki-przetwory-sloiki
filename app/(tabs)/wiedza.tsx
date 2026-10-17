@@ -34,6 +34,7 @@ import { KitchenButton } from '../../src/ui/components/KitchenButton';
 import { Badge } from '../../src/ui/components/Badge';
 import { ModalHeader } from '../../src/ui/components/ModalHeader';
 import { CustomRecipeModal } from '../../src/ui/components/CustomRecipeModal';
+import { QuickStartGuideModal } from '../../src/ui/components/QuickStartGuideModal';
 import { SearchField, normSearch } from '../../src/ui/components/SearchField';
 import { t, useLang } from '../../src/lib/i18n';
 
@@ -60,6 +61,7 @@ export default function WiedzaScreen() {
   const [selectedRecipe, setSelectedRecipe] = useState<MasterRecipe | null>(null);
   const [customRecipes, setCustomRecipes] = useState<MasterRecipe[]>([]);
   const [isCustomRecipeModalOpen, setIsCustomRecipeModalOpen] = useState(false);
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
 
   // Stan dla Doktora
   const [currentNodeId, setCurrentNodeId] = useState<string>('ROOT');
@@ -120,6 +122,14 @@ export default function WiedzaScreen() {
             <Text style={theme.typography.heroTitle}>{t('Wiedza Rzemieślnicza 📖')}</Text>
             <View style={styles.headerButtons}>
               <TouchableOpacity
+                onPress={() => setIsGuideOpen(true)}
+                style={styles.iconButton}
+                accessibilityLabel={t('Pierwsze Kroki: Przewodnik')}
+                hitSlop={theme.hitSlop}
+              >
+                <Text style={{ fontSize: 20 }}>✨</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
                 onPress={() => router.push('/settings')}
                 style={styles.iconButton}
                 accessibilityLabel={t('Ustawienia')}
@@ -130,7 +140,7 @@ export default function WiedzaScreen() {
             </View>
           </View>
           <Text style={styles.tagline}>
-            {t('24 Receptury Świata oraz Doktor Mikrobiologiczny ratujący słoiki.')}
+            {t('46 Receptur Świata oraz Doktor Mikrobiologiczny ratujący słoiki.')}
           </Text>
         </View>
 
@@ -527,6 +537,12 @@ export default function WiedzaScreen() {
           visible={isCustomRecipeModalOpen}
           onClose={() => setIsCustomRecipeModalOpen(false)}
           onSaved={() => reloadCustomRecipes()}
+        />
+
+        {/* MODAL PRZEWODNIKA PIERWSZE KROKI */}
+        <QuickStartGuideModal
+          visible={isGuideOpen}
+          onClose={() => setIsGuideOpen(false)}
         />
       </ScrollView>
     </SafeAreaView>
