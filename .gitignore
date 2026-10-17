@@ -25,9 +25,12 @@ ENV/
 *.p12
 *.mobileprovision
 *.cer
+*.keystore
+*.jks
 
 # Build artifacts
 dist/
 build/
+coverage/
 .expo/
 .turbo/

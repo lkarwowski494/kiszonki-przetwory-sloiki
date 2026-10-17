@@ -83,6 +83,7 @@ export interface PasteurizationOutput {
 export interface DoctorNode {
   id: string;
   question: string;
+  hint?: string;
   options: {
     label: string;
     nextNodeId?: string;
@@ -97,6 +98,9 @@ export interface Diagnosis {
   severity: 'safe' | 'caution' | 'danger_discard';
   shortExplanation: string;
   detailedCause: string;
+  biologicalExplanation?: string;
+  actionRequired?: string;
+  tasteImpact?: string;
   actionSteps: string[];
   howToPreventNextTime: string;
 }

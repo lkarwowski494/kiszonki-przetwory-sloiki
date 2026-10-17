@@ -17,6 +17,7 @@ import {
 import { theme } from '../theme';
 import { ModalHeader } from './ModalHeader';
 import { dbStore, CustomEquipmentRecord } from '../../data/db/database';
+import { confirm } from '../../lib/confirm';
 import { t } from '../../lib/i18n';
 
 interface CustomEquipmentModalProps {
@@ -88,6 +89,28 @@ export const CustomEquipmentModal: React.FC<CustomEquipmentModalProps> = ({
     );
   };
 
+  const isDirty = isAdding && Boolean(name.trim() || notes.trim());
+
+  const handleAttemptClose = () => {
+    if (isDirty) {
+      confirm({
+        title: t('Porzucić zmiany?'),
+        message: t('Masz niespisany szkic naczynia. Czy na pewno chcesz go odrzucić?'),
+        confirmText: t('Porzuć szkic'),
+        cancelText: t('Zostań w edytorze'),
+        destructive: true,
+        onConfirm: () => {
+          setIsAdding(false);
+          setName('');
+          setNotes('');
+          onClose();
+        },
+      });
+    } else {
+      onClose();
+    }
+  };
+
   if (!visible) return null;
 
   return (
@@ -95,7 +118,7 @@ export const CustomEquipmentModal: React.FC<CustomEquipmentModalProps> = ({
       <View style={styles.container}>
         <ModalHeader
           title={t('Słoiki i Sprzęt Rzemieślnika')}
-          onClose={onClose}
+          onClose={handleAttemptClose}
           closeLabel={t('Zamknij')}
           rightAction={
             !isAdding ? (

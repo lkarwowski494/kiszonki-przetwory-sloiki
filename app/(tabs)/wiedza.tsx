@@ -19,12 +19,10 @@ import {
 import { useRouter } from 'expo-router';
 import { MASTER_RECIPES } from '../../src/core/recipes/recipes-data';
 import { dbStore } from '../../src/data/db/database';
-import { MasterRecipe, RecipeCategory } from '../../src/core/types';
+import { MasterRecipe, RecipeCategory, DoctorNode, Diagnosis } from '../../src/core/types';
 import {
   DOCTOR_DECISION_TREE,
   DIAGNOSES,
-  DoctorNode,
-  Diagnosis,
 } from '../../src/core/doctor/doctor-engine';
 import {
   calculateBrineTopUp,
@@ -36,6 +34,7 @@ import { KitchenButton } from '../../src/ui/components/KitchenButton';
 import { Badge } from '../../src/ui/components/Badge';
 import { ModalHeader } from '../../src/ui/components/ModalHeader';
 import { CustomRecipeModal } from '../../src/ui/components/CustomRecipeModal';
+import { SearchField, normSearch } from '../../src/ui/components/SearchField';
 import { t, useLang } from '../../src/lib/i18n';
 
 const CATEGORIES: { label: string; value: RecipeCategory | 'all' }[] = [
@@ -82,10 +81,12 @@ export default function WiedzaScreen() {
   const filteredRecipes = allRecipes.filter((r) => {
     const matchesCategory =
       selectedCategory === 'all' || r.category === selectedCategory;
+    const q = normSearch(searchQuery);
     const matchesSearch =
-      r.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.culture.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.subtitle.toLowerCase().includes(searchQuery.toLowerCase());
+      !q ||
+      normSearch(r.title).includes(q) ||
+      normSearch(r.culture).includes(q) ||
+      normSearch(r.subtitle).includes(q);
     return matchesCategory && matchesSearch;
   });
 
@@ -191,12 +192,11 @@ export default function WiedzaScreen() {
             </View>
 
             {/* Wyszukiwarka */}
-            <TextInput
-              style={styles.searchInput}
+            <SearchField
               placeholder={t('Szukaj: ogórki, kimchi, kapusta, cytryny...')}
-              placeholderTextColor={theme.colors.textMuted}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
+              query={searchQuery}
+              onChangeQuery={setSearchQuery}
+              containerStyle={{ marginBottom: 12 }}
             />
 
             {/* Kategorie */}
@@ -240,7 +240,7 @@ export default function WiedzaScreen() {
                     <Text style={styles.recipeCulture}>{recipe.culture}</Text>
                     <Badge
                       label={`${recipe.defaultSalinityPercent}% ${t('solanki')}`}
-                      variant="info"
+                      variant="green"
                     />
                   </View>
                   <Text style={styles.recipeTitle}>{recipe.title}</Text>
@@ -275,7 +275,7 @@ export default function WiedzaScreen() {
                 )}
 
                 <View style={styles.optionsList}>
-                  {currentNode.options.map((opt, i) => (
+                  {currentNode.options.map((opt: any, i: number) => (
                     <TouchableOpacity
                       key={i}
                       style={styles.doctorOptionBtn}
@@ -299,30 +299,34 @@ export default function WiedzaScreen() {
               </KitchenCard>
             ) : (
               <KitchenCard
-                style={[
+                style={StyleSheet.flatten([
                   styles.diagnosisResultCard,
                   activeDiagnosis.severity === 'safe'
                     ? styles.safeCard
-                    : activeDiagnosis.severity === 'warning'
+                    : activeDiagnosis.severity === 'caution'
                     ? styles.warningCard
                     : styles.dangerCard,
-                ]}
+                ])}
               >
                 <View style={styles.resultHeader}>
                   <Text style={styles.resultBadge}>
                     {activeDiagnosis.severity === 'safe'
                       ? t('BEZPIECZNE DO JEDZENIA ✅')
-                      : activeDiagnosis.severity === 'warning'
+                      : activeDiagnosis.severity === 'caution'
                       ? t('WYMAGA UWAGI / DZIAŁANIA ⚠️')
                       : t('BEZWZGLĘDNIE WYRZUĆ ❌')}
                   </Text>
                   <Text style={styles.resultTitle}>{t(activeDiagnosis.title)}</Text>
-                  <Text style={styles.resultBiology}>🔬 {t(activeDiagnosis.biologicalExplanation)}</Text>
+                  <Text style={styles.resultBiology}>
+                    🔬 {t(activeDiagnosis.biologicalExplanation || activeDiagnosis.detailedCause || activeDiagnosis.shortExplanation)}
+                  </Text>
                 </View>
 
                 <View style={styles.actionBox}>
                   <Text style={styles.actionTitle}>🛠️ {t('Działanie ratunkowe:')}</Text>
-                  <Text style={styles.actionText}>{t(activeDiagnosis.actionRequired)}</Text>
+                  <Text style={styles.actionText}>
+                    {t(activeDiagnosis.actionRequired || activeDiagnosis.actionSteps.join('\n'))}
+                  </Text>
                 </View>
 
                 {activeDiagnosis.tasteImpact && (
@@ -378,7 +382,7 @@ export default function WiedzaScreen() {
                   {t('Rozpuść ')}
                   <Text style={styles.calcHighlight}>{brineCalculation.saltGrams.toFixed(1)}g</Text>
                   {t(' soli w ')}
-                  <Text style={styles.calcHighlight}>{brineCalculation.waterGrams}ml</Text>
+                  <Text style={styles.calcHighlight}>{brineCalculation.waterMl}ml</Text>
                   {t(' ostudzonej, przegotowanej wody.')}
                 </Text>
               </View>

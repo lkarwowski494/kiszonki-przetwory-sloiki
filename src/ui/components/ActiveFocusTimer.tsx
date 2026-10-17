@@ -14,12 +14,17 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  AppState,
 } from 'react-native';
 import { useKeepAwake } from 'expo-keep-awake';
 import { theme } from '../theme';
 import { t } from '../../lib/i18n';
 import { notifyTimerFinished } from '../../core/timer-audio';
 import { CloseIcon } from '@apps4craft/ui';
+import {
+  calculateRemainingTimerSec,
+  pauseTimerTimestamp,
+} from '../../core/timer/background-timer';
 
 interface ActiveFocusTimerProps {
   title: string;
@@ -48,21 +53,23 @@ export const ActiveFocusTimer: React.FC<ActiveFocusTimerProps> = ({
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [activeStepIndex, setActiveStepIndex] = useState<number>(0);
   const intervalRef = useRef<any>(null);
+  const endAtMsRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (isRunning) {
       intervalRef.current = setInterval(() => {
-        setSecondsLeft((prev) => {
-          if (prev <= 1) {
+        if (endAtMsRef.current) {
+          const rem = calculateRemainingTimerSec(endAtMsRef.current);
+          setSecondsLeft(rem);
+          if (rem <= 0) {
             clearInterval(intervalRef.current);
             setIsRunning(false);
+            endAtMsRef.current = null;
             notifyTimerFinished(title).catch(() => {});
             if (onFinish) onFinish();
-            return 0;
           }
-          return prev - 1;
-        });
-      }, 1000);
+        }
+      }, 500);
     } else {
       if (intervalRef.current) clearInterval(intervalRef.current);
     }
@@ -72,17 +79,50 @@ export const ActiveFocusTimer: React.FC<ActiveFocusTimerProps> = ({
     };
   }, [isRunning, title, onFinish]);
 
+  // Obsługa wybudzenia z tła (RD-ENG-06, NFR-PERF-004)
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active' && isRunning && endAtMsRef.current) {
+        const rem = calculateRemainingTimerSec(endAtMsRef.current);
+        setSecondsLeft(rem);
+        if (rem <= 0) {
+          setIsRunning(false);
+          endAtMsRef.current = null;
+          notifyTimerFinished(title).catch(() => {});
+          if (onFinish) onFinish();
+        }
+      }
+    });
+    return () => sub.remove();
+  }, [isRunning, title, onFinish]);
+
   const toggleRunning = () => {
-    setIsRunning(!isRunning);
+    if (!isRunning) {
+      endAtMsRef.current = Date.now() + secondsLeft * 1000;
+      setIsRunning(true);
+    } else {
+      if (endAtMsRef.current) {
+        const left = pauseTimerTimestamp(endAtMsRef.current);
+        setSecondsLeft(left);
+        endAtMsRef.current = null;
+      }
+      setIsRunning(false);
+    }
   };
 
   const handleReset = () => {
     setIsRunning(false);
+    endAtMsRef.current = null;
     setSecondsLeft(defaultSeconds);
   };
 
   const addMinutes = (mins: number) => {
-    setSecondsLeft((prev) => Math.max(0, prev + mins * 60));
+    if (isRunning && endAtMsRef.current) {
+      endAtMsRef.current += mins * 60 * 1000;
+      setSecondsLeft(calculateRemainingTimerSec(endAtMsRef.current));
+    } else {
+      setSecondsLeft((prev) => Math.max(0, prev + mins * 60));
+    }
   };
 
   const formatTime = (secs: number) => {

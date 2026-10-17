@@ -93,12 +93,30 @@ describe('Backup & CSV System (Apps4Brew SEC-09 / Parity S2)', () => {
       expect(csv).toContain('900');
       expect(csv).toContain('"NIE"');
     });
+
+    it('zabezpiecza komórki CSV przed Formula Injection (RD-ENG-10)', () => {
+      const maliciousBatches = [
+        {
+          ...sampleState.batches[0],
+          notes: '=cmd|/c calc.exe',
+          recipeTitle: '+Podatny Tytuł',
+        },
+      ];
+      const csv = exportBatchesToCsv(maliciousBatches);
+      expect(csv).toContain('"\'=cmd|/c calc.exe"');
+      expect(csv).toContain('"\'+Podatny Tytuł"');
+    });
   });
 
   describe('AutoBackup & SafetyBackup', () => {
-    it('wykonuje autoBackup i safetyBackup bez rzucania wyjątków', async () => {
-      const autoPath = await autoBackup(sampleState);
-      expect(typeof autoPath).toBe('string');
+    it('wykonuje autoBackup i safetyBackup bez rzucania wyjątków i obsługuje kolizję -2', async () => {
+      const autoPath1 = await autoBackup(sampleState);
+      expect(typeof autoPath1).toBe('string');
+
+      // Druga kopia w tym samym czasie dostaje przyrostek -2 (RD-ENG-12)
+      const autoPath2 = await autoBackup(sampleState);
+      expect(typeof autoPath2).toBe('string');
+      expect(autoPath2).toContain('-2.json');
 
       const safetyPath = await safetyBackup('import', sampleState);
       expect(typeof safetyPath).toBe('string');

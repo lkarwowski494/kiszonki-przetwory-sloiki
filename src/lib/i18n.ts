@@ -10,6 +10,7 @@ import { dbStore } from '../data/db/database';
 
 export const LANGS = ['pl', 'en'] as const;
 export type Lang = (typeof LANGS)[number];
+export const plDictionary: Record<string, string> = { ...EN };
 
 let currentLang: Lang = 'pl';
 type LangListener = (l: Lang) => void;
@@ -21,6 +22,10 @@ export function setLang(lang: Lang, persist = true): void {
     dbStore.setSetting('app_language', lang);
   }
   listeners.forEach((fn) => fn(lang));
+}
+
+export function clearLangListenersForTesting(): void {
+  listeners.clear();
 }
 
 export function lang(): Lang {

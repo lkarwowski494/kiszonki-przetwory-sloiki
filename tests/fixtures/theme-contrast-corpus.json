@@ -1,0 +1,105 @@
+{
+  "version": "1.0.0",
+  "pairs_count": 11,
+  "results": [
+    {
+      "name": "textPrimary on bg",
+      "fg": "#F4EFEA",
+      "bg": "#121214",
+      "ratio": 16.38,
+      "min_required": 7.0,
+      "type": "AAA",
+      "passed": true
+    },
+    {
+      "name": "textPrimary on bgCard",
+      "fg": "#F4EFEA",
+      "bg": "#1C1C1F",
+      "ratio": 14.88,
+      "min_required": 7.0,
+      "type": "AAA",
+      "passed": true
+    },
+    {
+      "name": "textPrimary on bgCardElevated",
+      "fg": "#F4EFEA",
+      "bg": "#242428",
+      "ratio": 13.54,
+      "min_required": 7.0,
+      "type": "AAA",
+      "passed": true
+    },
+    {
+      "name": "textSecondary on bg",
+      "fg": "#A09C96",
+      "bg": "#121214",
+      "ratio": 6.85,
+      "min_required": 4.5,
+      "type": "AA",
+      "passed": true
+    },
+    {
+      "name": "textSecondary on bgCard",
+      "fg": "#A09C96",
+      "bg": "#1C1C1F",
+      "ratio": 6.23,
+      "min_required": 4.5,
+      "type": "AA",
+      "passed": true
+    },
+    {
+      "name": "pickleGreenLight on bg",
+      "fg": "#D9E8D2",
+      "bg": "#121214",
+      "ratio": 14.63,
+      "min_required": 4.5,
+      "type": "AA",
+      "passed": true
+    },
+    {
+      "name": "pickleGreenLight on bgCard",
+      "fg": "#D9E8D2",
+      "bg": "#1C1C1F",
+      "ratio": 13.3,
+      "min_required": 4.5,
+      "type": "AA",
+      "passed": true
+    },
+    {
+      "name": "amberBrineLight on bg",
+      "fg": "#E5C678",
+      "bg": "#121214",
+      "ratio": 11.3,
+      "min_required": 4.5,
+      "type": "AA",
+      "passed": true
+    },
+    {
+      "name": "amberBrineLight on bgCard",
+      "fg": "#E5C678",
+      "bg": "#1C1C1F",
+      "ratio": 10.27,
+      "min_required": 4.5,
+      "type": "AA",
+      "passed": true
+    },
+    {
+      "name": "berryRedLight on bg",
+      "fg": "#FF7875",
+      "bg": "#121214",
+      "ratio": 7.3,
+      "min_required": 4.5,
+      "type": "AA",
+      "passed": true
+    },
+    {
+      "name": "white on pickleGreen (Button)",
+      "fg": "#FFFFFF",
+      "bg": "#5B8A61",
+      "ratio": 4.0,
+      "min_required": 3.0,
+      "type": "Button",
+      "passed": true
+    }
+  ]
+}

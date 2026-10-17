@@ -7,6 +7,16 @@
 import { useState, useEffect } from 'react';
 import { dbStore } from '../data/db/database';
 
+export {
+  wInKeep,
+  normalizeNumString,
+  formatValueForUnit,
+  round1,
+  round2,
+  CONVERSION_FACTORS,
+} from './units/unit-keep';
+export type { WeightUnit, VolumeUnit, TempUnit } from './units/unit-keep';
+
 export type UnitSystem = 'metric' | 'imperial';
 
 let currentUnitSystem: UnitSystem = 'metric';
@@ -19,6 +29,10 @@ export function setUnitSystem(unit: UnitSystem, persist = true): void {
     dbStore.setSetting('app_unit_system', unit);
   }
   unitListeners.forEach((fn) => fn(unit));
+}
+
+export function clearUnitListenersForTesting(): void {
+  unitListeners.clear();
 }
 
 export function getUnitSystem(): UnitSystem {

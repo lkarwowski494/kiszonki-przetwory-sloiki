@@ -3,7 +3,7 @@
     "target": "ES2022",
     "module": "CommonJS",
     "lib": ["ES2022", "DOM"],
-    "jsx": "react-native",
+    "jsx": "react",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -12,14 +12,13 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "typeRoots": [
-      "./node_modules/@types",
-      "../noble-pasteur/node_modules/@types"
+      "./node_modules/@types"
     ],
     "types": ["jest", "node", "react"],
     "paths": {
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*", "tests/**/*"],
+  "include": ["src/**/*", "app/**/*", "tests/**/*"],
   "exclude": ["node_modules"]
 }

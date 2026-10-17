@@ -194,10 +194,8 @@ export default function DojrzewalniaScreen() {
       recipeTitle: item.label,
       preparedDate: new Date(item.sealedAt).toLocaleDateString(),
       bestBeforeDate: new Date(item.bestBefore).toLocaleDateString(),
-      salinityPercent: 2.5,
-      produceWeightGrams: 1000,
-      jarVolumeMl: item.jarVolumeMl,
-      location: item.location,
+      salinityOrSugarInfo: 'Sól: 2.5%',
+      format: 'side_rectangle_80x50mm',
     });
     setActiveLabel(label);
   };
@@ -208,19 +206,20 @@ export default function DojrzewalniaScreen() {
       return;
     }
     try {
-      const label = generateJarLabel({
-        batchId: item.batchId,
-        recipeTitle: item.label,
-        preparedDate: new Date(item.sealedAt).toLocaleDateString(),
-        bestBeforeDate: new Date(item.bestBefore).toLocaleDateString(),
-        salinityPercent: 2.5,
-        produceWeightGrams: 1000,
-        jarVolumeMl: item.jarVolumeMl,
-        location: item.location,
+      await exportLabelSheetAsPdf({
+        labelConfig: {
+          batchId: item.batchId,
+          recipeTitle: item.label,
+          preparedDate: new Date(item.sealedAt).toLocaleDateString(),
+          bestBeforeDate: new Date(item.bestBefore).toLocaleDateString(),
+          salinityOrSugarInfo: 'Sól: 2.5%',
+          format: 'side_rectangle_80x50mm',
+        },
+        count: 8,
+        paperFormat: 'A4',
       });
-      await exportLabelSheetAsPdf([label, label, label, label, label, label, label, label]);
     } catch {
-      Alert.alert(t('Błąd eksportu PDF'), t('Nie udało się wygenerować arkusza etykiet.'));
+      Alert.alert(t('Nie udało się wygenerować arkusza etykiet'), t('Wystąpił problem podczas eksportu pliku PDF.'));
     }
   };
 
@@ -340,11 +339,10 @@ export default function DojrzewalniaScreen() {
               </KitchenCard>
             ) : (
               activeBatches.map((batch) => {
-                const timeline = calculateFermentationTimeline({
-                  startedAt: batch.startedAt,
-                  targetFermentationDays: batch.targetFermentationDays,
-                  method: batch.method,
-                });
+                const elapsedDays = Math.max(0, Math.floor((Date.now() - batch.startedAt) / 86400000));
+                const currentDay = Math.max(1, elapsedDays);
+                const isReady = elapsedDays >= batch.targetFermentationDays;
+                const progressPercent = Math.min(100, Math.round((currentDay / batch.targetFermentationDays) * 100));
                 const logs = dbStore.getLogsForBatch(batch.id);
                 const lastLog = logs[logs.length - 1];
                 const sensoryProfile = lastLog?.sensoryProfile || {
@@ -368,11 +366,11 @@ export default function DojrzewalniaScreen() {
                       </View>
                       <Badge
                         label={
-                          timeline.isReady
+                          isReady
                             ? t('GOTOWE')
-                            : `${t('DZIEŃ')} ${timeline.currentDay}/${batch.targetFermentationDays}`
+                            : `${t('DZIEŃ')} ${currentDay}/${batch.targetFermentationDays}`
                         }
-                        variant={timeline.isReady ? 'success' : 'warning'}
+                        variant={isReady ? 'green' : 'amber'}
                       />
                     </View>
 
@@ -381,7 +379,7 @@ export default function DojrzewalniaScreen() {
                       <View
                         style={[
                           styles.progressBar,
-                          { width: `${Math.min(100, timeline.progressPercent)}%` },
+                          { width: `${progressPercent}%` },
                         ]}
                       />
                     </View>
@@ -520,7 +518,7 @@ export default function DojrzewalniaScreen() {
                     </View>
                     <Badge
                       label={`${item.quantity} ${t('szt.')}`}
-                      variant={item.quantity > 0 ? 'info' : 'neutral'}
+                      variant={item.quantity > 0 ? 'green' : 'gray'}
                     />
                   </View>
 
@@ -630,24 +628,24 @@ export default function DojrzewalniaScreen() {
               closeLabel={t('Zamknij')}
             />
             <ScrollView contentContainerStyle={styles.modalContent}>
-              {activeLabel && (
+              {activeLabel && selectedItem && (
                 <View style={styles.labelPreviewCard}>
-                  <Text style={styles.labelHeaderTitle}>{activeLabel.title}</Text>
+                  <Text style={styles.labelHeaderTitle}>{selectedItem.label}</Text>
                   <Text style={styles.labelHeaderSub}>
-                    {activeLabel.salinityPercentage}% {t('Solanka rzemieślnicza')}
+                    {t('Solanka rzemieślnicza')}
                   </Text>
                   <View style={styles.labelDivider} />
                   <Text style={styles.labelLine}>
                     📅 {t('Zalano: ')}
-                    {activeLabel.dateMade}
+                    {new Date(selectedItem.sealedAt).toLocaleDateString()}
                   </Text>
                   <Text style={styles.labelLine}>
                     ⏳ {t('Najlepiej spożyć do: ')}
-                    {activeLabel.bestBeforeDate}
+                    {new Date(selectedItem.bestBefore).toLocaleDateString()}
                   </Text>
                   <Text style={styles.labelLine}>
                     📦 {t('Pojemność: ')}
-                    {activeLabel.jarVolumeMl} ml
+                    {selectedItem.jarVolumeMl} ml
                   </Text>
 
                   <Text style={styles.formatHint}>

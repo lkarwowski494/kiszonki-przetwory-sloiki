@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Alert,
+  AppState,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -13,6 +14,11 @@ import { KitchenCard } from '../src/ui/components/KitchenCard';
 import { KitchenButton } from '../src/ui/components/KitchenButton';
 import { ModalHeader } from '../src/ui/components/ModalHeader';
 import { notifyTimerFinished } from '../src/core/timer-audio';
+import {
+  calculateRemainingTimerSec,
+  pauseTimerTimestamp,
+  startTimerTimestamp,
+} from '../src/core/timer/background-timer';
 
 export default function PasteurizerTimerScreen() {
   const router = useRouter();
@@ -21,43 +27,79 @@ export default function PasteurizerTimerScreen() {
   const [remainingSeconds, setRemainingSeconds] = useState(20 * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
+  const endAtMsRef = useRef<number | null>(null);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
     if (isRunning && remainingSeconds > 0) {
       interval = setInterval(() => {
-        setRemainingSeconds((prev) => prev - 1);
-      }, 1000);
-    } else if (remainingSeconds === 0 && isRunning) {
-      setIsRunning(false);
-      setIsFinished(true);
-      notifyTimerFinished(`Gotowanie ${selectedMinutes} minut`);
-      Alert.alert(
-        'Czas minął! 🔔',
-        'Zakończono pasteryzację! Wyjmij słoiki na ściereczkę i pozostaw do powolnego ostygnięcia dnem do góry.',
-        [{ text: 'Zrozumiałem' }]
-      );
+        if (endAtMsRef.current) {
+          const rem = calculateRemainingTimerSec(endAtMsRef.current);
+          setRemainingSeconds(rem);
+          if (rem <= 0) {
+            setIsRunning(false);
+            setIsFinished(true);
+            endAtMsRef.current = null;
+            notifyTimerFinished(`Gotowanie ${selectedMinutes} minut`);
+            Alert.alert(
+              'Czas minął! 🔔',
+              'Zakończono pasteryzację! Wyjmij słoiki na ściereczkę i pozostaw do powolnego ostygnięcia dnem do góry.',
+              [{ text: 'Zrozumiałem' }]
+            );
+          }
+        }
+      }, 500);
     }
 
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isRunning, remainingSeconds]);
+  }, [isRunning, remainingSeconds, selectedMinutes]);
+
+  // Obsługa wybudzenia z tła (RD-ENG-06, NFR-PERF-004)
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active' && isRunning && endAtMsRef.current) {
+        const rem = calculateRemainingTimerSec(endAtMsRef.current);
+        setRemainingSeconds(rem);
+        if (rem <= 0) {
+          setIsRunning(false);
+          setIsFinished(true);
+          endAtMsRef.current = null;
+          notifyTimerFinished(`Gotowanie ${selectedMinutes} minut`);
+        }
+      }
+    });
+    return () => sub.remove();
+  }, [isRunning, selectedMinutes]);
 
   const handleSetTime = (minutes: number) => {
     setIsRunning(false);
     setIsFinished(false);
+    endAtMsRef.current = null;
     setSelectedMinutes(minutes);
     setRemainingSeconds(minutes * 60);
   };
 
   const toggleTimer = () => {
-    setIsRunning(!isRunning);
+    if (!isRunning) {
+      endAtMsRef.current = Date.now() + remainingSeconds * 1000;
+      setIsRunning(true);
+      setIsFinished(false);
+    } else {
+      if (endAtMsRef.current) {
+        const left = pauseTimerTimestamp(endAtMsRef.current);
+        setRemainingSeconds(left);
+        endAtMsRef.current = null;
+      }
+      setIsRunning(false);
+    }
   };
 
   const resetTimer = () => {
     setIsRunning(false);
     setIsFinished(false);
+    endAtMsRef.current = null;
     setRemainingSeconds(selectedMinutes * 60);
   };
 

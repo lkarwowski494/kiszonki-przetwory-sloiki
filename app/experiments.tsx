@@ -302,7 +302,7 @@ export default function ExperimentsScreen() {
                     <View style={styles.rowBetween}>
                       <Badge
                         label={`${series.jarCount} SŁOIKI`}
-                        variant="info"
+                        variant="gray"
                       />
                       <Text style={styles.dateText}>
                         {new Date(series.createdAt).toLocaleDateString('pl-PL')}
@@ -456,7 +456,7 @@ export default function ExperimentsScreen() {
               <View style={styles.rowBetween}>
                 <Badge
                   label={`${selectedSeries.jarCount} SŁOIKI W SERII`}
-                  variant="warning"
+                  variant="amber"
                 />
                 <TouchableOpacity
                   onPress={handleToggleBlindCupping}
@@ -537,7 +537,7 @@ export default function ExperimentsScreen() {
                     <View style={styles.jarLetterBadge}>
                       <Text style={styles.jarLetterText}>SŁOIK {v.variantLetter}</Text>
                     </View>
-                    {v.isWinner && <Badge label="ZWYCIĘZCA 👑" variant="success" />}
+                    {v.isWinner && <Badge label="ZWYCIĘZCA 👑" variant="green" />}
                   </View>
 
                   <Text style={styles.jarName}>

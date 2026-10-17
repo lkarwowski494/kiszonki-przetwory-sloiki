@@ -71,8 +71,9 @@ export default function SettingsScreen() {
   const handleExportJson = async () => {
     const jsonStr = dbStore.exportBackupJson();
     try {
-      if (FileSystem.documentDirectory) {
-        const fileUri = `${FileSystem.documentDirectory}sloik_backup_${Date.now()}.json`;
+      const docDir = (FileSystem as any).documentDirectory || (FileSystem as any).cacheDirectory || 'file:///tmp/';
+      if (docDir) {
+        const fileUri = `${docDir}sloik_backup_${Date.now()}.json`;
         await FileSystem.writeAsStringAsync(fileUri, jsonStr, {
           encoding: FileSystem.EncodingType.UTF8,
         });
@@ -293,7 +294,7 @@ export default function SettingsScreen() {
                   ? `TRIAL (${daysLeftInTrial} DNI)`
                   : 'TRYB READ-ONLY'
               }
-              variant={isSubscribed ? 'success' : isTrialActive ? 'warning' : 'danger'}
+              variant={isSubscribed ? 'green' : isTrialActive ? 'amber' : 'red'}
             />
           </View>
 
@@ -420,7 +421,7 @@ export default function SettingsScreen() {
                   <View style={styles.appNameRow}>
                     <Text style={styles.appName}>{app.name}</Text>
                     {app.id === 'sloik' && (
-                      <Badge label={t('Zainstalowano')} variant="success" />
+                      <Badge label={t('Zainstalowano')} variant="green" />
                     )}
                   </View>
                   <Text style={styles.appDomain}>{app.domain}</Text>

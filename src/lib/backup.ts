@@ -36,14 +36,16 @@ export interface SloikBackupEnvelope {
   schemaVersion: number;
   exportedAt: string;
   state: SloikBackupData;
+  recovery?: string;
 }
 
-export function buildBackup(state: SloikBackupData): SloikBackupEnvelope {
+export function buildBackup(state: SloikBackupData, recovery?: string): SloikBackupEnvelope {
   return {
     format: 'sloik-backup',
     schemaVersion: SCHEMA_VERSION,
     exportedAt: new Date().toISOString(),
     state,
+    ...(recovery ? { recovery } : {}),
   };
 }
 
@@ -95,8 +97,8 @@ async function shareTemp(
 /**
  * Eksport kopii zapasowej JSON do pliku
  */
-export async function exportBackup(state: SloikBackupData): Promise<boolean> {
-  const envelope = buildBackup(state);
+export async function exportBackup(state: SloikBackupData, recovery?: string): Promise<boolean> {
+  const envelope = buildBackup(state, recovery);
   const fileName = `sloik-backup-${localISODate()}.json`;
   return await shareTemp(fileName, JSON.stringify(envelope, null, 2), {
     mimeType: 'application/json',
@@ -105,12 +107,39 @@ export async function exportBackup(state: SloikBackupData): Promise<boolean> {
 }
 
 /**
+ * Zapisuje surowy uszkodzony stan pod kluczem state_corrupt_<timestamp> (BR-TEST-023)
+ */
+export async function saveCorruptState(rawPayload: string): Promise<string> {
+  const docDir = (FileSystem as any).documentDirectory || 'file:///documents/';
+  const dir = `${docDir}${AUTO_DIR}`;
+
+  if (FileSystem.getInfoAsync && FileSystem.makeDirectoryAsync) {
+    const dirInfo = await FileSystem.getInfoAsync(dir);
+    if (!dirInfo.exists) {
+      await FileSystem.makeDirectoryAsync(dir, { intermediates: true });
+    }
+  }
+
+  const stamp = stampOf(new Date());
+  const name = `state_corrupt_${stamp}.json`;
+  const targetPath = `${dir}${name}`;
+
+  if (FileSystem.writeAsStringAsync) {
+    await FileSystem.writeAsStringAsync(targetPath, rawPayload);
+  }
+
+  return targetPath;
+}
+
+/**
  * Zapis kopii zapasowej w Documents/Backup/ z rotacją do AUTO_KEEP (10 kopii)
+ * Obsługuje przyrostki kolizji w tej samej sekundzie (-2, -3) wg RD-ENG-12
  */
 async function writeBackupFile(
   prefix: string,
   re: RegExp,
-  state: SloikBackupData
+  state: SloikBackupData,
+  recovery?: string
 ): Promise<string> {
   const docDir = (FileSystem as any).documentDirectory || 'file:///documents/';
   const dir = `${docDir}${AUTO_DIR}`;
@@ -124,13 +153,22 @@ async function writeBackupFile(
 
   const stamp = stampOf(new Date());
   let name = `${prefix}${stamp}.json`;
+  let targetPath = `${dir}${name}`;
 
-  const envelope = buildBackup(state);
-  const targetPath = `${dir}${name}`;
+  // Obsługa kolizji zapisu w tej samej sekundzie (RD-ENG-12)
+  if (FileSystem.getInfoAsync) {
+    let collisionIdx = 2;
+    while ((await FileSystem.getInfoAsync(targetPath)).exists) {
+      name = `${prefix}${stamp}-${collisionIdx}.json`;
+      targetPath = `${dir}${name}`;
+      collisionIdx++;
+    }
+  }
 
+  const envelope = buildBackup(state, recovery);
   await FileSystem.writeAsStringAsync(targetPath, JSON.stringify(envelope, null, 2));
 
-  // Rotacja puli kopii do 10 plików
+  // Rotacja puli kopii do 10 plików (RD-ENG-12)
   try {
     if (FileSystem.readDirectoryAsync && FileSystem.deleteAsync) {
       const files = await FileSystem.readDirectoryAsync(dir);
@@ -157,9 +195,9 @@ async function writeBackupFile(
 /**
  * Automatyczna rotacyjna kopia po zakończeniu partii fermentacji lub pasteryzacji
  */
-export async function autoBackup(state: SloikBackupData): Promise<string | null> {
+export async function autoBackup(state: SloikBackupData, recovery?: string): Promise<string | null> {
   try {
-    return await writeBackupFile('sloik-', AUTO_RE, state);
+    return await writeBackupFile('sloik-', AUTO_RE, state, recovery);
   } catch {
     return null;
   }
@@ -167,13 +205,19 @@ export async function autoBackup(state: SloikBackupData): Promise<string | null>
 
 /**
  * Kopia bezpieczeństwa przed operacjami niszczącymi (import, czyszczenie)
+ * Przerwanie operacji niszczącej w razie niepowodzenia zapisu kopii (BR-TEST-022, RD-ENG-12)
  */
 export async function safetyBackup(
   kind: 'import' | 'reset',
-  state: SloikBackupData
+  state: SloikBackupData,
+  recovery?: string
 ): Promise<string> {
   const prefix = kind === 'import' ? 'sloik-przed-importem-' : 'sloik-przed-czyszczeniem-';
-  return await writeBackupFile(prefix, SAFETY_RE, state);
+  try {
+    return await writeBackupFile(prefix, SAFETY_RE, state, recovery);
+  } catch (err: any) {
+    throw new Error(`[BR-TEST-022] Błąd zapisu kopii ratunkowej: ${err?.message || err}`);
+  }
 }
 
 /**
@@ -223,6 +267,19 @@ export function parseAndValidateBackup(rawJson: string): SloikBackupEnvelope {
 }
 
 /**
+ * Ucieczka komórek CSV przeciw Formula Injection (RD-ENG-10, NFR-SEC-015)
+ */
+export function escapeCsvCell(val: any): string {
+  let s = String(val ?? '');
+  const isPureNegativeNumber = /^-\d+(\.\d+)?$/.test(s);
+  if (!isPureNegativeNumber && /^[\=\+\-\@\t\r]/.test(s)) {
+    s = "'" + s;
+  }
+  return `"${s.replace(/"/g, '""')}"`;
+}
+
+
+/**
  * Eksport historii partii do formatu CSV
  */
 export function exportBatchesToCsv(batches: BatchRecord[]): string {
@@ -241,11 +298,6 @@ export function exportBatchesToCsv(batches: BatchRecord[]): string {
     'Notatki',
   ];
 
-  const escapeCsv = (val: any) => {
-    const s = String(val ?? '').replace(/"/g, '""');
-    return `"${s}"`;
-  };
-
   const rows = batches.map((b) =>
     [
       b.id,
@@ -261,7 +313,7 @@ export function exportBatchesToCsv(batches: BatchRecord[]): string {
       b.ratingStars ?? '',
       b.notes ?? '',
     ]
-      .map(escapeCsv)
+      .map(escapeCsvCell)
       .join(',')
   );
 
@@ -284,11 +336,6 @@ export function exportPantryToCsv(items: PantryItemRecord[]): string {
     'Czy_Zjedzony',
   ];
 
-  const escapeCsv = (val: any) => {
-    const s = String(val ?? '').replace(/"/g, '""');
-    return `"${s}"`;
-  };
-
   const rows = items.map((i) =>
     [
       i.id,
@@ -301,7 +348,7 @@ export function exportPantryToCsv(items: PantryItemRecord[]): string {
       new Date(i.bestBefore).toISOString(),
       i.isConsumed ? 'TAK' : 'NIE',
     ]
-      .map(escapeCsv)
+      .map(escapeCsvCell)
       .join(',')
   );
 

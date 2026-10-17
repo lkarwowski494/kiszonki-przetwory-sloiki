@@ -19,6 +19,7 @@ import { KitchenCard } from '../../src/ui/components/KitchenCard';
 import { KitchenButton } from '../../src/ui/components/KitchenButton';
 import { Badge } from '../../src/ui/components/Badge';
 import { ModalHeader } from '../../src/ui/components/ModalHeader';
+import { Missing } from '../../src/ui/components/Missing';
 import {
   useUnitSystem,
   formatProduceWeight,
@@ -26,6 +27,17 @@ import {
   formatBrineVolume,
 } from '../../src/core/unit-converter';
 import { t } from '../../src/lib/i18n';
+
+import { announce } from '../../src/core/announce';
+import { confirm } from '../../src/lib/confirm';
+
+function calendarDaysBetween(startMs: number, endMs: number): number {
+  const dStart = new Date(startMs);
+  const dEnd = new Date(endMs);
+  const noonStart = new Date(dStart.getFullYear(), dStart.getMonth(), dStart.getDate(), 12, 0, 0).getTime();
+  const noonEnd = new Date(dEnd.getFullYear(), dEnd.getMonth(), dEnd.getDate(), 12, 0, 0).getTime();
+  return Math.max(0, Math.round((noonEnd - noonStart) / (1000 * 60 * 60 * 24)));
+}
 
 export default function BatchPassportScreen() {
   const router = useRouter();
@@ -53,20 +65,19 @@ export default function BatchPassportScreen() {
   if (!batch) {
     return (
       <View style={[styles.safeArea, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-        <ModalHeader title="Paszport Słoika" onClose={() => router.back()} closeLabel="Wróć" />
-        <View style={styles.notFoundContainer}>
-          <Text style={{ fontSize: 44, textAlign: 'center', marginBottom: 12 }}>🔍</Text>
-          <Text style={styles.notFoundTitle}>Nie znaleziono słoika</Text>
-          <Text style={styles.notFoundSub}>
-            Kod partii {batchId ? `"${batchId}"` : ''} nie istnieje w lokalnej bazie słoików.
-          </Text>
-          <KitchenButton title="Wróć do spiżarni" variant="primary" onPress={() => router.back()} style={{ marginTop: 20 }} />
-        </View>
+        <ModalHeader title={t('Paszport Słoika')} onClose={() => router.back()} closeLabel={t('Zamknij')} />
+        <Missing
+          title={t('Nie znaleziono słoika')}
+          description={`${t('Kod partii')} ${batchId ? `"${batchId}"` : ''} ${t('nie istnieje w lokalnej bazie słoików.')}`}
+          actionLabel={t('Przejdź do spiżarni')}
+          onAction={() => router.back()}
+          icon="🫙"
+        />
       </View>
     );
   }
 
-  const elapsedDays = Math.max(0, Math.floor((Date.now() - batch.startedAt) / (1000 * 60 * 60 * 24)));
+  const elapsedDays = calendarDaysBetween(batch.startedAt, Date.now());
   const latestLog = logs.length > 0 ? logs[logs.length - 1] : null;
   const currentProfile: FermentSensoryProfile = latestLog?.sensoryProfile || DEFAULT_FERMENT_SENSORY_PROFILE;
 
@@ -81,11 +92,11 @@ export default function BatchPassportScreen() {
     dbStore.addFermentationLog({
       batchId: batch.id,
       dayNumber: elapsedDays,
-      sensoryNote: 'Słoik odgazowany (uwolniono gaz CO2).',
+      sensoryNote: t('Słoik odgazowany (uwolniono gaz CO2).'),
       burped: true,
       tasted: false,
     });
-    Alert.alert('Słoik odgazowany! 🫧', 'Ciśnienie gazu CO₂ zostało bezpiecznie uwolnione.');
+    announce(t('Ciśnienie gazu CO₂ zostało bezpiecznie uwolnione.'));
     loadBatchData();
   };
 
@@ -103,25 +114,22 @@ export default function BatchPassportScreen() {
         paperFormat: 'A4',
       });
     } catch {
-      Alert.alert('Błąd eksportu', 'Nie udało się wygenerować arkusza etykiet PDF.');
+      Alert.alert(t('Nie udało się wygenerować arkusza etykiet'), t('Wystąpił problem podczas tworzenia pliku PDF.'));
     }
   };
 
   const handleConsume = () => {
-    Alert.alert(
-      'Otwarcie słoika 🍴',
-      `Czy chcesz oznaczyć "${batch.recipeTitle}" jako otwarty/zjedzony?`,
-      [
-        { text: 'Anuluj', style: 'cancel' },
-        {
-          text: 'Tak, zjedzony!',
-          onPress: () => {
-            dbStore.updateBatchStatus(batch.id, 'consumed', 5);
-            loadBatchData();
-          },
-        },
-      ]
-    );
+    confirm({
+      title: t('Otwarcie słoika 🍴'),
+      message: `${t('Czy chcesz oznaczyć')} "${batch.recipeTitle}" ${t('jako otwarty/zjedzony?')}`,
+      confirmText: t('Zjedz słoik'),
+      cancelText: t('Anuluj'),
+      destructive: false,
+      onConfirm: () => {
+        dbStore.updateBatchStatus(batch.id, 'consumed', 5);
+        loadBatchData();
+      },
+    });
   };
 
   const statusLabel =
@@ -132,7 +140,7 @@ export default function BatchPassportScreen() {
       : 'ZJEDZONY 🍴';
 
   const statusVariant =
-    batch.status === 'fermenting' ? 'amber' : batch.status === 'pantry' ? 'green' : 'default';
+    batch.status === 'fermenting' ? 'amber' : batch.status === 'pantry' ? 'green' : 'gray';
 
   return (
     <View style={[styles.safeArea, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>

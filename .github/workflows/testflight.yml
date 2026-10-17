@@ -9,13 +9,15 @@ name: TestFlight (Słoik)
 on:
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: testflight
   cancel-in-progress: false
 jobs:
   build:
     runs-on: macos-26
+    permissions:
+      contents: read
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
@@ -59,10 +61,6 @@ jobs:
           echo "SCHEME_NAME=$SCHEME_NAME" >> "$GITHUB_ENV"
           echo "Wykryto workspace: $WORKSPACE_PATH, schemat: $SCHEME_NAME, numer buildu: $BUILD_NUM"
           /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD_NUM" "ios/$SCHEME_NAME/Info.plist" || true
-      - name: Zapisanie klucza API do bezpiecznego pliku tymczasowego
-        env:
-          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
-        run: umask 077; printf '%s\n' "$ASC_KEY_P8" > "$RUNNER_TEMP/AuthKey.p8"
       - name: Archiwizacja (xcodebuild archive)
         run: |
           set -o pipefail
@@ -72,6 +70,10 @@ jobs:
             -archivePath "$RUNNER_TEMP/${SCHEME_NAME}.xcarchive" archive \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO DEVELOPMENT_TEAM="$TEAM" CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
             2>&1 | tee xcodebuild.log
+      - name: Zapisanie klucza API do bezpiecznego pliku tymczasowego (NFR-SEC-003)
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: umask 077; printf '%s\n' "$ASC_KEY_P8" > "$RUNNER_TEMP/AuthKey.p8"
       - name: Eksport i wysyłka do App Store Connect
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}

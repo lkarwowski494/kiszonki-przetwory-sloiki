@@ -1,0 +1,45 @@
+name: Tests Timezones (7 TZ Matrix)
+
+on:
+  schedule:
+    # Codziennie o 02:00 UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: tests-tz-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-tz:
+    name: Test TZ (${{ matrix.tz }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        tz:
+          - UTC
+          - America/New_York
+          - Asia/Tokyo
+          - Australia/Sydney
+          - Europe/Warsaw
+          - Pacific/Honolulu
+          - Asia/Kolkata
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run Jest in ${{ matrix.tz }}
+        env:
+          TZ: ${{ matrix.tz }}
+        run: npm test

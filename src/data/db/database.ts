@@ -7,7 +7,7 @@
 import * as SQLite from 'expo-sqlite';
 import { dbDirectory } from '../../lib/db-path';
 import { SQLITE_INIT_QUERIES } from './schema';
-import { autoBackup, SloikBackupData } from '../../lib/backup';
+import { autoBackup, saveCorruptState, SloikBackupData } from '../../lib/backup';
 import { MASTER_RECIPES } from '../../core/recipes/recipes-data';
 import { MasterRecipe } from '../../core/types';
 import {
@@ -65,7 +65,7 @@ export interface FermentationLogRecord {
 export interface PantryIngredientRecord {
   id: string;
   name: string;
-  category: 'salt' | 'vinegar' | 'produce' | 'spice' | 'jar_lid';
+  category: 'salt' | 'vinegar' | 'produce' | 'spice' | 'jar_lid' | 'sugar';
   stockAmount: number;
   unit: string;
   costPerUnit: number;
@@ -146,6 +146,24 @@ export class LocalDatabaseStore {
   private settings: Map<string, string> = new Map();
   private initialized = false;
   private clearedForTesting = false;
+  private wasCorrupt = false;
+  private corruptPayload?: string;
+
+  public isCorrupt(): boolean {
+    return this.wasCorrupt;
+  }
+
+  public getCorruptPayload(): string | undefined {
+    return this.corruptPayload;
+  }
+
+  public markCorrupt(rawErrorPayload: string): void {
+    this.wasCorrupt = true;
+    this.corruptPayload = rawErrorPayload;
+    try {
+      saveCorruptState(rawErrorPayload).catch(() => {});
+    } catch {}
+  }
 
   public ensureInitialized(): void {
     if (!this.initialized && !this.clearedForTesting) {
@@ -353,8 +371,9 @@ export class LocalDatabaseStore {
 
           loadedFromDb = true;
         }
-      } catch {
-        // Fallback do ziaren demonstracyjnych
+      } catch (err: any) {
+        // [BR-TEST-023] Ochrona przed cichym nadpisaniem uszkodzonego stanu
+        this.markCorrupt(String(err?.message || err));
       }
     }
 
@@ -628,6 +647,9 @@ export class LocalDatabaseStore {
     return newBatch;
   }
 
+  public saveBatch(batch: BatchRecord): BatchRecord {
+    return this.createBatch(batch);
+  }
 
   public getBatchById(id: string): BatchRecord | undefined {
     this.ensureInitialized();

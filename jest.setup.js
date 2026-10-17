@@ -26,6 +26,40 @@ jest.mock('react-native', () => {
     ScrollView: (props) => React.createElement('ScrollView', props),
     Modal: (props) => React.createElement('Modal', props),
     TextInput: (props) => React.createElement('TextInput', props),
+    SafeAreaView: (props) => React.createElement('SafeAreaView', props),
+    AppState: {
+      currentState: 'active',
+      addEventListener: jest.fn(() => ({ remove: jest.fn() })),
+      removeEventListener: jest.fn(),
+    },
+  };
+});
+
+jest.mock('expo-router', () => {
+  const React = require('react');
+  let currentParams = {};
+  let currentPath = '/';
+  const router = {
+    push: jest.fn(),
+    replace: jest.fn(),
+    back: jest.fn(),
+    navigate: jest.fn(),
+    setParams: jest.fn((p) => { currentParams = { ...currentParams, ...p }; }),
+  };
+  return {
+    useRouter: () => router,
+    useLocalSearchParams: () => currentParams,
+    usePathname: () => currentPath,
+    Link: ({ children, ...props }) => React.createElement('Link', props, children),
+    Stack: {
+      Screen: ({ children, ...props }) => React.createElement('Screen', props, children),
+    },
+    Tabs: {
+      Screen: ({ children, ...props }) => React.createElement('Screen', props, children),
+    },
+    __setMockParams: (p) => { currentParams = p; },
+    __setMockPath: (path) => { currentPath = path; },
+    __router: router,
   };
 });
 
@@ -40,11 +74,17 @@ jest.mock('react-native-safe-area-context', () => {
 
 jest.mock('react-native-svg', () => {
   const React = require('react');
+  const Svg = (props) => React.createElement('Svg', props);
   return {
-    Svg: (props) => React.createElement('Svg', props),
+    __esModule: true,
+    default: Svg,
+    Svg,
     Path: (props) => React.createElement('Path', props),
     Rect: (props) => React.createElement('Rect', props),
     Circle: (props) => React.createElement('Circle', props),
+    Line: (props) => React.createElement('Line', props),
+    Polygon: (props) => React.createElement('Polygon', props),
+    Text: (props) => React.createElement('SvgText', props),
     G: (props) => React.createElement('G', props),
     Defs: (props) => React.createElement('Defs', props),
     LinearGradient: (props) => React.createElement('LinearGradient', props),
@@ -67,6 +107,12 @@ jest.mock('expo-haptics', () => ({
     Medium: 'medium',
     Heavy: 'heavy',
   },
+}));
+
+jest.mock('expo-keep-awake', () => ({
+  useKeepAwake: jest.fn(),
+  activateKeepAwakeAsync: jest.fn().mockResolvedValue(true),
+  deactivateKeepAwake: jest.fn().mockResolvedValue(true),
 }));
 
 jest.mock('expo-audio', () => ({
@@ -103,12 +149,41 @@ jest.mock('expo-camera', () => {
   };
 });
 
-jest.mock('expo-file-system', () => ({
-  documentDirectory: 'file:///documents/',
-  writeAsStringAsync: jest.fn().mockResolvedValue(undefined),
-  readAsStringAsync: jest.fn().mockResolvedValue('{}'),
-  EncodingType: { UTF8: 'utf8' },
-}));
+jest.mock('expo-file-system', () => {
+  const mockFiles = new Map();
+  return {
+    documentDirectory: 'file:///documents/',
+    cacheDirectory: 'file:///cache/',
+    EncodingType: { UTF8: 'utf8' },
+    getInfoAsync: jest.fn(async (path) => {
+      const isDir = path.endsWith('/') || !path.includes('.');
+      return {
+        exists: mockFiles.has(path) || isDir,
+        isDirectory: isDir,
+        uri: path,
+      };
+    }),
+    makeDirectoryAsync: jest.fn(async () => {}),
+    writeAsStringAsync: jest.fn(async (path, content) => {
+      mockFiles.set(path, content);
+    }),
+    readAsStringAsync: jest.fn(async (path) => mockFiles.get(path) || '{}'),
+    deleteAsync: jest.fn(async (path) => {
+      mockFiles.delete(path);
+    }),
+    readDirectoryAsync: jest.fn(async (dir) => {
+      const results = [];
+      for (const key of mockFiles.keys()) {
+        if (key.startsWith(dir)) {
+          const rest = key.slice(dir.length);
+          if (!rest.includes('/')) results.push(rest);
+        }
+      }
+      return results;
+    }),
+    __clearMockFiles: () => mockFiles.clear(),
+  };
+});
 
 jest.mock('expo-sharing', () => ({
   isAvailableAsync: jest.fn().mockResolvedValue(true),
@@ -224,11 +299,12 @@ jest.mock('@apps4craft/ui', () => {
     )
   );
 
-  const CraftButton = ({ label, onPress, variant = 'primary', accentColor = '#5B8A61', disabled = false, testID = 'craft-button', style }) => (
+  const CraftButton = ({ label, onPress, variant = 'primary', accentColor = '#5B8A61', disabled = false, testID = 'craft-button', accessibilityLabel, style }) => (
     React.createElement('TouchableOpacity', {
       testID,
       onPress: disabled ? undefined : onPress,
       accessibilityRole: 'button',
+      accessibilityLabel: accessibilityLabel || label,
       disabled,
       style: [{ minHeight: 52 }, style],
     }, React.createElement('Text', null, label))
@@ -237,8 +313,13 @@ jest.mock('@apps4craft/ui', () => {
   const CraftModal = ({ visible, onClose, title, subtitle, children, footer, testID = 'craft-modal' }) => {
     if (!visible) return null;
     return React.createElement('View', { testID },
+      React.createElement(CraftHeader, {
+        testID: 'craft-modal-header',
+        title: title || '',
+        subtitle,
+        onClose,
+      }),
       onClose ? React.createElement('TouchableOpacity', { testID: 'craft-modal-close', onPress: onClose }) : null,
-      title ? React.createElement('Text', null, title) : null,
       children,
       footer
     );
@@ -270,7 +351,16 @@ jest.mock('@apps4craft/ui', () => {
     return IconComp;
   };
 
+  const CRAFT_APPS = {
+    sloik: { id: 'sloik', name: 'Słoik', sub: 'Domowe przetwórstwo i fermentacja', accent: '#5B8A61' },
+    napar: { id: 'napar', name: 'Napar', sub: 'Kawa i herbata specialty', accent: '#C86A28' },
+    piekarz: { id: 'piekarz', name: 'Piekarz', sub: 'Chleb na zakwasie', accent: '#D49B44' },
+    masaz: { id: 'masaz', name: 'Masaż', sub: 'Rytuały relaksacyjne', accent: '#8C6BA8' },
+    ferment: { id: 'ferment', name: 'Ferment', sub: 'Kombucha i octy', accent: '#4A8C80' },
+  };
+
   return {
+    CRAFT_APPS,
     sharedCraftTokens,
     craftThemes,
     getCraftTheme,

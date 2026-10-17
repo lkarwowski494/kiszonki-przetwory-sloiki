@@ -1,6 +1,6 @@
 {
   "name": "kiszonki-przetwory-sloiki",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "main": "expo-router/entry",
   "private": true,
   "description": "Słoik (Jarwise) — Apps4Brew: asystent domowego przetwórstwa, fermentacji, pasteryzacji, spiżarnia i 24 receptury świata",
@@ -15,8 +15,10 @@
     "matrix:write": "node scripts/test-matrix.mjs --write",
     "check:i18n": "node scripts/check-i18n.mjs",
     "check:maestro": "node scripts/check-maestro.mjs",
+    "check:licenses": "node scripts/licenses.mjs",
+    "verify:native": "node scripts/verify-native.mjs",
     "generate:assets": "node scripts/generate-assets.mjs",
-    "verify": "npm run typecheck && npm test && npm run check:i18n && npm run check:matrix && npm run check:maestro"
+    "verify": "npm run typecheck && npm test && npm run check:i18n && npm run check:matrix && npm run check:maestro && npm run check:licenses && npm run verify:native"
   },
   "dependencies": {
     "@apps4craft/ui": "github:lkarwowski494/apps4craft-ui",

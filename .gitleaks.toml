@@ -1,0 +1,22 @@
+# ============================================================================
+# Apps4Craft Studio / Apps4Brew — Gitleaks Configuration
+# (NFR-SEC-005, RYZ-31)
+# ============================================================================
+
+title = "Słoik (Jarwise) Gitleaks Configuration"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Global allowlist for harmless mock keys and test fixtures"
+paths = [
+  '''tests/fixtures/.*''',
+  '''dist/.*''',
+  '''package-lock\.json''',
+]
+regexes = [
+  '''notif-id-123''',
+  '''test-p8-key''',
+  '''0x5eed1234''',
+]

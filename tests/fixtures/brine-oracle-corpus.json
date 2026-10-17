@@ -1,0 +1,3820 @@
+{
+  "version": "1.0.0",
+  "generated_by": "scripts/gen-brine-corpus.py",
+  "brine_cases_count": 270,
+  "pasteur_cases_count": 140,
+  "brine_cases": [
+    {
+      "produce_g": 100,
+      "water_g": 0,
+      "target_pct": 1.5,
+      "method": "dry_salting",
+      "salt_g": 1.5,
+      "total_mass_g": 102,
+      "effective_pct": 1.5
+    },
+    {
+      "produce_g": 100,
+      "water_g": 0,
+      "target_pct": 2.0,
+      "method": "dry_salting",
+      "salt_g": 2.0,
+      "total_mass_g": 102,
+      "effective_pct": 2.0
+    },
+    {
+      "produce_g": 100,
+      "water_g": 0,
+      "target_pct": 2.5,
+      "method": "dry_salting",
+      "salt_g": 2.6,
+      "total_mass_g": 103,
+      "effective_pct": 2.5
+    },
+    {
+      "produce_g": 100,
+      "water_g": 0,
+      "target_pct": 3.0,
+      "method": "dry_salting",
+      "salt_g": 3.1,
+      "total_mass_g": 103,
+      "effective_pct": 3.0
+    },
+    {
+      "produce_g": 100,
+      "water_g": 0,
+      "target_pct": 3.5,
+      "method": "dry_salting",
+      "salt_g": 3.6,
+      "total_mass_g": 104,
+      "effective_pct": 3.5
+    },
+    {
+      "produce_g": 100,
+      "water_g": 0,
+      "target_pct": 5.0,
+      "method": "dry_salting",
+      "salt_g": 5.3,
+      "total_mass_g": 105,
+      "effective_pct": 5.0
+    },
+    {
+      "produce_g": 500,
+      "water_g": 0,
+      "target_pct": 1.5,
+      "method": "dry_salting",
+      "salt_g": 7.6,
+      "total_mass_g": 508,
+      "effective_pct": 1.5
+    },
+    {
+      "produce_g": 500,
+      "water_g": 0,
+      "target_pct": 2.0,
+      "method": "dry_salting",
+      "salt_g": 10.2,
+      "total_mass_g": 510,
+      "effective_pct": 2.0
+    },
+    {
+      "produce_g": 500,
+      "water_g": 0,
+      "target_pct": 2.5,
+      "method": "dry_salting",
+      "salt_g": 12.8,
+      "total_mass_g": 513,
+      "effective_pct": 2.5
+    },
+    {
+      "produce_g": 500,
+      "water_g": 0,
+      "target_pct": 3.0,
+      "method": "dry_salting",
+      "salt_g": 15.5,
+      "total_mass_g": 516,
+      "effective_pct": 3.0
+    },
+    {
+      "produce_g": 500,
+      "water_g": 0,
+      "target_pct": 3.5,
+      "method": "dry_salting",
+      "salt_g": 18.1,
+      "total_mass_g": 518,
+      "effective_pct": 3.5
+    },
+    {
+      "produce_g": 500,
+      "water_g": 0,
+      "target_pct": 5.0,
+      "method": "dry_salting",
+      "salt_g": 26.3,
+      "total_mass_g": 526,
+      "effective_pct": 5.0
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 0,
+      "target_pct": 1.5,
+      "method": "dry_salting",
+      "salt_g": 15.2,
+      "total_mass_g": 1015,
+      "effective_pct": 1.5
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 0,
+      "target_pct": 2.0,
+      "method": "dry_salting",
+      "salt_g": 20.4,
+      "total_mass_g": 1020,
+      "effective_pct": 2.0
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 0,
+      "target_pct": 2.5,
+      "method": "dry_salting",
+      "salt_g": 25.6,
+      "total_mass_g": 1026,
+      "effective_pct": 2.5
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 0,
+      "target_pct": 3.0,
+      "method": "dry_salting",
+      "salt_g": 30.9,
+      "total_mass_g": 1031,
+      "effective_pct": 3.0
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 0,
+      "target_pct": 3.5,
+      "method": "dry_salting",
+      "salt_g": 36.3,
+      "total_mass_g": 1036,
+      "effective_pct": 3.5
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 0,
+      "target_pct": 5.0,
+      "method": "dry_salting",
+      "salt_g": 52.6,
+      "total_mass_g": 1053,
+      "effective_pct": 5.0
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 0,
+      "target_pct": 1.5,
+      "method": "dry_salting",
+      "salt_g": 22.8,
+      "total_mass_g": 1523,
+      "effective_pct": 1.5
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 0,
+      "target_pct": 2.0,
+      "method": "dry_salting",
+      "salt_g": 30.6,
+      "total_mass_g": 1531,
+      "effective_pct": 2.0
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 0,
+      "target_pct": 2.5,
+      "method": "dry_salting",
+      "salt_g": 38.5,
+      "total_mass_g": 1539,
+      "effective_pct": 2.5
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 0,
+      "target_pct": 3.0,
+      "method": "dry_salting",
+      "salt_g": 46.4,
+      "total_mass_g": 1546,
+      "effective_pct": 3.0
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 0,
+      "target_pct": 3.5,
+      "method": "dry_salting",
+      "salt_g": 54.4,
+      "total_mass_g": 1554,
+      "effective_pct": 3.5
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 0,
+      "target_pct": 5.0,
+      "method": "dry_salting",
+      "salt_g": 78.9,
+      "total_mass_g": 1579,
+      "effective_pct": 5.0
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 0,
+      "target_pct": 1.5,
+      "method": "dry_salting",
+      "salt_g": 30.5,
+      "total_mass_g": 2031,
+      "effective_pct": 1.5
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 0,
+      "target_pct": 2.0,
+      "method": "dry_salting",
+      "salt_g": 40.8,
+      "total_mass_g": 2041,
+      "effective_pct": 2.0
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 0,
+      "target_pct": 2.5,
+      "method": "dry_salting",
+      "salt_g": 51.3,
+      "total_mass_g": 2051,
+      "effective_pct": 2.5
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 0,
+      "target_pct": 3.0,
+      "method": "dry_salting",
+      "salt_g": 61.9,
+      "total_mass_g": 2062,
+      "effective_pct": 3.0
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 0,
+      "target_pct": 3.5,
+      "method": "dry_salting",
+      "salt_g": 72.5,
+      "total_mass_g": 2073,
+      "effective_pct": 3.5
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 0,
+      "target_pct": 5.0,
+      "method": "dry_salting",
+      "salt_g": 105.3,
+      "total_mass_g": 2105,
+      "effective_pct": 5.0
+    },
+    {
+      "produce_g": 100,
+      "water_g": 200,
+      "target_pct": 1.5,
+      "method": "total_mass",
+      "salt_g": 4.6,
+      "total_mass_g": 305,
+      "effective_pct": 1.5,
+      "cacl2_g": 0.2
+    },
+    {
+      "produce_g": 100,
+      "water_g": 200,
+      "target_pct": 1.5,
+      "method": "water_only",
+      "salt_g": 3.0,
+      "total_mass_g": 303,
+      "effective_pct": 1.0
+    },
+    {
+      "produce_g": 100,
+      "water_g": 200,
+      "target_pct": 2.0,
+      "method": "total_mass",
+      "salt_g": 6.1,
+      "total_mass_g": 306,
+      "effective_pct": 2.0,
+      "cacl2_g": 0.2
+    },
+    {
+      "produce_g": 100,
+      "water_g": 200,
+      "target_pct": 2.0,
+      "method": "water_only",
+      "salt_g": 4.0,
+      "total_mass_g": 304,
+      "effective_pct": 1.3
+    },
+    {
+      "produce_g": 100,
+      "water_g": 200,
+      "target_pct": 2.5,
+      "method": "total_mass",
+      "salt_g": 7.7,
+      "total_mass_g": 308,
+      "effective_pct": 2.5,
+      "cacl2_g": 0.2
+    },
+    {
+      "produce_g": 100,
+      "water_g": 200,
+      "target_pct": 2.5,
+      "method": "water_only",
+      "salt_g": 5.0,
+      "total_mass_g": 305,
+      "effective_pct": 1.7
+    },
+    {
+      "produce_g": 100,
+      "water_g": 200,
+      "target_pct": 3.0,
+      "method": "total_mass",
+      "salt_g": 9.3,
+      "total_mass_g": 309,
+      "effective_pct": 3.0,
+      "cacl2_g": 0.2
+    },
+    {
+      "produce_g": 100,
+      "water_g": 200,
+      "target_pct": 3.0,
+      "method": "water_only",
+      "salt_g": 6.0,
+      "total_mass_g": 306,
+      "effective_pct": 2.0
+    },
+    {
+      "produce_g": 100,
+      "water_g": 200,
+      "target_pct": 3.5,
+      "method": "total_mass",
+      "salt_g": 10.9,
+      "total_mass_g": 311,
+      "effective_pct": 3.5,
+      "cacl2_g": 0.2
+    },
+    {
+      "produce_g": 100,
+      "water_g": 200,
+      "target_pct": 3.5,
+      "method": "water_only",
+      "salt_g": 7.0,
+      "total_mass_g": 307,
+      "effective_pct": 2.3
+    },
+    {
+      "produce_g": 100,
+      "water_g": 200,
+      "target_pct": 5.0,
+      "method": "total_mass",
+      "salt_g": 15.8,
+      "total_mass_g": 316,
+      "effective_pct": 5.0,
+      "cacl2_g": 0.3
+    },
+    {
+      "produce_g": 100,
+      "water_g": 200,
+      "target_pct": 5.0,
+      "method": "water_only",
+      "salt_g": 10.0,
+      "total_mass_g": 310,
+      "effective_pct": 3.3
+    },
+    {
+      "produce_g": 100,
+      "water_g": 500,
+      "target_pct": 1.5,
+      "method": "total_mass",
+      "salt_g": 9.1,
+      "total_mass_g": 609,
+      "effective_pct": 1.5,
+      "cacl2_g": 0.5
+    },
+    {
+      "produce_g": 100,
+      "water_g": 500,
+      "target_pct": 1.5,
+      "method": "water_only",
+      "salt_g": 7.5,
+      "total_mass_g": 608,
+      "effective_pct": 1.3
+    },
+    {
+      "produce_g": 100,
+      "water_g": 500,
+      "target_pct": 2.0,
+      "method": "total_mass",
+      "salt_g": 12.2,
+      "total_mass_g": 612,
+      "effective_pct": 2.0,
+      "cacl2_g": 0.5
+    },
+    {
+      "produce_g": 100,
+      "water_g": 500,
+      "target_pct": 2.0,
+      "method": "water_only",
+      "salt_g": 10.0,
+      "total_mass_g": 610,
+      "effective_pct": 1.7
+    },
+    {
+      "produce_g": 100,
+      "water_g": 500,
+      "target_pct": 2.5,
+      "method": "total_mass",
+      "salt_g": 15.4,
+      "total_mass_g": 615,
+      "effective_pct": 2.5,
+      "cacl2_g": 0.5
+    },
+    {
+      "produce_g": 100,
+      "water_g": 500,
+      "target_pct": 2.5,
+      "method": "water_only",
+      "salt_g": 12.5,
+      "total_mass_g": 613,
+      "effective_pct": 2.1
+    },
+    {
+      "produce_g": 100,
+      "water_g": 500,
+      "target_pct": 3.0,
+      "method": "total_mass",
+      "salt_g": 18.6,
+      "total_mass_g": 619,
+      "effective_pct": 3.0,
+      "cacl2_g": 0.5
+    },
+    {
+      "produce_g": 100,
+      "water_g": 500,
+      "target_pct": 3.0,
+      "method": "water_only",
+      "salt_g": 15.0,
+      "total_mass_g": 615,
+      "effective_pct": 2.5
+    },
+    {
+      "produce_g": 100,
+      "water_g": 500,
+      "target_pct": 3.5,
+      "method": "total_mass",
+      "salt_g": 21.8,
+      "total_mass_g": 622,
+      "effective_pct": 3.5,
+      "cacl2_g": 0.5
+    },
+    {
+      "produce_g": 100,
+      "water_g": 500,
+      "target_pct": 3.5,
+      "method": "water_only",
+      "salt_g": 17.5,
+      "total_mass_g": 618,
+      "effective_pct": 2.9
+    },
+    {
+      "produce_g": 100,
+      "water_g": 500,
+      "target_pct": 5.0,
+      "method": "total_mass",
+      "salt_g": 31.6,
+      "total_mass_g": 632,
+      "effective_pct": 5.0,
+      "cacl2_g": 0.5
+    },
+    {
+      "produce_g": 100,
+      "water_g": 500,
+      "target_pct": 5.0,
+      "method": "water_only",
+      "salt_g": 25.0,
+      "total_mass_g": 625,
+      "effective_pct": 4.2
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1000,
+      "target_pct": 1.5,
+      "method": "total_mass",
+      "salt_g": 16.8,
+      "total_mass_g": 1117,
+      "effective_pct": 1.5,
+      "cacl2_g": 0.9
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1000,
+      "target_pct": 1.5,
+      "method": "water_only",
+      "salt_g": 15.0,
+      "total_mass_g": 1115,
+      "effective_pct": 1.4
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1000,
+      "target_pct": 2.0,
+      "method": "total_mass",
+      "salt_g": 22.4,
+      "total_mass_g": 1122,
+      "effective_pct": 2.0,
+      "cacl2_g": 0.9
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1000,
+      "target_pct": 2.0,
+      "method": "water_only",
+      "salt_g": 20.0,
+      "total_mass_g": 1120,
+      "effective_pct": 1.8
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1000,
+      "target_pct": 2.5,
+      "method": "total_mass",
+      "salt_g": 28.2,
+      "total_mass_g": 1128,
+      "effective_pct": 2.5,
+      "cacl2_g": 0.9
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1000,
+      "target_pct": 2.5,
+      "method": "water_only",
+      "salt_g": 25.0,
+      "total_mass_g": 1125,
+      "effective_pct": 2.3
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1000,
+      "target_pct": 3.0,
+      "method": "total_mass",
+      "salt_g": 34.0,
+      "total_mass_g": 1134,
+      "effective_pct": 3.0,
+      "cacl2_g": 0.9
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1000,
+      "target_pct": 3.0,
+      "method": "water_only",
+      "salt_g": 30.0,
+      "total_mass_g": 1130,
+      "effective_pct": 2.7
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1000,
+      "target_pct": 3.5,
+      "method": "total_mass",
+      "salt_g": 39.9,
+      "total_mass_g": 1140,
+      "effective_pct": 3.5,
+      "cacl2_g": 0.9
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1000,
+      "target_pct": 3.5,
+      "method": "water_only",
+      "salt_g": 35.0,
+      "total_mass_g": 1135,
+      "effective_pct": 3.2
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1000,
+      "target_pct": 5.0,
+      "method": "total_mass",
+      "salt_g": 57.9,
+      "total_mass_g": 1158,
+      "effective_pct": 5.0,
+      "cacl2_g": 0.9
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1000,
+      "target_pct": 5.0,
+      "method": "water_only",
+      "salt_g": 50.0,
+      "total_mass_g": 1150,
+      "effective_pct": 4.5
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1500,
+      "target_pct": 1.5,
+      "method": "total_mass",
+      "salt_g": 24.4,
+      "total_mass_g": 1624,
+      "effective_pct": 1.5,
+      "cacl2_g": 1.3
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1500,
+      "target_pct": 1.5,
+      "method": "water_only",
+      "salt_g": 22.5,
+      "total_mass_g": 1623,
+      "effective_pct": 1.4
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1500,
+      "target_pct": 2.0,
+      "method": "total_mass",
+      "salt_g": 32.7,
+      "total_mass_g": 1633,
+      "effective_pct": 2.0,
+      "cacl2_g": 1.3
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1500,
+      "target_pct": 2.0,
+      "method": "water_only",
+      "salt_g": 30.0,
+      "total_mass_g": 1630,
+      "effective_pct": 1.9
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1500,
+      "target_pct": 2.5,
+      "method": "total_mass",
+      "salt_g": 41.0,
+      "total_mass_g": 1641,
+      "effective_pct": 2.5,
+      "cacl2_g": 1.3
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1500,
+      "target_pct": 2.5,
+      "method": "water_only",
+      "salt_g": 37.5,
+      "total_mass_g": 1638,
+      "effective_pct": 2.3
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1500,
+      "target_pct": 3.0,
+      "method": "total_mass",
+      "salt_g": 49.5,
+      "total_mass_g": 1650,
+      "effective_pct": 3.0,
+      "cacl2_g": 1.3
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1500,
+      "target_pct": 3.0,
+      "method": "water_only",
+      "salt_g": 45.0,
+      "total_mass_g": 1645,
+      "effective_pct": 2.8
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1500,
+      "target_pct": 3.5,
+      "method": "total_mass",
+      "salt_g": 58.0,
+      "total_mass_g": 1658,
+      "effective_pct": 3.5,
+      "cacl2_g": 1.3
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1500,
+      "target_pct": 3.5,
+      "method": "water_only",
+      "salt_g": 52.5,
+      "total_mass_g": 1653,
+      "effective_pct": 3.3
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1500,
+      "target_pct": 5.0,
+      "method": "total_mass",
+      "salt_g": 84.2,
+      "total_mass_g": 1684,
+      "effective_pct": 5.0,
+      "cacl2_g": 1.3
+    },
+    {
+      "produce_g": 100,
+      "water_g": 1500,
+      "target_pct": 5.0,
+      "method": "water_only",
+      "salt_g": 75.0,
+      "total_mass_g": 1675,
+      "effective_pct": 4.7
+    },
+    {
+      "produce_g": 500,
+      "water_g": 200,
+      "target_pct": 1.5,
+      "method": "total_mass",
+      "salt_g": 10.7,
+      "total_mass_g": 711,
+      "effective_pct": 1.5,
+      "cacl2_g": 0.6
+    },
+    {
+      "produce_g": 500,
+      "water_g": 200,
+      "target_pct": 1.5,
+      "method": "water_only",
+      "salt_g": 3.0,
+      "total_mass_g": 703,
+      "effective_pct": 0.4
+    },
+    {
+      "produce_g": 500,
+      "water_g": 200,
+      "target_pct": 2.0,
+      "method": "total_mass",
+      "salt_g": 14.3,
+      "total_mass_g": 714,
+      "effective_pct": 2.0,
+      "cacl2_g": 0.6
+    },
+    {
+      "produce_g": 500,
+      "water_g": 200,
+      "target_pct": 2.0,
+      "method": "water_only",
+      "salt_g": 4.0,
+      "total_mass_g": 704,
+      "effective_pct": 0.6
+    },
+    {
+      "produce_g": 500,
+      "water_g": 200,
+      "target_pct": 2.5,
+      "method": "total_mass",
+      "salt_g": 17.9,
+      "total_mass_g": 718,
+      "effective_pct": 2.5,
+      "cacl2_g": 0.6
+    },
+    {
+      "produce_g": 500,
+      "water_g": 200,
+      "target_pct": 2.5,
+      "method": "water_only",
+      "salt_g": 5.0,
+      "total_mass_g": 705,
+      "effective_pct": 0.7
+    },
+    {
+      "produce_g": 500,
+      "water_g": 200,
+      "target_pct": 3.0,
+      "method": "total_mass",
+      "salt_g": 21.6,
+      "total_mass_g": 722,
+      "effective_pct": 3.0,
+      "cacl2_g": 0.6
+    },
+    {
+      "produce_g": 500,
+      "water_g": 200,
+      "target_pct": 3.0,
+      "method": "water_only",
+      "salt_g": 6.0,
+      "total_mass_g": 706,
+      "effective_pct": 0.9
+    },
+    {
+      "produce_g": 500,
+      "water_g": 200,
+      "target_pct": 3.5,
+      "method": "total_mass",
+      "salt_g": 25.4,
+      "total_mass_g": 725,
+      "effective_pct": 3.5,
+      "cacl2_g": 0.6
+    },
+    {
+      "produce_g": 500,
+      "water_g": 200,
+      "target_pct": 3.5,
+      "method": "water_only",
+      "salt_g": 7.0,
+      "total_mass_g": 707,
+      "effective_pct": 1.0
+    },
+    {
+      "produce_g": 500,
+      "water_g": 200,
+      "target_pct": 5.0,
+      "method": "total_mass",
+      "salt_g": 36.8,
+      "total_mass_g": 737,
+      "effective_pct": 5.0,
+      "cacl2_g": 0.6
+    },
+    {
+      "produce_g": 500,
+      "water_g": 200,
+      "target_pct": 5.0,
+      "method": "water_only",
+      "salt_g": 10.0,
+      "total_mass_g": 710,
+      "effective_pct": 1.4
+    },
+    {
+      "produce_g": 500,
+      "water_g": 500,
+      "target_pct": 1.5,
+      "method": "total_mass",
+      "salt_g": 15.2,
+      "total_mass_g": 1015,
+      "effective_pct": 1.5,
+      "cacl2_g": 0.8
+    },
+    {
+      "produce_g": 500,
+      "water_g": 500,
+      "target_pct": 1.5,
+      "method": "water_only",
+      "salt_g": 7.5,
+      "total_mass_g": 1008,
+      "effective_pct": 0.8
+    },
+    {
+      "produce_g": 500,
+      "water_g": 500,
+      "target_pct": 2.0,
+      "method": "total_mass",
+      "salt_g": 20.4,
+      "total_mass_g": 1020,
+      "effective_pct": 2.0,
+      "cacl2_g": 0.8
+    },
+    {
+      "produce_g": 500,
+      "water_g": 500,
+      "target_pct": 2.0,
+      "method": "water_only",
+      "salt_g": 10.0,
+      "total_mass_g": 1010,
+      "effective_pct": 1.0
+    },
+    {
+      "produce_g": 500,
+      "water_g": 500,
+      "target_pct": 2.5,
+      "method": "total_mass",
+      "salt_g": 25.6,
+      "total_mass_g": 1026,
+      "effective_pct": 2.5,
+      "cacl2_g": 0.8
+    },
+    {
+      "produce_g": 500,
+      "water_g": 500,
+      "target_pct": 2.5,
+      "method": "water_only",
+      "salt_g": 12.5,
+      "total_mass_g": 1013,
+      "effective_pct": 1.3
+    },
+    {
+      "produce_g": 500,
+      "water_g": 500,
+      "target_pct": 3.0,
+      "method": "total_mass",
+      "salt_g": 30.9,
+      "total_mass_g": 1031,
+      "effective_pct": 3.0,
+      "cacl2_g": 0.8
+    },
+    {
+      "produce_g": 500,
+      "water_g": 500,
+      "target_pct": 3.0,
+      "method": "water_only",
+      "salt_g": 15.0,
+      "total_mass_g": 1015,
+      "effective_pct": 1.5
+    },
+    {
+      "produce_g": 500,
+      "water_g": 500,
+      "target_pct": 3.5,
+      "method": "total_mass",
+      "salt_g": 36.3,
+      "total_mass_g": 1036,
+      "effective_pct": 3.5,
+      "cacl2_g": 0.8
+    },
+    {
+      "produce_g": 500,
+      "water_g": 500,
+      "target_pct": 3.5,
+      "method": "water_only",
+      "salt_g": 17.5,
+      "total_mass_g": 1018,
+      "effective_pct": 1.8
+    },
+    {
+      "produce_g": 500,
+      "water_g": 500,
+      "target_pct": 5.0,
+      "method": "total_mass",
+      "salt_g": 52.6,
+      "total_mass_g": 1053,
+      "effective_pct": 5.0,
+      "cacl2_g": 0.8
+    },
+    {
+      "produce_g": 500,
+      "water_g": 500,
+      "target_pct": 5.0,
+      "method": "water_only",
+      "salt_g": 25.0,
+      "total_mass_g": 1025,
+      "effective_pct": 2.5
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1000,
+      "target_pct": 1.5,
+      "method": "total_mass",
+      "salt_g": 22.8,
+      "total_mass_g": 1523,
+      "effective_pct": 1.5,
+      "cacl2_g": 1.2
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1000,
+      "target_pct": 1.5,
+      "method": "water_only",
+      "salt_g": 15.0,
+      "total_mass_g": 1515,
+      "effective_pct": 1.0
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1000,
+      "target_pct": 2.0,
+      "method": "total_mass",
+      "salt_g": 30.6,
+      "total_mass_g": 1531,
+      "effective_pct": 2.0,
+      "cacl2_g": 1.2
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1000,
+      "target_pct": 2.0,
+      "method": "water_only",
+      "salt_g": 20.0,
+      "total_mass_g": 1520,
+      "effective_pct": 1.3
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1000,
+      "target_pct": 2.5,
+      "method": "total_mass",
+      "salt_g": 38.5,
+      "total_mass_g": 1539,
+      "effective_pct": 2.5,
+      "cacl2_g": 1.2
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1000,
+      "target_pct": 2.5,
+      "method": "water_only",
+      "salt_g": 25.0,
+      "total_mass_g": 1525,
+      "effective_pct": 1.7
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1000,
+      "target_pct": 3.0,
+      "method": "total_mass",
+      "salt_g": 46.4,
+      "total_mass_g": 1546,
+      "effective_pct": 3.0,
+      "cacl2_g": 1.2
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1000,
+      "target_pct": 3.0,
+      "method": "water_only",
+      "salt_g": 30.0,
+      "total_mass_g": 1530,
+      "effective_pct": 2.0
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1000,
+      "target_pct": 3.5,
+      "method": "total_mass",
+      "salt_g": 54.4,
+      "total_mass_g": 1554,
+      "effective_pct": 3.5,
+      "cacl2_g": 1.2
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1000,
+      "target_pct": 3.5,
+      "method": "water_only",
+      "salt_g": 35.0,
+      "total_mass_g": 1535,
+      "effective_pct": 2.3
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1000,
+      "target_pct": 5.0,
+      "method": "total_mass",
+      "salt_g": 78.9,
+      "total_mass_g": 1579,
+      "effective_pct": 5.0,
+      "cacl2_g": 1.3
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1000,
+      "target_pct": 5.0,
+      "method": "water_only",
+      "salt_g": 50.0,
+      "total_mass_g": 1550,
+      "effective_pct": 3.3
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1500,
+      "target_pct": 1.5,
+      "method": "total_mass",
+      "salt_g": 30.5,
+      "total_mass_g": 2031,
+      "effective_pct": 1.5,
+      "cacl2_g": 1.6
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1500,
+      "target_pct": 1.5,
+      "method": "water_only",
+      "salt_g": 22.5,
+      "total_mass_g": 2023,
+      "effective_pct": 1.1
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1500,
+      "target_pct": 2.0,
+      "method": "total_mass",
+      "salt_g": 40.8,
+      "total_mass_g": 2041,
+      "effective_pct": 2.0,
+      "cacl2_g": 1.6
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1500,
+      "target_pct": 2.0,
+      "method": "water_only",
+      "salt_g": 30.0,
+      "total_mass_g": 2030,
+      "effective_pct": 1.5
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1500,
+      "target_pct": 2.5,
+      "method": "total_mass",
+      "salt_g": 51.3,
+      "total_mass_g": 2051,
+      "effective_pct": 2.5,
+      "cacl2_g": 1.6
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1500,
+      "target_pct": 2.5,
+      "method": "water_only",
+      "salt_g": 37.5,
+      "total_mass_g": 2038,
+      "effective_pct": 1.9
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1500,
+      "target_pct": 3.0,
+      "method": "total_mass",
+      "salt_g": 61.9,
+      "total_mass_g": 2062,
+      "effective_pct": 3.0,
+      "cacl2_g": 1.6
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1500,
+      "target_pct": 3.0,
+      "method": "water_only",
+      "salt_g": 45.0,
+      "total_mass_g": 2045,
+      "effective_pct": 2.3
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1500,
+      "target_pct": 3.5,
+      "method": "total_mass",
+      "salt_g": 72.5,
+      "total_mass_g": 2073,
+      "effective_pct": 3.5,
+      "cacl2_g": 1.7
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1500,
+      "target_pct": 3.5,
+      "method": "water_only",
+      "salt_g": 52.5,
+      "total_mass_g": 2053,
+      "effective_pct": 2.6
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1500,
+      "target_pct": 5.0,
+      "method": "total_mass",
+      "salt_g": 105.3,
+      "total_mass_g": 2105,
+      "effective_pct": 5.0,
+      "cacl2_g": 1.7
+    },
+    {
+      "produce_g": 500,
+      "water_g": 1500,
+      "target_pct": 5.0,
+      "method": "water_only",
+      "salt_g": 75.0,
+      "total_mass_g": 2075,
+      "effective_pct": 3.8
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 200,
+      "target_pct": 1.5,
+      "method": "total_mass",
+      "salt_g": 18.3,
+      "total_mass_g": 1218,
+      "effective_pct": 1.5,
+      "cacl2_g": 1.0
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 200,
+      "target_pct": 1.5,
+      "method": "water_only",
+      "salt_g": 3.0,
+      "total_mass_g": 1203,
+      "effective_pct": 0.3
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 200,
+      "target_pct": 2.0,
+      "method": "total_mass",
+      "salt_g": 24.5,
+      "total_mass_g": 1225,
+      "effective_pct": 2.0,
+      "cacl2_g": 1.0
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 200,
+      "target_pct": 2.0,
+      "method": "water_only",
+      "salt_g": 4.0,
+      "total_mass_g": 1204,
+      "effective_pct": 0.3
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 200,
+      "target_pct": 2.5,
+      "method": "total_mass",
+      "salt_g": 30.8,
+      "total_mass_g": 1231,
+      "effective_pct": 2.5,
+      "cacl2_g": 1.0
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 200,
+      "target_pct": 2.5,
+      "method": "water_only",
+      "salt_g": 5.0,
+      "total_mass_g": 1205,
+      "effective_pct": 0.4
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 200,
+      "target_pct": 3.0,
+      "method": "total_mass",
+      "salt_g": 37.1,
+      "total_mass_g": 1237,
+      "effective_pct": 3.0,
+      "cacl2_g": 1.0
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 200,
+      "target_pct": 3.0,
+      "method": "water_only",
+      "salt_g": 6.0,
+      "total_mass_g": 1206,
+      "effective_pct": 0.5
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 200,
+      "target_pct": 3.5,
+      "method": "total_mass",
+      "salt_g": 43.5,
+      "total_mass_g": 1244,
+      "effective_pct": 3.5,
+      "cacl2_g": 1.0
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 200,
+      "target_pct": 3.5,
+      "method": "water_only",
+      "salt_g": 7.0,
+      "total_mass_g": 1207,
+      "effective_pct": 0.6
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 200,
+      "target_pct": 5.0,
+      "method": "total_mass",
+      "salt_g": 63.2,
+      "total_mass_g": 1263,
+      "effective_pct": 5.0,
+      "cacl2_g": 1.0
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 200,
+      "target_pct": 5.0,
+      "method": "water_only",
+      "salt_g": 10.0,
+      "total_mass_g": 1210,
+      "effective_pct": 0.8
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 500,
+      "target_pct": 1.5,
+      "method": "total_mass",
+      "salt_g": 22.8,
+      "total_mass_g": 1523,
+      "effective_pct": 1.5,
+      "cacl2_g": 1.2
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 500,
+      "target_pct": 1.5,
+      "method": "water_only",
+      "salt_g": 7.5,
+      "total_mass_g": 1508,
+      "effective_pct": 0.5
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 500,
+      "target_pct": 2.0,
+      "method": "total_mass",
+      "salt_g": 30.6,
+      "total_mass_g": 1531,
+      "effective_pct": 2.0,
+      "cacl2_g": 1.2
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 500,
+      "target_pct": 2.0,
+      "method": "water_only",
+      "salt_g": 10.0,
+      "total_mass_g": 1510,
+      "effective_pct": 0.7
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 500,
+      "target_pct": 2.5,
+      "method": "total_mass",
+      "salt_g": 38.5,
+      "total_mass_g": 1539,
+      "effective_pct": 2.5,
+      "cacl2_g": 1.2
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 500,
+      "target_pct": 2.5,
+      "method": "water_only",
+      "salt_g": 12.5,
+      "total_mass_g": 1513,
+      "effective_pct": 0.8
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 500,
+      "target_pct": 3.0,
+      "method": "total_mass",
+      "salt_g": 46.4,
+      "total_mass_g": 1546,
+      "effective_pct": 3.0,
+      "cacl2_g": 1.2
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 500,
+      "target_pct": 3.0,
+      "method": "water_only",
+      "salt_g": 15.0,
+      "total_mass_g": 1515,
+      "effective_pct": 1.0
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 500,
+      "target_pct": 3.5,
+      "method": "total_mass",
+      "salt_g": 54.4,
+      "total_mass_g": 1554,
+      "effective_pct": 3.5,
+      "cacl2_g": 1.2
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 500,
+      "target_pct": 3.5,
+      "method": "water_only",
+      "salt_g": 17.5,
+      "total_mass_g": 1518,
+      "effective_pct": 1.2
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 500,
+      "target_pct": 5.0,
+      "method": "total_mass",
+      "salt_g": 78.9,
+      "total_mass_g": 1579,
+      "effective_pct": 5.0,
+      "cacl2_g": 1.3
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 500,
+      "target_pct": 5.0,
+      "method": "water_only",
+      "salt_g": 25.0,
+      "total_mass_g": 1525,
+      "effective_pct": 1.7
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1000,
+      "target_pct": 1.5,
+      "method": "total_mass",
+      "salt_g": 30.5,
+      "total_mass_g": 2031,
+      "effective_pct": 1.5,
+      "cacl2_g": 1.6
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1000,
+      "target_pct": 1.5,
+      "method": "water_only",
+      "salt_g": 15.0,
+      "total_mass_g": 2015,
+      "effective_pct": 0.8
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1000,
+      "target_pct": 2.0,
+      "method": "total_mass",
+      "salt_g": 40.8,
+      "total_mass_g": 2041,
+      "effective_pct": 2.0,
+      "cacl2_g": 1.6
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1000,
+      "target_pct": 2.0,
+      "method": "water_only",
+      "salt_g": 20.0,
+      "total_mass_g": 2020,
+      "effective_pct": 1.0
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1000,
+      "target_pct": 2.5,
+      "method": "total_mass",
+      "salt_g": 51.3,
+      "total_mass_g": 2051,
+      "effective_pct": 2.5,
+      "cacl2_g": 1.6
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1000,
+      "target_pct": 2.5,
+      "method": "water_only",
+      "salt_g": 25.0,
+      "total_mass_g": 2025,
+      "effective_pct": 1.3
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1000,
+      "target_pct": 3.0,
+      "method": "total_mass",
+      "salt_g": 61.9,
+      "total_mass_g": 2062,
+      "effective_pct": 3.0,
+      "cacl2_g": 1.6
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1000,
+      "target_pct": 3.0,
+      "method": "water_only",
+      "salt_g": 30.0,
+      "total_mass_g": 2030,
+      "effective_pct": 1.5
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1000,
+      "target_pct": 3.5,
+      "method": "total_mass",
+      "salt_g": 72.5,
+      "total_mass_g": 2073,
+      "effective_pct": 3.5,
+      "cacl2_g": 1.7
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1000,
+      "target_pct": 3.5,
+      "method": "water_only",
+      "salt_g": 35.0,
+      "total_mass_g": 2035,
+      "effective_pct": 1.8
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1000,
+      "target_pct": 5.0,
+      "method": "total_mass",
+      "salt_g": 105.3,
+      "total_mass_g": 2105,
+      "effective_pct": 5.0,
+      "cacl2_g": 1.7
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1000,
+      "target_pct": 5.0,
+      "method": "water_only",
+      "salt_g": 50.0,
+      "total_mass_g": 2050,
+      "effective_pct": 2.5
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1500,
+      "target_pct": 1.5,
+      "method": "total_mass",
+      "salt_g": 38.1,
+      "total_mass_g": 2538,
+      "effective_pct": 1.5,
+      "cacl2_g": 2.0
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1500,
+      "target_pct": 1.5,
+      "method": "water_only",
+      "salt_g": 22.5,
+      "total_mass_g": 2523,
+      "effective_pct": 0.9
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1500,
+      "target_pct": 2.0,
+      "method": "total_mass",
+      "salt_g": 51.0,
+      "total_mass_g": 2551,
+      "effective_pct": 2.0,
+      "cacl2_g": 2.0
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1500,
+      "target_pct": 2.0,
+      "method": "water_only",
+      "salt_g": 30.0,
+      "total_mass_g": 2530,
+      "effective_pct": 1.2
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1500,
+      "target_pct": 2.5,
+      "method": "total_mass",
+      "salt_g": 64.1,
+      "total_mass_g": 2564,
+      "effective_pct": 2.5,
+      "cacl2_g": 2.1
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1500,
+      "target_pct": 2.5,
+      "method": "water_only",
+      "salt_g": 37.5,
+      "total_mass_g": 2538,
+      "effective_pct": 1.5
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1500,
+      "target_pct": 3.0,
+      "method": "total_mass",
+      "salt_g": 77.3,
+      "total_mass_g": 2577,
+      "effective_pct": 3.0,
+      "cacl2_g": 2.1
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1500,
+      "target_pct": 3.0,
+      "method": "water_only",
+      "salt_g": 45.0,
+      "total_mass_g": 2545,
+      "effective_pct": 1.8
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1500,
+      "target_pct": 3.5,
+      "method": "total_mass",
+      "salt_g": 90.7,
+      "total_mass_g": 2591,
+      "effective_pct": 3.5,
+      "cacl2_g": 2.1
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1500,
+      "target_pct": 3.5,
+      "method": "water_only",
+      "salt_g": 52.5,
+      "total_mass_g": 2553,
+      "effective_pct": 2.1
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1500,
+      "target_pct": 5.0,
+      "method": "total_mass",
+      "salt_g": 131.6,
+      "total_mass_g": 2632,
+      "effective_pct": 5.0,
+      "cacl2_g": 2.1
+    },
+    {
+      "produce_g": 1000,
+      "water_g": 1500,
+      "target_pct": 5.0,
+      "method": "water_only",
+      "salt_g": 75.0,
+      "total_mass_g": 2575,
+      "effective_pct": 3.0
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 200,
+      "target_pct": 1.5,
+      "method": "total_mass",
+      "salt_g": 25.9,
+      "total_mass_g": 1726,
+      "effective_pct": 1.5,
+      "cacl2_g": 1.4
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 200,
+      "target_pct": 1.5,
+      "method": "water_only",
+      "salt_g": 3.0,
+      "total_mass_g": 1703,
+      "effective_pct": 0.2
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 200,
+      "target_pct": 2.0,
+      "method": "total_mass",
+      "salt_g": 34.7,
+      "total_mass_g": 1735,
+      "effective_pct": 2.0,
+      "cacl2_g": 1.4
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 200,
+      "target_pct": 2.0,
+      "method": "water_only",
+      "salt_g": 4.0,
+      "total_mass_g": 1704,
+      "effective_pct": 0.2
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 200,
+      "target_pct": 2.5,
+      "method": "total_mass",
+      "salt_g": 43.6,
+      "total_mass_g": 1744,
+      "effective_pct": 2.5,
+      "cacl2_g": 1.4
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 200,
+      "target_pct": 2.5,
+      "method": "water_only",
+      "salt_g": 5.0,
+      "total_mass_g": 1705,
+      "effective_pct": 0.3
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 200,
+      "target_pct": 3.0,
+      "method": "total_mass",
+      "salt_g": 52.6,
+      "total_mass_g": 1753,
+      "effective_pct": 3.0,
+      "cacl2_g": 1.4
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 200,
+      "target_pct": 3.0,
+      "method": "water_only",
+      "salt_g": 6.0,
+      "total_mass_g": 1706,
+      "effective_pct": 0.4
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 200,
+      "target_pct": 3.5,
+      "method": "total_mass",
+      "salt_g": 61.7,
+      "total_mass_g": 1762,
+      "effective_pct": 3.5,
+      "cacl2_g": 1.4
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 200,
+      "target_pct": 3.5,
+      "method": "water_only",
+      "salt_g": 7.0,
+      "total_mass_g": 1707,
+      "effective_pct": 0.4
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 200,
+      "target_pct": 5.0,
+      "method": "total_mass",
+      "salt_g": 89.5,
+      "total_mass_g": 1790,
+      "effective_pct": 5.0,
+      "cacl2_g": 1.4
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 200,
+      "target_pct": 5.0,
+      "method": "water_only",
+      "salt_g": 10.0,
+      "total_mass_g": 1710,
+      "effective_pct": 0.6
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 500,
+      "target_pct": 1.5,
+      "method": "total_mass",
+      "salt_g": 30.5,
+      "total_mass_g": 2031,
+      "effective_pct": 1.5,
+      "cacl2_g": 1.6
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 500,
+      "target_pct": 1.5,
+      "method": "water_only",
+      "salt_g": 7.5,
+      "total_mass_g": 2008,
+      "effective_pct": 0.4
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 500,
+      "target_pct": 2.0,
+      "method": "total_mass",
+      "salt_g": 40.8,
+      "total_mass_g": 2041,
+      "effective_pct": 2.0,
+      "cacl2_g": 1.6
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 500,
+      "target_pct": 2.0,
+      "method": "water_only",
+      "salt_g": 10.0,
+      "total_mass_g": 2010,
+      "effective_pct": 0.5
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 500,
+      "target_pct": 2.5,
+      "method": "total_mass",
+      "salt_g": 51.3,
+      "total_mass_g": 2051,
+      "effective_pct": 2.5,
+      "cacl2_g": 1.6
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 500,
+      "target_pct": 2.5,
+      "method": "water_only",
+      "salt_g": 12.5,
+      "total_mass_g": 2013,
+      "effective_pct": 0.6
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 500,
+      "target_pct": 3.0,
+      "method": "total_mass",
+      "salt_g": 61.9,
+      "total_mass_g": 2062,
+      "effective_pct": 3.0,
+      "cacl2_g": 1.6
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 500,
+      "target_pct": 3.0,
+      "method": "water_only",
+      "salt_g": 15.0,
+      "total_mass_g": 2015,
+      "effective_pct": 0.8
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 500,
+      "target_pct": 3.5,
+      "method": "total_mass",
+      "salt_g": 72.5,
+      "total_mass_g": 2073,
+      "effective_pct": 3.5,
+      "cacl2_g": 1.7
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 500,
+      "target_pct": 3.5,
+      "method": "water_only",
+      "salt_g": 17.5,
+      "total_mass_g": 2018,
+      "effective_pct": 0.9
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 500,
+      "target_pct": 5.0,
+      "method": "total_mass",
+      "salt_g": 105.3,
+      "total_mass_g": 2105,
+      "effective_pct": 5.0,
+      "cacl2_g": 1.7
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 500,
+      "target_pct": 5.0,
+      "method": "water_only",
+      "salt_g": 25.0,
+      "total_mass_g": 2025,
+      "effective_pct": 1.3
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1000,
+      "target_pct": 1.5,
+      "method": "total_mass",
+      "salt_g": 38.1,
+      "total_mass_g": 2538,
+      "effective_pct": 1.5,
+      "cacl2_g": 2.0
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1000,
+      "target_pct": 1.5,
+      "method": "water_only",
+      "salt_g": 15.0,
+      "total_mass_g": 2515,
+      "effective_pct": 0.6
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1000,
+      "target_pct": 2.0,
+      "method": "total_mass",
+      "salt_g": 51.0,
+      "total_mass_g": 2551,
+      "effective_pct": 2.0,
+      "cacl2_g": 2.0
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1000,
+      "target_pct": 2.0,
+      "method": "water_only",
+      "salt_g": 20.0,
+      "total_mass_g": 2520,
+      "effective_pct": 0.8
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1000,
+      "target_pct": 2.5,
+      "method": "total_mass",
+      "salt_g": 64.1,
+      "total_mass_g": 2564,
+      "effective_pct": 2.5,
+      "cacl2_g": 2.1
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1000,
+      "target_pct": 2.5,
+      "method": "water_only",
+      "salt_g": 25.0,
+      "total_mass_g": 2525,
+      "effective_pct": 1.0
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1000,
+      "target_pct": 3.0,
+      "method": "total_mass",
+      "salt_g": 77.3,
+      "total_mass_g": 2577,
+      "effective_pct": 3.0,
+      "cacl2_g": 2.1
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1000,
+      "target_pct": 3.0,
+      "method": "water_only",
+      "salt_g": 30.0,
+      "total_mass_g": 2530,
+      "effective_pct": 1.2
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1000,
+      "target_pct": 3.5,
+      "method": "total_mass",
+      "salt_g": 90.7,
+      "total_mass_g": 2591,
+      "effective_pct": 3.5,
+      "cacl2_g": 2.1
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1000,
+      "target_pct": 3.5,
+      "method": "water_only",
+      "salt_g": 35.0,
+      "total_mass_g": 2535,
+      "effective_pct": 1.4
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1000,
+      "target_pct": 5.0,
+      "method": "total_mass",
+      "salt_g": 131.6,
+      "total_mass_g": 2632,
+      "effective_pct": 5.0,
+      "cacl2_g": 2.1
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1000,
+      "target_pct": 5.0,
+      "method": "water_only",
+      "salt_g": 50.0,
+      "total_mass_g": 2550,
+      "effective_pct": 2.0
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1500,
+      "target_pct": 1.5,
+      "method": "total_mass",
+      "salt_g": 45.7,
+      "total_mass_g": 3046,
+      "effective_pct": 1.5,
+      "cacl2_g": 2.4
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1500,
+      "target_pct": 1.5,
+      "method": "water_only",
+      "salt_g": 22.5,
+      "total_mass_g": 3023,
+      "effective_pct": 0.8
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1500,
+      "target_pct": 2.0,
+      "method": "total_mass",
+      "salt_g": 61.2,
+      "total_mass_g": 3061,
+      "effective_pct": 2.0,
+      "cacl2_g": 2.4
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1500,
+      "target_pct": 2.0,
+      "method": "water_only",
+      "salt_g": 30.0,
+      "total_mass_g": 3030,
+      "effective_pct": 1.0
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1500,
+      "target_pct": 2.5,
+      "method": "total_mass",
+      "salt_g": 76.9,
+      "total_mass_g": 3077,
+      "effective_pct": 2.5,
+      "cacl2_g": 2.5
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1500,
+      "target_pct": 2.5,
+      "method": "water_only",
+      "salt_g": 37.5,
+      "total_mass_g": 3038,
+      "effective_pct": 1.3
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1500,
+      "target_pct": 3.0,
+      "method": "total_mass",
+      "salt_g": 92.8,
+      "total_mass_g": 3093,
+      "effective_pct": 3.0,
+      "cacl2_g": 2.5
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1500,
+      "target_pct": 3.0,
+      "method": "water_only",
+      "salt_g": 45.0,
+      "total_mass_g": 3045,
+      "effective_pct": 1.5
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1500,
+      "target_pct": 3.5,
+      "method": "total_mass",
+      "salt_g": 108.8,
+      "total_mass_g": 3109,
+      "effective_pct": 3.5,
+      "cacl2_g": 2.5
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1500,
+      "target_pct": 3.5,
+      "method": "water_only",
+      "salt_g": 52.5,
+      "total_mass_g": 3053,
+      "effective_pct": 1.8
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1500,
+      "target_pct": 5.0,
+      "method": "total_mass",
+      "salt_g": 157.9,
+      "total_mass_g": 3158,
+      "effective_pct": 5.0,
+      "cacl2_g": 2.5
+    },
+    {
+      "produce_g": 1500,
+      "water_g": 1500,
+      "target_pct": 5.0,
+      "method": "water_only",
+      "salt_g": 75.0,
+      "total_mass_g": 3075,
+      "effective_pct": 2.5
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 200,
+      "target_pct": 1.5,
+      "method": "total_mass",
+      "salt_g": 33.5,
+      "total_mass_g": 2234,
+      "effective_pct": 1.5,
+      "cacl2_g": 1.8
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 200,
+      "target_pct": 1.5,
+      "method": "water_only",
+      "salt_g": 3.0,
+      "total_mass_g": 2203,
+      "effective_pct": 0.1
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 200,
+      "target_pct": 2.0,
+      "method": "total_mass",
+      "salt_g": 44.9,
+      "total_mass_g": 2245,
+      "effective_pct": 2.0,
+      "cacl2_g": 1.8
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 200,
+      "target_pct": 2.0,
+      "method": "water_only",
+      "salt_g": 4.0,
+      "total_mass_g": 2204,
+      "effective_pct": 0.2
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 200,
+      "target_pct": 2.5,
+      "method": "total_mass",
+      "salt_g": 56.4,
+      "total_mass_g": 2256,
+      "effective_pct": 2.5,
+      "cacl2_g": 1.8
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 200,
+      "target_pct": 2.5,
+      "method": "water_only",
+      "salt_g": 5.0,
+      "total_mass_g": 2205,
+      "effective_pct": 0.2
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 200,
+      "target_pct": 3.0,
+      "method": "total_mass",
+      "salt_g": 68.0,
+      "total_mass_g": 2268,
+      "effective_pct": 3.0,
+      "cacl2_g": 1.8
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 200,
+      "target_pct": 3.0,
+      "method": "water_only",
+      "salt_g": 6.0,
+      "total_mass_g": 2206,
+      "effective_pct": 0.3
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 200,
+      "target_pct": 3.5,
+      "method": "total_mass",
+      "salt_g": 79.8,
+      "total_mass_g": 2280,
+      "effective_pct": 3.5,
+      "cacl2_g": 1.8
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 200,
+      "target_pct": 3.5,
+      "method": "water_only",
+      "salt_g": 7.0,
+      "total_mass_g": 2207,
+      "effective_pct": 0.3
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 200,
+      "target_pct": 5.0,
+      "method": "total_mass",
+      "salt_g": 115.8,
+      "total_mass_g": 2316,
+      "effective_pct": 5.0,
+      "cacl2_g": 1.9
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 200,
+      "target_pct": 5.0,
+      "method": "water_only",
+      "salt_g": 10.0,
+      "total_mass_g": 2210,
+      "effective_pct": 0.5
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 500,
+      "target_pct": 1.5,
+      "method": "total_mass",
+      "salt_g": 38.1,
+      "total_mass_g": 2538,
+      "effective_pct": 1.5,
+      "cacl2_g": 2.0
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 500,
+      "target_pct": 1.5,
+      "method": "water_only",
+      "salt_g": 7.5,
+      "total_mass_g": 2508,
+      "effective_pct": 0.3
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 500,
+      "target_pct": 2.0,
+      "method": "total_mass",
+      "salt_g": 51.0,
+      "total_mass_g": 2551,
+      "effective_pct": 2.0,
+      "cacl2_g": 2.0
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 500,
+      "target_pct": 2.0,
+      "method": "water_only",
+      "salt_g": 10.0,
+      "total_mass_g": 2510,
+      "effective_pct": 0.4
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 500,
+      "target_pct": 2.5,
+      "method": "total_mass",
+      "salt_g": 64.1,
+      "total_mass_g": 2564,
+      "effective_pct": 2.5,
+      "cacl2_g": 2.1
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 500,
+      "target_pct": 2.5,
+      "method": "water_only",
+      "salt_g": 12.5,
+      "total_mass_g": 2513,
+      "effective_pct": 0.5
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 500,
+      "target_pct": 3.0,
+      "method": "total_mass",
+      "salt_g": 77.3,
+      "total_mass_g": 2577,
+      "effective_pct": 3.0,
+      "cacl2_g": 2.1
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 500,
+      "target_pct": 3.0,
+      "method": "water_only",
+      "salt_g": 15.0,
+      "total_mass_g": 2515,
+      "effective_pct": 0.6
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 500,
+      "target_pct": 3.5,
+      "method": "total_mass",
+      "salt_g": 90.7,
+      "total_mass_g": 2591,
+      "effective_pct": 3.5,
+      "cacl2_g": 2.1
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 500,
+      "target_pct": 3.5,
+      "method": "water_only",
+      "salt_g": 17.5,
+      "total_mass_g": 2518,
+      "effective_pct": 0.7
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 500,
+      "target_pct": 5.0,
+      "method": "total_mass",
+      "salt_g": 131.6,
+      "total_mass_g": 2632,
+      "effective_pct": 5.0,
+      "cacl2_g": 2.1
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 500,
+      "target_pct": 5.0,
+      "method": "water_only",
+      "salt_g": 25.0,
+      "total_mass_g": 2525,
+      "effective_pct": 1.0
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1000,
+      "target_pct": 1.5,
+      "method": "total_mass",
+      "salt_g": 45.7,
+      "total_mass_g": 3046,
+      "effective_pct": 1.5,
+      "cacl2_g": 2.4
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1000,
+      "target_pct": 1.5,
+      "method": "water_only",
+      "salt_g": 15.0,
+      "total_mass_g": 3015,
+      "effective_pct": 0.5
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1000,
+      "target_pct": 2.0,
+      "method": "total_mass",
+      "salt_g": 61.2,
+      "total_mass_g": 3061,
+      "effective_pct": 2.0,
+      "cacl2_g": 2.4
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1000,
+      "target_pct": 2.0,
+      "method": "water_only",
+      "salt_g": 20.0,
+      "total_mass_g": 3020,
+      "effective_pct": 0.7
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1000,
+      "target_pct": 2.5,
+      "method": "total_mass",
+      "salt_g": 76.9,
+      "total_mass_g": 3077,
+      "effective_pct": 2.5,
+      "cacl2_g": 2.5
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1000,
+      "target_pct": 2.5,
+      "method": "water_only",
+      "salt_g": 25.0,
+      "total_mass_g": 3025,
+      "effective_pct": 0.8
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1000,
+      "target_pct": 3.0,
+      "method": "total_mass",
+      "salt_g": 92.8,
+      "total_mass_g": 3093,
+      "effective_pct": 3.0,
+      "cacl2_g": 2.5
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1000,
+      "target_pct": 3.0,
+      "method": "water_only",
+      "salt_g": 30.0,
+      "total_mass_g": 3030,
+      "effective_pct": 1.0
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1000,
+      "target_pct": 3.5,
+      "method": "total_mass",
+      "salt_g": 108.8,
+      "total_mass_g": 3109,
+      "effective_pct": 3.5,
+      "cacl2_g": 2.5
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1000,
+      "target_pct": 3.5,
+      "method": "water_only",
+      "salt_g": 35.0,
+      "total_mass_g": 3035,
+      "effective_pct": 1.2
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1000,
+      "target_pct": 5.0,
+      "method": "total_mass",
+      "salt_g": 157.9,
+      "total_mass_g": 3158,
+      "effective_pct": 5.0,
+      "cacl2_g": 2.5
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1000,
+      "target_pct": 5.0,
+      "method": "water_only",
+      "salt_g": 50.0,
+      "total_mass_g": 3050,
+      "effective_pct": 1.7
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1500,
+      "target_pct": 1.5,
+      "method": "total_mass",
+      "salt_g": 53.3,
+      "total_mass_g": 3553,
+      "effective_pct": 1.5,
+      "cacl2_g": 2.8
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1500,
+      "target_pct": 1.5,
+      "method": "water_only",
+      "salt_g": 22.5,
+      "total_mass_g": 3523,
+      "effective_pct": 0.6
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1500,
+      "target_pct": 2.0,
+      "method": "total_mass",
+      "salt_g": 71.4,
+      "total_mass_g": 3571,
+      "effective_pct": 2.0,
+      "cacl2_g": 2.9
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1500,
+      "target_pct": 2.0,
+      "method": "water_only",
+      "salt_g": 30.0,
+      "total_mass_g": 3530,
+      "effective_pct": 0.9
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1500,
+      "target_pct": 2.5,
+      "method": "total_mass",
+      "salt_g": 89.7,
+      "total_mass_g": 3590,
+      "effective_pct": 2.5,
+      "cacl2_g": 2.9
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1500,
+      "target_pct": 2.5,
+      "method": "water_only",
+      "salt_g": 37.5,
+      "total_mass_g": 3538,
+      "effective_pct": 1.1
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1500,
+      "target_pct": 3.0,
+      "method": "total_mass",
+      "salt_g": 108.2,
+      "total_mass_g": 3608,
+      "effective_pct": 3.0,
+      "cacl2_g": 2.9
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1500,
+      "target_pct": 3.0,
+      "method": "water_only",
+      "salt_g": 45.0,
+      "total_mass_g": 3545,
+      "effective_pct": 1.3
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1500,
+      "target_pct": 3.5,
+      "method": "total_mass",
+      "salt_g": 126.9,
+      "total_mass_g": 3627,
+      "effective_pct": 3.5,
+      "cacl2_g": 2.9
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1500,
+      "target_pct": 3.5,
+      "method": "water_only",
+      "salt_g": 52.5,
+      "total_mass_g": 3553,
+      "effective_pct": 1.5
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1500,
+      "target_pct": 5.0,
+      "method": "total_mass",
+      "salt_g": 184.2,
+      "total_mass_g": 3684,
+      "effective_pct": 5.0,
+      "cacl2_g": 2.9
+    },
+    {
+      "produce_g": 2000,
+      "water_g": 1500,
+      "target_pct": 5.0,
+      "method": "water_only",
+      "salt_g": 75.0,
+      "total_mass_g": 3575,
+      "effective_pct": 2.1
+    }
+  ],
+  "pasteur_cases": [
+    {
+      "food_ph": 3.5,
+      "jar_volume_ml": 330,
+      "method": "water_bath",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 10,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 3.5,
+      "jar_volume_ml": 330,
+      "method": "oven",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 25,
+      "temperature_celsius": 120
+    },
+    {
+      "food_ph": 3.5,
+      "jar_volume_ml": 330,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 20,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 3.5,
+      "jar_volume_ml": 330,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 10,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 3.5,
+      "jar_volume_ml": 500,
+      "method": "water_bath",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 15,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 3.5,
+      "jar_volume_ml": 500,
+      "method": "oven",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 30,
+      "temperature_celsius": 120
+    },
+    {
+      "food_ph": 3.5,
+      "jar_volume_ml": 500,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 30,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 3.5,
+      "jar_volume_ml": 500,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 15,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 3.5,
+      "jar_volume_ml": 720,
+      "method": "water_bath",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 20,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 3.5,
+      "jar_volume_ml": 720,
+      "method": "oven",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 35,
+      "temperature_celsius": 120
+    },
+    {
+      "food_ph": 3.5,
+      "jar_volume_ml": 720,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 40,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 3.5,
+      "jar_volume_ml": 720,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 20,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 3.5,
+      "jar_volume_ml": 900,
+      "method": "water_bath",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 20,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 3.5,
+      "jar_volume_ml": 900,
+      "method": "oven",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 35,
+      "temperature_celsius": 120
+    },
+    {
+      "food_ph": 3.5,
+      "jar_volume_ml": 900,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 40,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 3.5,
+      "jar_volume_ml": 900,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 20,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 3.5,
+      "jar_volume_ml": 1500,
+      "method": "water_bath",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 30,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 3.5,
+      "jar_volume_ml": 1500,
+      "method": "oven",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 45,
+      "temperature_celsius": 120
+    },
+    {
+      "food_ph": 3.5,
+      "jar_volume_ml": 1500,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 60,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 3.5,
+      "jar_volume_ml": 1500,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 30,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.0,
+      "jar_volume_ml": 330,
+      "method": "water_bath",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 10,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.0,
+      "jar_volume_ml": 330,
+      "method": "oven",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 25,
+      "temperature_celsius": 120
+    },
+    {
+      "food_ph": 4.0,
+      "jar_volume_ml": 330,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 20,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 4.0,
+      "jar_volume_ml": 330,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 10,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.0,
+      "jar_volume_ml": 500,
+      "method": "water_bath",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 15,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.0,
+      "jar_volume_ml": 500,
+      "method": "oven",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 30,
+      "temperature_celsius": 120
+    },
+    {
+      "food_ph": 4.0,
+      "jar_volume_ml": 500,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 30,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 4.0,
+      "jar_volume_ml": 500,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 15,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.0,
+      "jar_volume_ml": 720,
+      "method": "water_bath",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 20,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.0,
+      "jar_volume_ml": 720,
+      "method": "oven",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 35,
+      "temperature_celsius": 120
+    },
+    {
+      "food_ph": 4.0,
+      "jar_volume_ml": 720,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 40,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 4.0,
+      "jar_volume_ml": 720,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 20,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.0,
+      "jar_volume_ml": 900,
+      "method": "water_bath",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 20,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.0,
+      "jar_volume_ml": 900,
+      "method": "oven",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 35,
+      "temperature_celsius": 120
+    },
+    {
+      "food_ph": 4.0,
+      "jar_volume_ml": 900,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 40,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 4.0,
+      "jar_volume_ml": 900,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 20,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.0,
+      "jar_volume_ml": 1500,
+      "method": "water_bath",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 30,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.0,
+      "jar_volume_ml": 1500,
+      "method": "oven",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 45,
+      "temperature_celsius": 120
+    },
+    {
+      "food_ph": 4.0,
+      "jar_volume_ml": 1500,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 60,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 4.0,
+      "jar_volume_ml": 1500,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 30,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.2,
+      "jar_volume_ml": 330,
+      "method": "water_bath",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 10,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.2,
+      "jar_volume_ml": 330,
+      "method": "oven",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 25,
+      "temperature_celsius": 120
+    },
+    {
+      "food_ph": 4.2,
+      "jar_volume_ml": 330,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 20,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 4.2,
+      "jar_volume_ml": 330,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 10,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.2,
+      "jar_volume_ml": 500,
+      "method": "water_bath",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 15,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.2,
+      "jar_volume_ml": 500,
+      "method": "oven",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 30,
+      "temperature_celsius": 120
+    },
+    {
+      "food_ph": 4.2,
+      "jar_volume_ml": 500,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 30,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 4.2,
+      "jar_volume_ml": 500,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 15,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.2,
+      "jar_volume_ml": 720,
+      "method": "water_bath",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 20,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.2,
+      "jar_volume_ml": 720,
+      "method": "oven",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 35,
+      "temperature_celsius": 120
+    },
+    {
+      "food_ph": 4.2,
+      "jar_volume_ml": 720,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 40,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 4.2,
+      "jar_volume_ml": 720,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 20,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.2,
+      "jar_volume_ml": 900,
+      "method": "water_bath",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 20,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.2,
+      "jar_volume_ml": 900,
+      "method": "oven",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 35,
+      "temperature_celsius": 120
+    },
+    {
+      "food_ph": 4.2,
+      "jar_volume_ml": 900,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 40,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 4.2,
+      "jar_volume_ml": 900,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 20,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.2,
+      "jar_volume_ml": 1500,
+      "method": "water_bath",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 30,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.2,
+      "jar_volume_ml": 1500,
+      "method": "oven",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 45,
+      "temperature_celsius": 120
+    },
+    {
+      "food_ph": 4.2,
+      "jar_volume_ml": 1500,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 60,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 4.2,
+      "jar_volume_ml": 1500,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 30,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.5,
+      "jar_volume_ml": 330,
+      "method": "water_bath",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 10,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.5,
+      "jar_volume_ml": 330,
+      "method": "oven",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 25,
+      "temperature_celsius": 120
+    },
+    {
+      "food_ph": 4.5,
+      "jar_volume_ml": 330,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 20,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 4.5,
+      "jar_volume_ml": 330,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 10,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.5,
+      "jar_volume_ml": 500,
+      "method": "water_bath",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 15,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.5,
+      "jar_volume_ml": 500,
+      "method": "oven",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 30,
+      "temperature_celsius": 120
+    },
+    {
+      "food_ph": 4.5,
+      "jar_volume_ml": 500,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 30,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 4.5,
+      "jar_volume_ml": 500,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 15,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.5,
+      "jar_volume_ml": 720,
+      "method": "water_bath",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 20,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.5,
+      "jar_volume_ml": 720,
+      "method": "oven",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 35,
+      "temperature_celsius": 120
+    },
+    {
+      "food_ph": 4.5,
+      "jar_volume_ml": 720,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 40,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 4.5,
+      "jar_volume_ml": 720,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 20,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.5,
+      "jar_volume_ml": 900,
+      "method": "water_bath",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 20,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.5,
+      "jar_volume_ml": 900,
+      "method": "oven",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 35,
+      "temperature_celsius": 120
+    },
+    {
+      "food_ph": 4.5,
+      "jar_volume_ml": 900,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 40,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 4.5,
+      "jar_volume_ml": 900,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 20,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.5,
+      "jar_volume_ml": 1500,
+      "method": "water_bath",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 30,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.5,
+      "jar_volume_ml": 1500,
+      "method": "oven",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 45,
+      "temperature_celsius": 120
+    },
+    {
+      "food_ph": 4.5,
+      "jar_volume_ml": 1500,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 60,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 4.5,
+      "jar_volume_ml": 1500,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 30,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.6,
+      "jar_volume_ml": 330,
+      "method": "water_bath",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.6,
+      "jar_volume_ml": 330,
+      "method": "oven",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.6,
+      "jar_volume_ml": 330,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 20,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 4.6,
+      "jar_volume_ml": 330,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 60,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.6,
+      "jar_volume_ml": 500,
+      "method": "water_bath",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.6,
+      "jar_volume_ml": 500,
+      "method": "oven",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.6,
+      "jar_volume_ml": 500,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 30,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 4.6,
+      "jar_volume_ml": 500,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 60,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.6,
+      "jar_volume_ml": 720,
+      "method": "water_bath",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.6,
+      "jar_volume_ml": 720,
+      "method": "oven",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.6,
+      "jar_volume_ml": 720,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 40,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 4.6,
+      "jar_volume_ml": 720,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 60,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.6,
+      "jar_volume_ml": 900,
+      "method": "water_bath",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.6,
+      "jar_volume_ml": 900,
+      "method": "oven",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.6,
+      "jar_volume_ml": 900,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 40,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 4.6,
+      "jar_volume_ml": 900,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 60,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.6,
+      "jar_volume_ml": 1500,
+      "method": "water_bath",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.6,
+      "jar_volume_ml": 1500,
+      "method": "oven",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 4.6,
+      "jar_volume_ml": 1500,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 60,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 4.6,
+      "jar_volume_ml": 1500,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 60,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 5.0,
+      "jar_volume_ml": 330,
+      "method": "water_bath",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 5.0,
+      "jar_volume_ml": 330,
+      "method": "oven",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 5.0,
+      "jar_volume_ml": 330,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 20,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 5.0,
+      "jar_volume_ml": 330,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 60,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 5.0,
+      "jar_volume_ml": 500,
+      "method": "water_bath",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 5.0,
+      "jar_volume_ml": 500,
+      "method": "oven",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 5.0,
+      "jar_volume_ml": 500,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 30,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 5.0,
+      "jar_volume_ml": 500,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 60,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 5.0,
+      "jar_volume_ml": 720,
+      "method": "water_bath",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 5.0,
+      "jar_volume_ml": 720,
+      "method": "oven",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 5.0,
+      "jar_volume_ml": 720,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 40,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 5.0,
+      "jar_volume_ml": 720,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 60,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 5.0,
+      "jar_volume_ml": 900,
+      "method": "water_bath",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 5.0,
+      "jar_volume_ml": 900,
+      "method": "oven",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 5.0,
+      "jar_volume_ml": 900,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 40,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 5.0,
+      "jar_volume_ml": 900,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 60,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 5.0,
+      "jar_volume_ml": 1500,
+      "method": "water_bath",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 5.0,
+      "jar_volume_ml": 1500,
+      "method": "oven",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 5.0,
+      "jar_volume_ml": 1500,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 60,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 5.0,
+      "jar_volume_ml": 1500,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 60,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 6.0,
+      "jar_volume_ml": 330,
+      "method": "water_bath",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 6.0,
+      "jar_volume_ml": 330,
+      "method": "oven",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 6.0,
+      "jar_volume_ml": 330,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 20,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 6.0,
+      "jar_volume_ml": 330,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 60,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 6.0,
+      "jar_volume_ml": 500,
+      "method": "water_bath",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 6.0,
+      "jar_volume_ml": 500,
+      "method": "oven",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 6.0,
+      "jar_volume_ml": 500,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 30,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 6.0,
+      "jar_volume_ml": 500,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 60,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 6.0,
+      "jar_volume_ml": 720,
+      "method": "water_bath",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 6.0,
+      "jar_volume_ml": 720,
+      "method": "oven",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 6.0,
+      "jar_volume_ml": 720,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 40,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 6.0,
+      "jar_volume_ml": 720,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 60,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 6.0,
+      "jar_volume_ml": 900,
+      "method": "water_bath",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 6.0,
+      "jar_volume_ml": 900,
+      "method": "oven",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 6.0,
+      "jar_volume_ml": 900,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 40,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 6.0,
+      "jar_volume_ml": 900,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 60,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 6.0,
+      "jar_volume_ml": 1500,
+      "method": "water_bath",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 6.0,
+      "jar_volume_ml": 1500,
+      "method": "oven",
+      "is_safe_for_water_bath": false,
+      "requires_pressure_canning": true,
+      "target_minutes": 0,
+      "temperature_celsius": 100
+    },
+    {
+      "food_ph": 6.0,
+      "jar_volume_ml": 1500,
+      "method": "sous_vide",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 60,
+      "temperature_celsius": 85
+    },
+    {
+      "food_ph": 6.0,
+      "jar_volume_ml": 1500,
+      "method": "tyndallization",
+      "is_safe_for_water_bath": true,
+      "requires_pressure_canning": false,
+      "target_minutes": 60,
+      "temperature_celsius": 100
+    }
+  ]
+}

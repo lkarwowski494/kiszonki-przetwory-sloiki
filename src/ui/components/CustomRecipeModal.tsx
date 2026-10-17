@@ -16,8 +16,10 @@ import {
 } from 'react-native';
 import { theme } from '../theme';
 import { ModalHeader } from './ModalHeader';
+import { NumInput } from './NumInput';
 import { dbStore } from '../../data/db/database';
 import { MasterRecipe } from '../../core/types';
+import { confirm } from '../../lib/confirm';
 import { t } from '../../lib/i18n';
 
 interface CustomRecipeModalProps {
@@ -58,7 +60,7 @@ export const CustomRecipeModal: React.FC<CustomRecipeModalProps> = ({
       .split(',')
       .map((item) => {
         const parts = item.split(':');
-        const num = parseFloat((parts[1] || '').replace(/[^\d.]/g, '')) || 1;
+        const num = parseFloat((parts[1] || '').replace(/,/g, '.').replace(/[^\d.]/g, '')) || 1;
         return {
           name: (parts[0] || item).trim(),
           amount: num,
@@ -76,7 +78,7 @@ export const CustomRecipeModal: React.FC<CustomRecipeModalProps> = ({
         sensoryDescription: t('Świeży zapach ziołowy'),
       },
       {
-        day: Math.max(3, parseInt(fermentationDays, 10) || 7),
+        day: Math.max(3, parseInt(fermentationDays.replace(/,/g, '.'), 10) || 7),
         title: t('Solanka lekko mętna, ustabilizowana'),
         sensoryDescription: t('Czysty, kwasowy aromat kiszonki'),
         isTastingCheckpoint: true,
@@ -90,9 +92,9 @@ export const CustomRecipeModal: React.FC<CustomRecipeModalProps> = ({
       culture: t('Receptura Autorska'),
       category: 'poland_central_europe',
       method: 'lacto_fermentation',
-      defaultProduceWeightGrams: parseFloat(produceWeightGrams) || 1000,
-      defaultSalinityPercent: parseFloat(salinityPercent) || 2.5,
-      fermentationDays: parseInt(fermentationDays, 10) || 7,
+      defaultProduceWeightGrams: parseFloat(produceWeightGrams.replace(/,/g, '.')) || 1000,
+      defaultSalinityPercent: parseFloat(salinityPercent.replace(/,/g, '.')) || 2.5,
+      fermentationDays: parseInt(fermentationDays.replace(/,/g, '.'), 10) || 7,
       shelfLifeMonths: 12,
       recommendedJarType: t('Słoik szklany z dociskiem'),
       ingredients,
@@ -108,6 +110,23 @@ export const CustomRecipeModal: React.FC<CustomRecipeModalProps> = ({
     onClose();
   };
 
+  const isDirty = Boolean(title.trim() || subtitle.trim());
+
+  const handleAttemptClose = () => {
+    if (isDirty) {
+      confirm({
+        title: t('Porzucić zmiany?'),
+        message: t('Masz niespisany szkic receptury. Czy na pewno chcesz go odrzucić?'),
+        confirmText: t('Porzuć szkic'),
+        cancelText: t('Zostań w edytorze'),
+        destructive: true,
+        onConfirm: onClose,
+      });
+    } else {
+      onClose();
+    }
+  };
+
   if (!visible) return null;
 
   return (
@@ -115,7 +134,7 @@ export const CustomRecipeModal: React.FC<CustomRecipeModalProps> = ({
       <View style={styles.container}>
         <ModalHeader
           title={t('Nowa Receptura i Procedura')}
-          onClose={onClose}
+          onClose={handleAttemptClose}
           closeLabel={t('Anuluj')}
           rightAction={
             <TouchableOpacity
@@ -148,30 +167,27 @@ export const CustomRecipeModal: React.FC<CustomRecipeModalProps> = ({
           <Text style={styles.sectionLabel}>{t('PARAMETRY NASTAWU')}</Text>
           <View style={styles.row}>
             <View style={styles.col}>
-              <Text style={styles.fieldLabel}>{t('Waga surowca (g)')}</Text>
-              <TextInput
-                style={styles.input}
-                keyboardType="numeric"
+              <NumInput
+                label={t('Waga surowca (g)')}
                 value={produceWeightGrams}
                 onChangeText={setProduceWeightGrams}
+                testID="custom-recipe-produce-weight"
               />
             </View>
             <View style={styles.col}>
-              <Text style={styles.fieldLabel}>{t('Stężenie soli (%)')}</Text>
-              <TextInput
-                style={styles.input}
-                keyboardType="numeric"
+              <NumInput
+                label={t('Stężenie soli (%)')}
                 value={salinityPercent}
                 onChangeText={setSalinityPercent}
+                testID="custom-recipe-salinity"
               />
             </View>
             <View style={styles.col}>
-              <Text style={styles.fieldLabel}>{t('Dni (czas)')}</Text>
-              <TextInput
-                style={styles.input}
-                keyboardType="numeric"
+              <NumInput
+                label={t('Dni (czas)')}
                 value={fermentationDays}
                 onChangeText={setFermentationDays}
+                testID="custom-recipe-days"
               />
             </View>
           </View>

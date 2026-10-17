@@ -20,7 +20,7 @@ import { calculateBrine } from '../../src/core/brine/brine-calculator';
 import { evaluatePasteurizationSafety } from '../../src/core/safety/safety-guard';
 import { scheduleFermentationAlerts } from '../../src/core/notifications/kitchen-notifications';
 import { calculateFermentationTimeline } from '../../src/core/timeline/fermentation-timeline';
-import { dbStore, CustomEquipmentRecord } from '../../src/data/db/database';
+import { dbStore, CustomEquipmentRecord, BatchRecord } from '../../src/data/db/database';
 import { theme } from '../../src/ui/theme';
 import { KitchenCard } from '../../src/ui/components/KitchenCard';
 import { KitchenButton } from '../../src/ui/components/KitchenButton';
@@ -207,10 +207,10 @@ export default function RitualScreen() {
   const waterRatio = isDrySalting ? 0 : currentPreset.waterRatio;
 
   const brineCalculation = calculateBrine({
-    method: isDrySalting ? 'dry_salting' : 'brine_submersion',
+    method: isDrySalting ? 'dry_salting' : 'total_mass',
     targetSalinityPercent: activeSalinity,
     produceWeightGrams: produceWeightNum,
-    waterWeightGrams: isDrySalting ? undefined : Math.round(produceWeightNum * waterRatio),
+    waterWeightGrams: isDrySalting ? 0 : Math.round(produceWeightNum * waterRatio),
   });
 
   const selectedEquipment =
@@ -230,25 +230,49 @@ export default function RitualScreen() {
 
     const title = customTitle.trim() || currentPreset.name.replace(/^[^\s]+\s*/, '');
     const recipeId = isAdvancedOpen ? 'CUSTOM' : `REC_${currentPreset.id.toUpperCase()}`;
+    const batchId = `batch_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
 
-    const newBatch = dbStore.addBatch({
+    const newBatch: BatchRecord = {
+      id: batchId,
       recipeId,
       recipeTitle: title,
       culture: activeProfile === 'world_ferments' ? 'Azja / Świat' : 'Polska',
       method: isDrySalting ? 'dry_salting' : 'lacto_fermentation',
       produceWeightGrams: produceWeightNum,
-      waterWeightGrams: brineCalculation.waterWeightGrams,
-      saltWeightGrams: brineCalculation.saltWeightGrams,
+      waterWeightGrams: brineCalculation.waterGrams,
+      saltWeightGrams: brineCalculation.saltGrams,
       salinityPercent: activeSalinity,
       targetFermentationDays: isDrySalting ? 14 : 4,
+      status: 'fermenting',
+      qrCodeUri: `sloik://batch/${batchId}`,
+      createdAt: Date.now(),
+      startedAt: Date.now(),
       notes: `Sprzęt: ${selectedEquipment?.name || 'Słoik 1000 ml'}`,
-    });
+    };
+    dbStore.saveBatch(newBatch);
 
-    scheduleFermentationAlerts({
-      batchId: newBatch.id,
-      recipeTitle: title,
-      targetDays: newBatch.targetFermentationDays,
-    }).catch(() => {});
+    const timeline = calculateFermentationTimeline(
+      {
+        id: recipeId,
+        title,
+        subtitle: '',
+        culture: newBatch.culture,
+        category: 'poland_central_europe',
+        method: (newBatch.method === 'dry_salting' ? 'lacto_fermentation' : newBatch.method) as any,
+        defaultProduceWeightGrams: newBatch.produceWeightGrams,
+        defaultSalinityPercent: newBatch.salinityPercent,
+        fermentationDays: newBatch.targetFermentationDays,
+        shelfLifeMonths: 12,
+        recommendedJarType: 'Słoik 1000 ml',
+        ingredients: [],
+        steps: [],
+        crispnessSecrets: [],
+        sensoryMilestones: [],
+        commonMistakes: [],
+      },
+      newBatch.startedAt
+    );
+    scheduleFermentationAlerts(newBatch.id, timeline).catch(() => {});
 
     Alert.alert(
       t('Partia zapisana! 🫙'),
@@ -266,6 +290,28 @@ export default function RitualScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
+        {/* Baner odzyskiwania uszkodzonego stanu (BR-TEST-023 / NFR-INT-008) */}
+        {dbStore.isCorrupt() && (
+          <View style={styles.corruptBanner} testID="corrupt-recovery-banner">
+            <View style={{ flex: 1, marginRight: 8 }}>
+              <Text style={styles.corruptBannerTitle}>
+                {t('⚠️ Wykryto problem ze stanem danych')}
+              </Text>
+              <Text style={styles.corruptBannerSubtitle}>
+                {t('Twoje dane zabezpieczono w kopii awaryjnej. Możesz przywrócić kopię w Ustawieniach.')}
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={styles.corruptBannerButton}
+              onPress={() => router.push('/settings')}
+              accessibilityRole="button"
+              accessibilityLabel={t('Otwórz Ustawienia kopii zapasowych')}
+            >
+              <Text style={styles.corruptBannerButtonText}>{t('Kopie →')}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* Nagłówek Rytuału */}
         <View style={styles.header}>
           <View style={styles.titleRow}>
@@ -275,6 +321,7 @@ export default function RitualScreen() {
                 onPress={() => router.push('/experiments')}
                 style={styles.iconButton}
                 accessibilityLabel={t('Laboratorium Eksperymentów')}
+                accessibilityRole="button"
                 hitSlop={theme.hitSlop}
               >
                 <Text style={{ fontSize: 20 }}>🔬</Text>
@@ -283,6 +330,7 @@ export default function RitualScreen() {
                 onPress={() => router.push('/pasteurizer')}
                 style={styles.iconButton}
                 accessibilityLabel={t('Stoper Pasteryzacji')}
+                accessibilityRole="button"
                 hitSlop={theme.hitSlop}
               >
                 <Text style={{ fontSize: 20 }}>⏱️</Text>
@@ -291,6 +339,7 @@ export default function RitualScreen() {
                 onPress={() => router.push('/settings')}
                 style={styles.iconButton}
                 accessibilityLabel={t('Ustawienia i Warsztat')}
+                accessibilityRole="button"
                 hitSlop={theme.hitSlop}
               >
                 <Text style={{ fontSize: 20 }}>⚙️</Text>
@@ -307,8 +356,8 @@ export default function RitualScreen() {
         {/* ============================================================== */}
         <SacredNumbersBar
           produceWeightGrams={produceWeightNum}
-          waterWeightGrams={brineCalculation.waterWeightGrams}
-          saltWeightGrams={brineCalculation.saltWeightGrams}
+          waterWeightGrams={brineCalculation.waterGrams}
+          saltWeightGrams={brineCalculation.saltGrams}
           salinityPercent={activeSalinity}
           isDrySalting={isDrySalting}
         />
@@ -394,9 +443,12 @@ export default function RitualScreen() {
           <View style={styles.weightDisplayRow}>
             <TextInput
               style={styles.weightInput}
-              keyboardType="numeric"
+              keyboardType="decimal-pad"
               value={String(produceWeightNum)}
-              onChangeText={(v) => setProduceWeightNum(parseInt(v, 10) || 0)}
+              onChangeText={(v) => setProduceWeightNum(parseInt(v.replace(/,/g, '.'), 10) || 0)}
+              accessibilityLabel={t('Waga surowca na szalce')}
+              accessibilityRole="text"
+              hitSlop={theme.hitSlop}
             />
             <Text style={styles.weightUnitText}>
               {unitSystem === 'imperial' ? 'oz' : 'g'}
@@ -774,4 +826,42 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: theme.colors.textSecondary,
   },
+  corruptBanner: {
+    backgroundColor: '#3A1A1A',
+    borderColor: '#D32F2F',
+    borderWidth: 1,
+    borderRadius: theme.borderRadius.md,
+    padding: 12,
+    marginBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  corruptBannerTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#FFCDD2',
+    marginBottom: 2,
+  },
+  corruptBannerSubtitle: {
+    fontSize: 12,
+    color: '#EF9A9A',
+    lineHeight: 16,
+  },
+  corruptBannerButton: {
+    backgroundColor: '#D32F2F',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: theme.borderRadius.sm,
+    minHeight: 44,
+    minWidth: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  corruptBannerButtonText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
 });
+
