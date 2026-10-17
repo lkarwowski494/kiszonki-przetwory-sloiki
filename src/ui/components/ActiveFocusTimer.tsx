@@ -19,6 +19,7 @@ import { useKeepAwake } from 'expo-keep-awake';
 import { theme } from '../theme';
 import { t } from '../../lib/i18n';
 import { notifyTimerFinished } from '../../core/timer-audio';
+import { CloseIcon } from '@apps4craft/ui';
 
 interface ActiveFocusTimerProps {
   title: string;
@@ -101,7 +102,7 @@ export const ActiveFocusTimer: React.FC<ActiveFocusTimerProps> = ({
             style={styles.closeBtn}
             accessibilityLabel={t('Zwiń zegar')}
           >
-            <Text style={styles.closeBtnText}>✕</Text>
+            <CloseIcon size={20} color={theme.colors.textSecondary} />
           </TouchableOpacity>
         )}
       </View>
@@ -245,8 +246,8 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
   },
   closeBtn: {
-    minHeight: 36,
-    minWidth: 36,
+    minHeight: 44,
+    minWidth: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },

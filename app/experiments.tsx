@@ -5,11 +5,11 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
   Alert,
   TextInput,
   Modal,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import {
   dbStore,
@@ -34,6 +34,7 @@ import { PaywallModal } from '../src/ui/components/PaywallModal';
 
 export default function ExperimentsScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { canCreate } = useAppAccess();
   const [isPaywallOpen, setIsPaywallOpen] = useState(false);
 
@@ -229,7 +230,7 @@ export default function ExperimentsScreen() {
     (parseFloat(scoreAppearance) || 0);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={[styles.safeArea, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
       <ModalHeader
         title="Laboratorium & Konkurs"
         onClose={() => router.back()}
@@ -611,7 +612,7 @@ export default function ExperimentsScreen() {
         transparent={false}
         onRequestClose={() => setCuppingVariant(null)}
       >
-        <SafeAreaView style={styles.safeArea}>
+        <View style={[styles.safeArea, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
           <ModalHeader
             title={`Arkusz Sensoryczny: Słoik ${cuppingVariant?.variantLetter}`}
             onClose={() => setCuppingVariant(null)}
@@ -699,7 +700,7 @@ export default function ExperimentsScreen() {
               </View>
             </KitchenCard>
           </ScrollView>
-        </SafeAreaView>
+        </View>
       </Modal>
 
       <PaywallModal
@@ -708,7 +709,7 @@ export default function ExperimentsScreen() {
         reasonTitle="Okres próbny wygasł 🔬"
         reasonSubtitle="Twoje dotychczasowe serie eksperymentalne i oceny degustacyjne są zawsze dostępne (Read-Only). Odblokuj tworzenie nowych split-batchy subskrybując taniej niż kawa espresso ($0.99 / $4.99)!"
       />
-    </SafeAreaView>
+    </View>
   );
 }
 

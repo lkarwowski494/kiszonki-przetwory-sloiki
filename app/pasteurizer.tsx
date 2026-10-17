@@ -3,24 +3,20 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { theme } from '../src/ui/theme';
 import { KitchenCard } from '../src/ui/components/KitchenCard';
 import { KitchenButton } from '../src/ui/components/KitchenButton';
 import { ModalHeader } from '../src/ui/components/ModalHeader';
-
 import { notifyTimerFinished } from '../src/core/timer-audio';
-import { useAppAccess } from '../src/core/access/app-access';
-import { PaywallModal } from '../src/ui/components/PaywallModal';
 
 export default function PasteurizerTimerScreen() {
   const router = useRouter();
-  const { canCreate } = useAppAccess();
-  const [isPaywallOpen, setIsPaywallOpen] = useState(false);
+  const insets = useSafeAreaInsets();
   const [selectedMinutes, setSelectedMinutes] = useState(20);
   const [remainingSeconds, setRemainingSeconds] = useState(20 * 60);
   const [isRunning, setIsRunning] = useState(false);
@@ -56,10 +52,6 @@ export default function PasteurizerTimerScreen() {
   };
 
   const toggleTimer = () => {
-    if (!isRunning && !canCreate) {
-      setIsPaywallOpen(true);
-      return;
-    }
     setIsRunning(!isRunning);
   };
 
@@ -76,7 +68,7 @@ export default function PasteurizerTimerScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={[styles.safeArea, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
       <ModalHeader
         title="Stoper Pasteryzacji"
         onClose={() => router.back()}
@@ -145,14 +137,7 @@ export default function PasteurizerTimerScreen() {
           </Text>
         </KitchenCard>
       </View>
-
-      <PaywallModal
-        visible={isPaywallOpen}
-        onClose={() => setIsPaywallOpen(false)}
-        reasonTitle="Okres próbny wygasł ⏱️"
-        reasonSubtitle="Twoja historia przetworów i spiżarnia pozostają zawsze dostępne (Read-Only). Odblokuj stoper pasteryzacji i nielimitowane nastawy subskrybując taniej niż kawa espresso ($0.99 / $4.99)!"
-      />
-    </SafeAreaView>
+    </View>
   );
 }
 
