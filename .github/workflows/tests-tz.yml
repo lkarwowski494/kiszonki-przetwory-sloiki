@@ -57,4 +57,4 @@ jobs:
       - name: Verify system timezone & run full test suite
         run: |
           echo "Uruchamianie w strefie TZ=$TZ ($(date))"
-          npx jest --runInBand
+          npm test -- --runInBand

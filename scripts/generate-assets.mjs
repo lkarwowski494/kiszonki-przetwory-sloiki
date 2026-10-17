@@ -22,20 +22,23 @@ function crc32(buf) {
   return (crc ^ -1) >>> 0;
 }
 
-function createPng(width, height, getPixel) {
-  const rowSize = 1 + width * 4;
+function createPng(width, height, getPixel, colorType = 6) {
+  const bytesPerPixel = colorType === 2 ? 3 : 4;
+  const rowSize = 1 + width * bytesPerPixel;
   const rawData = Buffer.alloc(rowSize * height);
 
   for (let y = 0; y < height; y++) {
     const rowOffset = y * rowSize;
     rawData[rowOffset] = 0; // Filter: None
     for (let x = 0; x < width; x++) {
-      const pxOffset = rowOffset + 1 + x * 4;
+      const pxOffset = rowOffset + 1 + x * bytesPerPixel;
       const [r, g, b, a] = getPixel(x, y, width, height);
       rawData[pxOffset] = r;
       rawData[pxOffset + 1] = g;
       rawData[pxOffset + 2] = b;
-      rawData[pxOffset + 3] = a !== undefined ? a : 255;
+      if (bytesPerPixel === 4) {
+        rawData[pxOffset + 3] = a !== undefined ? a : 255;
+      }
     }
   }
 
@@ -46,7 +49,7 @@ function createPng(width, height, getPixel) {
   ihdr.writeUInt32BE(width, 0);
   ihdr.writeUInt32BE(height, 4);
   ihdr[8] = 8;
-  ihdr[9] = 6; // RGBA
+  ihdr[9] = colorType; // 2: RGB (no alpha, App Store ITMS-90717), 6: RGBA
   ihdr[10] = 0;
   ihdr[11] = 0;
   ihdr[12] = 0;
@@ -265,17 +268,20 @@ function renderJarIconPixel(x, y, w, h) {
   return col;
 }
 
-// 1. App Icon (1024x1024)
-console.log('Rendering 1024x1024 icon.png...');
+// 1. App Icon (1024x1024, RGB no alpha - colorType 2 for App Store ITMS-90717)
+console.log('Rendering 1024x1024 icon.png (RGB colorType: 2)...');
 const iconBuffer = createPng(1024, 1024, (x, y, w, h) => {
   return renderJarIconPixel(x, y, w, h);
-});
+}, 2);
 fs.writeFileSync(path.join(assetsDir, 'icon.png'), iconBuffer);
-console.log('  -> assets/icon.png created (1024x1024)');
+console.log('  -> assets/icon.png created (1024x1024, RGB colorType: 2)');
 
-// 2. Adaptive Icon (1024x1024)
-fs.writeFileSync(path.join(assetsDir, 'adaptive-icon.png'), iconBuffer);
-console.log('  -> assets/adaptive-icon.png created (1024x1024)');
+// 2. Adaptive Icon (1024x1024, RGBA)
+const adaptiveIconBuffer = createPng(1024, 1024, (x, y, w, h) => {
+  return renderJarIconPixel(x, y, w, h);
+}, 6);
+fs.writeFileSync(path.join(assetsDir, 'adaptive-icon.png'), adaptiveIconBuffer);
+console.log('  -> assets/adaptive-icon.png created (1024x1024, RGBA)');
 
 // 3. Splash Screen (1242x2688)
 console.log('Rendering 1242x2688 splash.png...');
