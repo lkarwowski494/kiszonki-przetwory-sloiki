@@ -4,10 +4,10 @@ import {
   Text,
   ScrollView,
   StyleSheet,
-  SafeAreaView,
   Alert,
   TouchableOpacity,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { dbStore, BatchRecord, FermentationLogRecord } from '../../src/data/db/database';
 import { evaluatePasteurizationSafety } from '../../src/core/safety/safety-guard';
@@ -19,8 +19,6 @@ import { KitchenCard } from '../../src/ui/components/KitchenCard';
 import { KitchenButton } from '../../src/ui/components/KitchenButton';
 import { Badge } from '../../src/ui/components/Badge';
 import { ModalHeader } from '../../src/ui/components/ModalHeader';
-import { useAppAccess } from '../../src/core/access/app-access';
-import { PaywallModal } from '../../src/ui/components/PaywallModal';
 import {
   useUnitSystem,
   formatProduceWeight,
@@ -31,9 +29,8 @@ import { t } from '../../src/lib/i18n';
 
 export default function BatchPassportScreen() {
   const router = useRouter();
-  const { canCreate } = useAppAccess();
+  const insets = useSafeAreaInsets();
   const unitSystem = useUnitSystem();
-  const [isPaywallOpen, setIsPaywallOpen] = useState(false);
   const params = useLocalSearchParams<{ id: string }>();
   const batchId = params.id;
 
@@ -55,7 +52,7 @@ export default function BatchPassportScreen() {
 
   if (!batch) {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <View style={[styles.safeArea, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
         <ModalHeader title="Paszport Słoika" onClose={() => router.back()} closeLabel="Wróć" />
         <View style={styles.notFoundContainer}>
           <Text style={{ fontSize: 44, textAlign: 'center', marginBottom: 12 }}>🔍</Text>
@@ -65,7 +62,7 @@ export default function BatchPassportScreen() {
           </Text>
           <KitchenButton title="Wróć do spiżarni" variant="primary" onPress={() => router.back()} style={{ marginTop: 20 }} />
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -81,10 +78,6 @@ export default function BatchPassportScreen() {
   });
 
   const handleBurp = () => {
-    if (!canCreate) {
-      setIsPaywallOpen(true);
-      return;
-    }
     dbStore.addFermentationLog({
       batchId: batch.id,
       dayNumber: elapsedDays,
@@ -115,10 +108,6 @@ export default function BatchPassportScreen() {
   };
 
   const handleConsume = () => {
-    if (!canCreate) {
-      setIsPaywallOpen(true);
-      return;
-    }
     Alert.alert(
       'Otwarcie słoika 🍴',
       `Czy chcesz oznaczyć "${batch.recipeTitle}" jako otwarty/zjedzony?`,
@@ -146,7 +135,7 @@ export default function BatchPassportScreen() {
     batch.status === 'fermenting' ? 'amber' : batch.status === 'pantry' ? 'green' : 'default';
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={[styles.safeArea, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
       <ModalHeader
         title="Paszport Słoika"
         onClose={() => router.back()}
@@ -269,12 +258,7 @@ export default function BatchPassportScreen() {
           </View>
         </View>
       </ScrollView>
-
-      <PaywallModal
-        visible={isPaywallOpen}
-        onClose={() => setIsPaywallOpen(false)}
-      />
-    </SafeAreaView>
+    </View>
   );
 }
 

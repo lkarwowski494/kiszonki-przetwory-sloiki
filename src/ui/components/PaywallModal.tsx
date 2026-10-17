@@ -43,7 +43,7 @@ export function PaywallModal({
   const handleSubscribe = () => {
     subscribe(selectedPlan);
     Alert.alert(
-      'Witaj w Apps4Brew Studio! 🎉',
+      'Witaj w Apps4Craft Studio! 🎉',
       'Nielimitowane tworzenie partii, etykiet i eksperymentów zostało aktywowane. Smacznego kiszenia!'
     );
     onClose();
@@ -64,7 +64,7 @@ export function PaywallModal({
       <SafeAreaView style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <ModalHeader
-            title="Apps4Brew Studio"
+            title="Apps4Craft Studio"
             onClose={onClose}
             closeLabel="Zamknij"
           />
@@ -92,8 +92,8 @@ export function PaywallModal({
                 'Nielimitowane nowe nastawy słoików i partii w spiżarni',
                 'Alerty odgazowywania (burping) i harmonogram fermentacji',
                 'Druk arkuszy etykiet PDF A4 z unikalnymi kodami QR',
-                'Słoikowy Ratownik: 100% bazy biologii i ochrony przed pleśnią',
-                'Kalkulator opłacalności vs sklep bio oraz Split-Batch Lab',
+                'Doktor Mikrobiologiczny: 100% bazy wiedzy biologicznej i ochrona partii',
+                'Autorski Warsztat: nielimitowany własny sprzęt i receptury krok po kroku',
               ].map((benefit, i) => (
                 <View key={i} style={styles.benefitRow}>
                   <Text style={styles.benefitCheck}>✓</Text>

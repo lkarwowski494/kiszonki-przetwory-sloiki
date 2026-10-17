@@ -193,7 +193,8 @@ if (isCheck) {
   }
 
   const existing = readFileSync(docPath, 'utf8');
-  if (existing.trim() !== mdContent.trim()) {
+  const stripDate = (s) => s.replace(/stan na: \d{4}-\d{2}-\d{2}/g, 'stan na: DATE');
+  if (stripDate(existing.trim()) !== stripDate(mdContent.trim())) {
     console.error(`[test-matrix] BŁĄD: Dokumentacja ${rel(docPath)} jest nieaktualna! Uruchom: node scripts/test-matrix.mjs --write`);
     process.exit(1);
   }

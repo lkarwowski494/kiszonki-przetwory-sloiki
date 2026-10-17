@@ -1,6 +1,6 @@
 # Macierz Testów — Słoik (Jarwise)
 
-*Automatycznie wygenerowano przez `scripts/test-matrix.mjs` — stan na: 2026-10-16*
+*Automatycznie wygenerowano przez `scripts/test-matrix.mjs` — stan na: 2026-10-17*
 
 | Kategoria | Element / Identyfikator | Źródło | Pokrycie testami | Status |
 | :--- | :--- | :--- | :--- | :---: |
