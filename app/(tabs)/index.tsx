@@ -32,6 +32,7 @@ import { QuickStartGuideModal } from '../../src/ui/components/QuickStartGuideMod
 import { AppTourModal } from '../../src/ui/components/AppTourModal';
 import { CustomEquipmentModal } from '../../src/ui/components/CustomEquipmentModal';
 import { CustomRecipeModal } from '../../src/ui/components/CustomRecipeModal';
+import { CraftProcedureModal } from '../../src/ui/components/CraftProcedureModal';
 import { useAppAccess } from '../../src/core/access/app-access';
 import { PaywallModal } from '../../src/ui/components/PaywallModal';
 import { t, useLang } from '../../src/lib/i18n';
@@ -202,6 +203,7 @@ export default function RitualScreen() {
   const [isFocusTimerOpen, setIsFocusTimerOpen] = useState(false);
   const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
   const [isCustomRecipeModalOpen, setIsCustomRecipeModalOpen] = useState(false);
+  const [isProcedureModalOpen, setIsProcedureModalOpen] = useState(false);
 
   // Stan wybranego nastawu
   const [selectedPresetId, setSelectedPresetId] = useState<string>('malosolne');
@@ -304,9 +306,23 @@ export default function RitualScreen() {
   const displayPresets = visiblePresets.length > 0 ? visiblePresets : RITUAL_PRESETS;
 
   // Obliczenia solanki
-  const activeSalinity = isAdvancedOpen ? customSalinityPct : currentPreset.salinity;
-  const isDrySalting = isAdvancedOpen ? isDrySaltingCustom : currentPreset.isDrySalting;
-  const waterRatio = isDrySalting ? 0 : currentPreset.waterRatio;
+  const activeSalinity = isAdvancedOpen
+    ? customSalinityPct
+    : ritualMode === 'freeform'
+    ? freeformSuggestion.recommendedSalinityPercent
+    : currentPreset.salinity;
+
+  const isDrySalting = isAdvancedOpen
+    ? isDrySaltingCustom
+    : ritualMode === 'freeform'
+    ? freeformSuggestion.isDrySalting
+    : currentPreset.isDrySalting;
+
+  const waterRatio = isDrySalting
+    ? 0
+    : ritualMode === 'freeform'
+    ? 0.5
+    : currentPreset.waterRatio;
 
   const brineCalculation = calculateBrine({
     method: isDrySalting ? 'dry_salting' : 'total_mass',
@@ -323,6 +339,34 @@ export default function RitualScreen() {
     setProduceWeightNum((prev) => Math.max(100, prev + deltaGrams));
   };
 
+  const activeRecipeTitle =
+    customTitle.trim() ||
+    (ritualMode === 'freeform'
+      ? freeformSuggestion.title
+      : currentPreset.name.replace(/^[^\s]+\s*/, ''));
+
+  const activeRecipeCulture =
+    ritualMode === 'freeform'
+      ? 'Styl Dowolny'
+      : (MASTER_RECIPES.find((r) => r.title === customTitle)?.culture) ||
+        (activeProfile === 'world_ferments' ? 'Azja / Świat' : 'Polska');
+
+  const activeRecipeHerbs =
+    ritualMode === 'freeform'
+      ? freeformSuggestion.suggestedHerbs.join(', ')
+      : (MASTER_RECIPES.find((r) => r.title === customTitle)?.ingredients.map((i) => i.name).join(', ')) ||
+        currentPreset.herbs;
+
+  const activeRecipeSteps =
+    ritualMode === 'freeform'
+      ? freeformSuggestion.steps
+      : (MASTER_RECIPES.find((r) => r.title === customTitle)?.steps) || [];
+
+  const activeRecipeCraftTips =
+    ritualMode === 'freeform'
+      ? freeformSuggestion.craftTips
+      : (MASTER_RECIPES.find((r) => r.title === customTitle)?.crispnessSecrets) || [];
+
   // Rozpoczęcie nastawu i zapis do bazy
   const handleSaveBatch = () => {
     if (!canCreate) {
@@ -330,7 +374,7 @@ export default function RitualScreen() {
       return;
     }
 
-    const title = customTitle.trim() || currentPreset.name.replace(/^[^\s]+\s*/, '');
+    const title = activeRecipeTitle;
     const recipeId = isAdvancedOpen ? 'CUSTOM' : `REC_${currentPreset.id.toUpperCase()}`;
     const batchId = `batch_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
 
@@ -338,7 +382,7 @@ export default function RitualScreen() {
       id: batchId,
       recipeId,
       recipeTitle: title,
-      culture: activeProfile === 'world_ferments' ? 'Azja / Świat' : 'Polska',
+      culture: activeRecipeCulture,
       method: isDrySalting ? 'dry_salting' : 'lacto_fermentation',
       produceWeightGrams: produceWeightNum,
       waterWeightGrams: brineCalculation.waterGrams,
@@ -504,39 +548,19 @@ export default function RitualScreen() {
         </TouchableOpacity>
 
         {/* ============================================================== */}
-        {/* ŚWIĘTE LICZBY FERMENTACJI (SACRED NUMBERS BAR)                 */}
+        {/* KROK 1: WYBÓR WARZYW I PRZEPISU                                */}
         {/* ============================================================== */}
-        <SacredNumbersBar
-          produceWeightGrams={produceWeightNum}
-          waterWeightGrams={brineCalculation.waterGrams}
-          saltWeightGrams={brineCalculation.saltGrams}
-          salinityPercent={activeSalinity}
-          isDrySalting={isDrySalting}
-        />
-
-        {/* PRZYCISK TRYBU AKTYWNEGO SKUPIENIA (ACTIVE FOCUS TIMER) */}
-        <TouchableOpacity
-          style={styles.focusTimerLaunchBtn}
-          onPress={() => setIsFocusTimerOpen(!isFocusTimerOpen)}
-          activeOpacity={0.85}
-        >
-          <Text style={styles.focusTimerLaunchText}>
-            ⏱️ {isFocusTimerOpen ? t('Ukryj Zegar Kuchenny') : t('Tryb Skupienia (Zegar Kuchenny)')}
-          </Text>
-        </TouchableOpacity>
-
-        {isFocusTimerOpen && (
-          <ActiveFocusTimer
-            title={currentPreset.name}
-            defaultSeconds={900}
-            onClose={() => setIsFocusTimerOpen(false)}
-          />
-        )}
-
-        {/* ============================================================== */}
-        {/* WYBÓR NASTAWU RYTUAŁU (STYL DOWOLNY / RECEPTURY / KLASYKI)     */}
-        {/* ============================================================== */}
-        <Text style={styles.sectionTitle}>{t('Wybierz Nastaw Rytuału')}</Text>
+        <View style={styles.flowSectionHeader}>
+          <View style={styles.flowStepBadge}>
+            <Text style={styles.flowStepBadgeText}>1</Text>
+          </View>
+          <View style={styles.flowSectionTextCol}>
+            <Text style={styles.flowSectionTitle}>{t('Krok 1: Co dzisiaj kisimy?')}</Text>
+            <Text style={styles.flowSectionSubtitle}>
+              {t('Wybierz warzywa w Stylu Dowolnym lub sięgnij po gotową recepturę.')}
+            </Text>
+          </View>
+        </View>
 
         {/* PRZEŁĄCZNIK TRYBU */}
         <View style={styles.modeTabsRow}>
@@ -842,9 +866,49 @@ export default function RitualScreen() {
           </ScrollView>
         )}
 
+        {/* KARTA AKTYWNEGO NASTAWU (SUMMARY CARD WYBRANEGO PRZEPISU) */}
+        <View style={styles.activeSelectionCard}>
+          <View style={styles.activeSelectionHeader}>
+            <Text style={styles.activeSelectionLabel}>
+              {t('AKTYWNY NASTAW:')}
+            </Text>
+            <Badge
+              label={isDrySalting ? t('Solenie na sucho') : t('Solanka wodna')}
+              variant="green"
+            />
+          </View>
+          <Text style={styles.activeSelectionTitle}>{activeRecipeTitle}</Text>
+          <View style={styles.activeSelectionMetaRow}>
+            <Text style={styles.activeSelectionMetaItem}>
+              🌍 {activeRecipeCulture}
+            </Text>
+            <Text style={styles.activeSelectionMetaDot}>•</Text>
+            <Text style={styles.activeSelectionMetaItem}>
+              🧂 {activeSalinity}% {t('soli')}
+            </Text>
+            <Text style={styles.activeSelectionMetaDot}>•</Text>
+            <Text style={styles.activeSelectionMetaItem}>
+              ⏳ {isDrySalting ? '14-21' : '4-7'} {t('dni')}
+            </Text>
+          </View>
+        </View>
+
         {/* ============================================================== */}
-        {/* KUCHENNA WAGA 1-TAP (PRODUCE WEIGHT BUTTONS)                    */}
+        {/* KROK 2: WAGA SUROWCA I NACZYNIE                                */}
         {/* ============================================================== */}
+        <View style={styles.flowSectionHeader}>
+          <View style={styles.flowStepBadge}>
+            <Text style={styles.flowStepBadgeText}>2</Text>
+          </View>
+          <View style={styles.flowSectionTextCol}>
+            <Text style={styles.flowSectionTitle}>{t('Krok 2: Waga surowca i naczynie')}</Text>
+            <Text style={styles.flowSectionSubtitle}>
+              {t('Zważ surowiec na wadze kuchennej i dobierz odpowiedni słoik.')}
+            </Text>
+          </View>
+        </View>
+
+        {/* KUCHENNA WAGA 1-TAP (PRODUCE WEIGHT BUTTONS) */}
         <KitchenCard style={styles.weightCard}>
           <View style={styles.weightHeaderRow}>
             <Text style={styles.cardHeaderTitle}>{t('Waga Surowca na Szalce')}</Text>
@@ -903,9 +967,7 @@ export default function RitualScreen() {
           </View>
         </KitchenCard>
 
-        {/* ============================================================== */}
-        {/* SPRZĘT I SŁOIKI RZEMIEŚLNIKA                                    */}
-        {/* ============================================================== */}
+        {/* SPRZĘT I SŁOIKI RZEMIEŚLNIKA */}
         <KitchenCard style={styles.equipmentCard}>
           <View style={styles.weightHeaderRow}>
             <Text style={styles.cardHeaderTitle}>{t('Słoik / Naczynie')}</Text>
@@ -942,23 +1004,85 @@ export default function RitualScreen() {
           </ScrollView>
         </KitchenCard>
 
+        {/* ============================================================== */}
+        {/* KROK 3: WYLICZONE PROPORCJE I ZIOŁA                            */}
+        {/* ============================================================== */}
+        <View style={styles.flowSectionHeader}>
+          <View style={styles.flowStepBadge}>
+            <Text style={styles.flowStepBadgeText}>3</Text>
+          </View>
+          <View style={styles.flowSectionTextCol}>
+            <Text style={styles.flowSectionTitle}>{t('Krok 3: Święte Proporcje dla Twojej Wagi')}</Text>
+            <Text style={styles.flowSectionSubtitle}>
+              {t('Dokładnie wyliczona sól i woda oraz dopasowane aromaty.')}
+            </Text>
+          </View>
+        </View>
+
+        {/* ŚWIĘTE LICZBY FERMENTACJI (SACRED NUMBERS BAR) */}
+        <SacredNumbersBar
+          produceWeightGrams={produceWeightNum}
+          waterWeightGrams={brineCalculation.waterGrams}
+          saltWeightGrams={brineCalculation.saltGrams}
+          salinityPercent={activeSalinity}
+          isDrySalting={isDrySalting}
+        />
+
         {/* Wskazówki Rzemieślnika */}
         <View style={styles.herbsTipBox}>
           <Text style={styles.herbsTipTitle}>🌿 {t('Sugerowane zioła i przyprawy:')}</Text>
-          <Text style={styles.herbsTipText}>{currentPreset.herbs}</Text>
+          <Text style={styles.herbsTipText}>{activeRecipeHerbs}</Text>
+          {activeRecipeCraftTips && activeRecipeCraftTips.length > 0 && (
+            <Text style={[styles.freeformTip, { marginTop: 8 }]}>
+              💡 {activeRecipeCraftTips[0]}
+            </Text>
+          )}
         </View>
 
         {/* ============================================================== */}
-        {/* GŁÓWNY PRZYCISK: ROZPOCZNIJ NASTAW I ZAPISZ SŁOIK             */}
+        {/* KROK 4: PROCEDURA I ZAPIS SŁOIKA                               */}
         {/* ============================================================== */}
+        <View style={styles.flowSectionHeader}>
+          <View style={styles.flowStepBadge}>
+            <Text style={styles.flowStepBadgeText}>4</Text>
+          </View>
+          <View style={styles.flowSectionTextCol}>
+            <Text style={styles.flowSectionTitle}>{t('Krok 4: Procedura i zapis słoika')}</Text>
+            <Text style={styles.flowSectionSubtitle}>
+              {t('Przejdź przez kroki nastawu na blacie kuchennym lub zapisz od razu.')}
+            </Text>
+          </View>
+        </View>
+
+        {/* GŁÓWNY PRZYCISK: ASYSTENT PROCEDURY KROK PO KROKU */}
+        <TouchableOpacity
+          style={styles.procedureLaunchBtn}
+          onPress={() => setIsProcedureModalOpen(true)}
+          activeOpacity={0.85}
+          accessibilityLabel={t('Zacznij procedurę nastawu krok po kroku')}
+        >
+          <View style={styles.procedureLaunchLeft}>
+            <Text style={styles.procedureLaunchEmoji}>🚀</Text>
+            <View style={styles.procedureLaunchTextCol}>
+              <Text style={styles.procedureLaunchTitle}>
+                {t('Zacznij procedurę nastawu krok po kroku →')}
+              </Text>
+              <Text style={styles.procedureLaunchSub}>
+                {t('Asystent blatu: czytelne kroki, ekran nie gaśnie, automatyczny zapis.')}
+              </Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+
+        {/* SZYBKI ZAPIS SŁOIKA (BEZ ASYSTENTA) */}
         <TouchableOpacity
           style={styles.mainStartButton}
           onPress={handleSaveBatch}
           activeOpacity={0.85}
-          accessibilityLabel={t('Rozpocznij nastaw i zapisz słoik 🫙')}
+          accessibilityLabel={t('Szybki zapis słoika (bez asystenta)')}
         >
           <Text style={styles.mainStartButtonText}>
-            {t('Rozpocznij nastaw i zapisz słoik 🫙')}
+            {t('🫙 Szybki zapis słoika (bez asystenta)')}
           </Text>
         </TouchableOpacity>
 
@@ -972,6 +1096,26 @@ export default function RitualScreen() {
             📝 {t('Zdefiniuj własną procedurę krok po kroku')}
           </Text>
         </TouchableOpacity>
+
+        {/* MODAL PROCEDURY NASTAWU KROK PO KROKU */}
+        <CraftProcedureModal
+          visible={isProcedureModalOpen}
+          onClose={() => setIsProcedureModalOpen(false)}
+          recipeTitle={activeRecipeTitle}
+          culture={activeRecipeCulture}
+          produceWeightGrams={produceWeightNum}
+          saltWeightGrams={brineCalculation.saltGrams}
+          waterWeightGrams={brineCalculation.waterGrams}
+          salinityPercent={activeSalinity}
+          isDrySalting={isDrySalting}
+          herbs={activeRecipeHerbs}
+          steps={activeRecipeSteps}
+          craftTips={activeRecipeCraftTips}
+          onCompleteAndSave={() => {
+            setIsProcedureModalOpen(false);
+            handleSaveBatch();
+          }}
+        />
 
         {/* MODAL ONBOARDINGU (PIERWSZE URUCHOMIENIE LUB ZMIANA) */}
         <CraftOnboardingModal
@@ -1246,25 +1390,138 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
     lineHeight: 18,
   },
-  mainStartButton: {
+  flowSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 18,
+    marginBottom: 10,
+  },
+  flowStepBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: theme.colors.pickleGreen,
-    minHeight: 54,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  flowStepBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '900',
+  },
+  flowSectionTextCol: {
+    flex: 1,
+  },
+  flowSectionTitle: {
+    color: theme.colors.textPrimary,
+    fontSize: 16,
+    fontWeight: '800',
+    letterSpacing: 0.2,
+  },
+  flowSectionSubtitle: {
+    color: theme.colors.textSecondary,
+    fontSize: 12,
+    lineHeight: 16,
+    marginTop: 1,
+  },
+  activeSelectionCard: {
+    backgroundColor: theme.colors.bgCard,
+    borderWidth: 1.5,
+    borderColor: theme.colors.pickleGreen,
+    borderRadius: theme.borderRadius.md,
+    padding: 14,
+    marginTop: 10,
+    marginBottom: 6,
+  },
+  activeSelectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  activeSelectionLabel: {
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 1,
+    color: theme.colors.pickleGreen,
+  },
+  activeSelectionTitle: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: theme.colors.textPrimary,
+    marginBottom: 6,
+  },
+  activeSelectionMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  activeSelectionMetaItem: {
+    fontSize: 12,
+    color: theme.colors.textSecondary,
+    fontWeight: '600',
+  },
+  activeSelectionMetaDot: {
+    fontSize: 12,
+    color: theme.colors.border,
+  },
+  procedureLaunchBtn: {
+    backgroundColor: theme.colors.pickleGreen,
+    borderRadius: theme.borderRadius.md,
+    padding: 16,
+    marginTop: 6,
+    marginBottom: 8,
+    shadowColor: theme.colors.pickleGreen,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  procedureLaunchLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  procedureLaunchEmoji: {
+    fontSize: 28,
+  },
+  procedureLaunchTextCol: {
+    flex: 1,
+  },
+  procedureLaunchTitle: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: 0.2,
+  },
+  procedureLaunchSub: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.85)',
+    marginTop: 2,
+    lineHeight: 16,
+  },
+  mainStartButton: {
+    backgroundColor: theme.colors.bgCardElevated,
+    borderWidth: 1.5,
+    borderColor: theme.colors.border,
+    minHeight: 48,
     borderRadius: theme.borderRadius.md,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 6,
+    marginTop: 4,
   },
   mainStartButtonText: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    letterSpacing: 0.3,
+    fontSize: 14,
+    fontWeight: '700',
+    color: theme.colors.textPrimary,
   },
   customProcedureButton: {
     minHeight: 46,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 10,
+    marginTop: 8,
   },
   customProcedureText: {
     fontSize: 14,
