@@ -28,7 +28,50 @@ Pomiar odsłon Wikipedii, 01.11.2026, w 17 językach. Skala jest względna: atla
 ## Konsekwencje dla tego repozytorium
 
 - **Reklamy tylko na stronie atlasu, nigdy w aplikacji.** Zakaz reklam z `CLAUDE.md` (pkt 1, „Zero telemetrii”) nadal obowiązuje w aplikacji.
-- **Otwarte pytania produktowe** (rozstrzyga właściciel):
-  - czy atlas ma być w katalogu `site/` tego repozytorium, czy na osobnej domenie;
-  - ile języków na start.
+- Otwarte pytania o domenę i języki rozstrzygnięte 01.11.2026 — sekcja niżej.
 - **Treść merytoryczna atlasu** musi przejść ten sam proces co treść aplikacji (BRD C4, rozdz. 8.P: proces treści merytorycznych).
+
+## Uzupełnienie 01.11.2026: domena, języki, struktura
+
+Identyfikator na tablicy decyzji: `2026-11-01-sloik-atlas-domena-jezyki`.
+
+**Decyzja właściciela**
+- Atlas na **osobnej domenie** (opcja B), tak jak atlas ćwiczeń. Odrzucona opcja: katalog `site/` w tym repozytorium.
+- Docelowo **35 języków**.
+- **Struktura gotowa od pierwszego dnia**, a karty atlasu wdrażamy falami (grupami języków lub typów).
+
+**Wymagania struktury.** Źródło: dokumentacja Google Search Central, przeczytana 01.11.2026:
+[localized-versions](https://developers.google.com/search/docs/specialty/international/localized-versions),
+[managing-multi-regional-sites](https://developers.google.com/search/docs/specialty/international/managing-multi-regional-sites).
+
+1. **Adresy**
+   - Każdy język ma osobny adres w podkatalogu, np. `/pl/`, `/en/`.
+   - Parametr `?lang=` odpada: Google pisze o nim „Not recommended”.
+   - Treść nie może zależeć od ciasteczek ani ustawień przeglądarki.
+2. **Stały identyfikator karty**, niezależny od języka. Dzięki temu dodanie języka nie zmienia istniejących adresów.
+3. **hreflang dwukierunkowy**
+   - Google: „Each language version must list itself as well as all other language versions”.
+   - Google: „If two pages don't both point to each other, the tags will be ignored”.
+   - Google: „you can omit some languages on some pages” — to pozwala wdrażać karty falami. hreflang generuje się wtedy tylko z wersji, które istnieją.
+4. **x-default** prowadzi do strony wyboru języka.
+5. **Bez automatycznego przekierowania według języka.** Google: „Avoid automatically redirecting users from one language version of a site to a different language version”.
+6. **Mapa strony** generowana z listy opublikowanych kart.
+7. **Zasada własna:** publikujemy tylko gotowe karty ze źródłami, bez pustych stron-zaślepek. Wynika to z zasady „merytoryczne podstawy” (każda instrukcja ma przeczytane źródło).
+
+**Kolejność fal: do decyzji właściciela**
+
+Udział odsłon kiszonek według języka z pomiaru 01.11.2026, dla 17 języków i wszystkich haseł:
+
+| Język | en | fr | es | de | it | pl | ja | nl | ru | pt |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Udział odsłon | 43,5% | 11,0% | 8,0% | 7,5% | 7,3% | 3,4% | 3,4% | 3,3% | 2,8% | 2,4% |
+
+Każdy z pozostałych zmierzonych języków ma poniżej 2%. Pierwsze 5 języków to 77%, pierwsze 10 to 93%. Pozostałych 18 z 35 języków nie mierzyliśmy.
+
+| Opcja | Opis | Kompromis |
+|---|---|---|
+| A | Najpierw języki: wszystkie typy kart w 5–6 językach | Pełny atlas tam, gdzie jest ruch; pozostałe języki dochodzą późno |
+| B | Najpierw typy: jedna grupa kart w 35 językach | Szeroka obecność od razu, ale płytko; 35 tłumaczeń do sprawdzenia przy każdej grupie |
+| C | Hybryda: grupa podstawowa (kapusta, ogórki; ok. 10–15 kart [DO SPRAWDZENIA]) w en, fr, es, de, it, pl, potem na zmianę kolejne grupy i języki | **Rekomendacja.** Ok. 80% zmierzonego ruchu od pierwszej fali przy małym zakresie treści |
+
+[DO SPRAWDZENIA] Lista 35 języków: przejąć z repozytorium `trening`, żeby była taka sama w całym portfelu.
