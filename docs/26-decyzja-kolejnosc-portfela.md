@@ -58,7 +58,7 @@ Identyfikator na tablicy decyzji: `2026-11-01-sloik-atlas-domena-jezyki`.
 6. **Mapa strony** generowana z listy opublikowanych kart.
 7. **Zasada własna:** publikujemy tylko gotowe karty ze źródłami, bez pustych stron-zaślepek. Wynika to z zasady „merytoryczne podstawy” (każda instrukcja ma przeczytane źródło).
 
-**Kolejność fal: do decyzji właściciela**
+**Kolejność fal: wybrana opcja C (decyzja właściciela 01.11.2026)**
 
 Udział odsłon kiszonek według języka z pomiaru 01.11.2026, dla 17 języków i wszystkich haseł:
 
@@ -72,6 +72,8 @@ Każdy z pozostałych zmierzonych języków ma poniżej 2%. Pierwsze 5 języków
 |---|---|---|
 | A | Najpierw języki: wszystkie typy kart w 5–6 językach | Pełny atlas tam, gdzie jest ruch; pozostałe języki dochodzą późno |
 | B | Najpierw typy: jedna grupa kart w 35 językach | Szeroka obecność od razu, ale płytko; 35 tłumaczeń do sprawdzenia przy każdej grupie |
-| C | Hybryda: grupa podstawowa (kapusta, ogórki; ok. 10–15 kart [DO SPRAWDZENIA]) w en, fr, es, de, it, pl, potem na zmianę kolejne grupy i języki | **Rekomendacja.** Ok. 80% zmierzonego ruchu od pierwszej fali przy małym zakresie treści |
+| **C (wybrana)** | Hybryda: grupa podstawowa (kapusta, ogórki; ok. 10–15 kart [DO SPRAWDZENIA]) w en, fr, es, de, it, pl, potem na zmianę kolejne grupy i języki | **Rekomendacja.** Ok. 80% zmierzonego ruchu od pierwszej fali przy małym zakresie treści |
+
+Fala 1: grupa podstawowa (kapusta, ogórki) w en, fr, es, de, it, pl. Następne fale na zmianę dodają grupy kart i języki. Odrzucone: A, B.
 
 [DO SPRAWDZENIA] Lista 35 języków: przejąć z repozytorium `trening`, żeby była taka sama w całym portfelu.
