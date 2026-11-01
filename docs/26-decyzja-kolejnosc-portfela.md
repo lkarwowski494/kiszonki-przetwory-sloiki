@@ -98,3 +98,32 @@ Uwagi do struktury strony:
 | Pickling | 4,6% |
 
 Kapusta i ogórki to razem ok. 24%. Skład grupy podstawowej jest więc otwarty i czeka na research źródeł oraz decyzję właściciela.
+
+**Skład fali 1: wybrana opcja C (decyzja właściciela 01.11.2026; rekomendacja była B)**
+
+Karty tematyczne:
+- kapusta kiszona;
+- ogórki według NCHFP;
+- kimchi;
+- kombucha;
+- kefir mleczny.
+
+Karty ogólne:
+- solanka;
+- kiszenie a wekowanie i jad kiełbasiany;
+- kożuch, pleśń i zepsucie;
+- naczynia;
+- przechowywanie;
+- problemy z ogórkami.
+
+Razem ok. 87% popytu według angielskich haseł. Odrzucone opcje:
+- A: kapusta i ogórki, ok. 24%;
+- B: bez kefiru, ok. 66%.
+
+Warunek merytoryczny:
+- Karta kefiru zawiera tylko treści z przeczytanym źródłem (Codex 243, CDC/FDA o surowym mleku, USU).
+- Pełna instrukcja domowa z ziaren pojawi się dopiero po znalezieniu przetestowanego źródła.
+
+Research: [`research/27-atlas-fala1-zrodla.md`](research/27-atlas-fala1-zrodla.md).
+
+**BRD do przebudowy (decyzja właściciela 01.11.2026).** BRD 0.1 powstało na słabszym modelu, a raport 27 wykazał sprzeczności ze źródłami. Do czasu przebudowy BRD nie jest źródłem wartości liczbowych ani instrukcji.
