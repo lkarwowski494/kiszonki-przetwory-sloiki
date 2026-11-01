@@ -76,4 +76,25 @@ Każdy z pozostałych zmierzonych języków ma poniżej 2%. Pierwsze 5 języków
 
 Fala 1: grupa podstawowa (kapusta, ogórki) w en, fr, es, de, it, pl. Następne fale na zmianę dodają grupy kart i języki. Odrzucone: A, B.
 
-[DO SPRAWDZENIA] Lista 35 języków: przejąć z repozytorium `trening`, żeby była taka sama w całym portfelu.
+**Lista 35 języków** (przejęta z repozytorium `trening`, katalog `locales/`, commit `2e4b0f8`, odczyt 01.11.2026; ta sama w całym portfelu):
+
+`bg cs da de el en es es-419 et fi fr hr hu id it ja ko lt lv ms nb nl pl pt pt-BR ro ru sk sl sr sv tr uk vi zh-Hant`
+
+Uwagi do struktury strony:
+- Kody `es-419`, `pt-BR`, `zh-Hant` to warianty regionalne i pisma. Każdy z nich dostaje osobny podkatalog i osobny wpis hreflang.
+- Na liście nie ma chińskiego uproszczonego (`zh-Hans`). Pomiar Wikipedii `zh` obejmuje oba pisma, więc udział `zh` (1,7%) nie przekłada się wprost na `zh-Hant`.
+- Fala 1 używa `es` (Hiszpania). `es-419` i `pt-BR` dochodzą w kolejnych falach.
+
+**Uwaga o popycie (odczyt surowych danych, angielskie hasła):**
+
+| Hasło | Udział w popycie kiszonek |
+|---|---:|
+| Kombucha | 25,9% |
+| Kefir | 20,9% |
+| Kimchi | 16,3% |
+| Pickled cucumber | 12,6% |
+| Sauerkraut | 11,5% |
+| Brine | 5,9% |
+| Pickling | 4,6% |
+
+Kapusta i ogórki to razem ok. 24%. Skład grupy podstawowej jest więc otwarty i czeka na research źródeł oraz decyzję właściciela.
