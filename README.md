@@ -265,6 +265,7 @@ kiszonki-przetwory-sloiki/
 - **Kompletna dokumentacja BRD (moduły):** [`docs/brd/`](docs/brd/)
 - **Jedno wydanie zbiorcze BRD (Monolit):** [`docs/brd/Kiszonki_BRD_Kompletne_Wydanie.md`](docs/brd/Kiszonki_BRD_Kompletne_Wydanie.md)
 - **Rejestr 60 decyzji produktowych:** [`docs/brd/Kiszonki BRD 0.1 · 00b Jedna lista decyzji i pytań (DEC-01 DEC-60).md`](docs/brd/Kiszonki%20BRD%200.1%20%C2%B7%2000b%20Jedna%20lista%20decyzji%20i%20pyta%C5%84%20(DEC-01%20DEC-60).md)
+- **Decyzja 01.11.2026 — miejsce w kolejce portfela (atlas kiszonek najpierw):** [`docs/26-decyzja-kolejnosc-portfela.md`](docs/26-decyzja-kolejnosc-portfela.md)
 - **Errata 15 sprzeczności i mitów kulinarnych:** [`docs/brd/Kiszonki BRD 0.1 · 00c Sprzeczności i errata.md`](docs/brd/Kiszonki%20BRD%200.1%20%C2%B7%2000c%20Sprzeczno%C5%9Bci%20i%20errata%20(mikrobiologia,%20bezpiecze%C5%84stwo%20USDA,%20botulinum,%20ocet%20vs%20laktofermentacja).md)
 - **Rejestr 60 ryzyk projektowych:** [`docs/brd/Kiszonki BRD 0.1 · D3 · rejestr ryzyk (RYZ-01 RYZ-60).md`](docs/brd/Kiszonki%20BRD%200.1%20%C2%B7%20D3%20%C2%B7%20rozdz.%2014,%2016%20rejestr%20ryzyk%20(RYZ-01%20RYZ-60)%20i%20otwarte%20pytania.md)
 - **9 Warstw Strategii Testów (DoD):** [`docs/brd/Kiszonki BRD 0.1 · D4 · wielowarstwowa strategia testów.md`](docs/brd/Kiszonki%20BRD%200.1%20%C2%B7%20D4%20%C2%B7%20rozdz.%2017%20wielowarstwowa%20strategia%20test%C3%B3w%20(9%20warstw%20jako%C5%9Bci%20dla%20bezpiecze%C5%84stwa%20%C5%BCywno%C5%9Bci%20i%20logiki).md)
